@@ -1,9 +1,10 @@
-# Read Me First
-The following was discovered as part of building this project:
-
-* The original package name 'com.apus.drones.apus-drones-backend' is invalid and this project uses 'com.apus.drones.apusdronesbackend' instead.
+# Leia-me Antes
 
 # Getting Started
+
+### Documentação da API
+Para acessar a página de documentação viva (Swagger) utilize o link abaixo, com o projeto rodando:
+* http://localhost:8080/swagger-ui/#/
 
 ### Reference Documentation
 For further reference, please consider the following sections:
