@@ -1,10 +1,16 @@
 # Leia-me Antes
 
-# Getting Started
+### Executando o projeto
+Para executar o projeto via terminal basta utilizar o comando abaixo:\
+`./gradlew bootrun`
+Ou utilizar os executaveis da sua IDE
 
 ### Documentação da API
 Para acessar a página de documentação viva (Swagger) utilize o link abaixo, com o projeto rodando:
 * http://localhost:8080/swagger-ui/#/
+
+# Documentação padrão
+Aqui é encontrada a documentação das tecnologias adicionadas no momento da criação do projeto.
 
 ### Reference Documentation
 For further reference, please consider the following sections:
