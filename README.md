@@ -2,8 +2,8 @@
 
 ### Executando o projeto
 Para executar o projeto via terminal basta utilizar o comando abaixo:\
-`./gradlew bootrun`
-Ou utilizar os executaveis da sua IDE
+`./gradlew bootrun`\
+Ou utilizar os executaveis da sua IDE.
 
 ### Documentação da API
 Para acessar a página de documentação viva (Swagger) utilize o link abaixo, com o projeto rodando:
