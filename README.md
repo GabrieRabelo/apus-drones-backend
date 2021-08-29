@@ -5,6 +5,13 @@ Para executar o projeto via terminal basta utilizar o comando abaixo:\
 `./gradlew bootrun`\
 Ou utilizar os executaveis da sua IDE.
 
+### SonarQube
+Para utilizar o report de qualidade de código é necessário fazer o download do servidor do SonarQube:
+* https://www.sonarqube.org/downloads/
+
+Como rodar o servidor pode ser encontrado no tutorial abaixo:
+* https://docs.sonarqube.org/latest/setup/get-started-2-minutes/
+
 ### Documentação da API
 Para acessar a página de documentação viva (Swagger) utilize o link abaixo, com o projeto rodando:
 * http://localhost:8080/swagger-ui/#/
