@@ -1,0 +1,10 @@
+application:
+  base:
+    url: localhost
+
+spring:
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:apus_drones_embedded
