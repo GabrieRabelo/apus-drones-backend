@@ -29,14 +29,12 @@ class ProductRepositoryTest {
 
         var product = ProductEntity
                 .builder()
-                .id(1L)
                 .userId(1L)
                 .name("Carregador de Hiphone")
                 .status(ProductStatus.ACTIVE)
                 .build();
 
         var anotherPartnerProduct = ProductEntity.builder()
-                .id(2324L)
                 .userId(50L)
                 .name("Carregador de Xiaomi")
                 .status(ProductStatus.ACTIVE)
@@ -49,6 +47,9 @@ class ProductRepositoryTest {
         var result = productRepository.findAllByUserIdAndStatus(1L, ProductStatus.ACTIVE);
         var expectedResult = List.of(product);
 
-        assertThat(result).usingRecursiveFieldByFieldElementComparator().hasSameElementsAs(expectedResult);
+        assertThat(result)
+                .usingRecursiveFieldByFieldElementComparator()
+                .usingElementComparatorIgnoringFields("id")
+                .hasSameElementsAs(expectedResult);
     }
 }
