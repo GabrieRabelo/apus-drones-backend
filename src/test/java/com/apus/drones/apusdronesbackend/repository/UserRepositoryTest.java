@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -23,18 +25,28 @@ class UserRepositoryTest {
     }
 
     @Test
-    void testFindAllUsers(){
-        var userEntity = UserEntity.builder()
+    void testFindAllPartnerUsers(){
+        var partner = UserEntity.builder()
                 .id(1L)
                 .name("Mister X")
                 .avatarUrl("https://static-images.ifood.com.br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f/201807231152_mrxma.png")
                 .role(Role.PARTNER)
                 .build();
 
-        userRepository.save(userEntity);
+        var customer = UserEntity.builder()
+                .id(2L)
+                .name("Bigodao")
+                .avatarUrl("https://static-images.ifood.com.br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f/201807231152_mrxma.png")
+                .role(Role.CUSTOMER)
+                .build();
 
-        var result = userRepository.findAllByRole(Role.PARTNER).get(0);
+        userRepository.save(partner);
+        userRepository.save(customer);
+        userRepository.flush();
 
-        assertThat(result).isEqualToComparingFieldByFieldRecursively(userEntity);
+        var result = userRepository.findAllByRole(Role.PARTNER);
+        var expectedResult = List.of(partner);
+
+        assertThat(result).usingRecursiveFieldByFieldElementComparator().hasSameElementsAs(expectedResult);
     }
 }
