@@ -1,6 +1,7 @@
 package com.apus.drones.apusdronesbackend.repository;
 
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
+import com.apus.drones.apusdronesbackend.model.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +28,12 @@ class UserRepositoryTest {
                 .id(1L)
                 .name("Mister X")
                 .avatarUrl("https://static-images.ifood.com.br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f/201807231152_mrxma.png")
+                .role(Role.PARTNER)
                 .build();
 
         userRepository.save(userEntity);
 
-        var result = userRepository.findAll().get(0);
+        var result = userRepository.findAllByRole(Role.PARTNER).get(0);
 
         assertThat(result).isEqualToComparingFieldByFieldRecursively(userEntity);
     }
