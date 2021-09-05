@@ -13,11 +13,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/partners")
 @Slf4j
-public class PartnerAPIImpl {
+public class PartnerAPI {
 
     private final PartnerService partnerService;
 
-    public PartnerAPIImpl(PartnerService partnerService) {
+    public PartnerAPI(PartnerService partnerService) {
         this.partnerService = partnerService;
     }
 
