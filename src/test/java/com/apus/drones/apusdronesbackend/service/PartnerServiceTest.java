@@ -3,6 +3,7 @@ package com.apus.drones.apusdronesbackend.service;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +24,8 @@ class PartnerServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @DisplayName("When repository returns multiple results " +
+            "should convert into response and return it")
     @Test
     void testFindPartners() {
 
@@ -31,14 +34,34 @@ class PartnerServiceTest {
                 .avatarUrl("www.static-img.com/dummy.jpg")
                 .name("Mister X")
                 .build();
-        var userList = List.of(user1);
+        var user2 = UserEntity.builder()
+                .id(2L)
+                .avatarUrl("www.static-img.com/dummy.jpg")
+                .name("Cachorro do Bigode")
+                .build();
+        var userList = List.of(user1, user2);
 
         when(userRepository.findAllByRole(any())).thenReturn(userList);
 
         var result = partnerService.findAllPartners();
 
-        var partner = PartnerDTO.builder().id(1L).avatarUrl("www.static-img.com/dummy.jpg").name("Mister X").build();
-        var expectedResult = List.of(partner);
+        var partner1 = PartnerDTO.builder().id(1L).avatarUrl("www.static-img.com/dummy.jpg").name("Mister X").build();
+        var partner2 = PartnerDTO.builder().id(2L).avatarUrl("www.static-img.com/dummy.jpg").name("Cachorro do Bigode").build();
+        var expectedResult = List.of(partner1, partner2);
+
+        assertThat(result).isEqualToComparingFieldByFieldRecursively(expectedResult);
+    }
+
+    @DisplayName("When repository returns no results " +
+            "should return an empty list")
+    @Test
+    void testFindPartners_emptyResult() {
+
+        when(userRepository.findAllByRole(any())).thenReturn(List.of());
+
+        var result = partnerService.findAllPartners();
+
+        var expectedResult = List.of();
 
         assertThat(result).isEqualToComparingFieldByFieldRecursively(expectedResult);
     }
