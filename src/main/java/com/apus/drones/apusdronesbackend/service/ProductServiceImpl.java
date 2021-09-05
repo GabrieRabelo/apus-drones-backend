@@ -19,10 +19,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<Void> create(CreateProductRequest request) {
-        ProductEntity entity = new ProductEntity(request.getName(), request.getPrice(), request.getStatus(), request.getWeight());
+        ProductEntity entity = ProductEntity.builder()
+                .name(request.getName())
+                .price(request.getPrice())
+                .status(request.getStatus())
+                .weight(request.getWeight())
+                .build();
 
-        Long generatedId =
-                productRepository.save(entity).getId();
+        Long generatedId = productRepository.save(entity).getId();
 
         log.info("Saved new product entity with id [{}]", generatedId);
 
