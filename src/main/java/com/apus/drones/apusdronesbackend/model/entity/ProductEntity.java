@@ -1,6 +1,7 @@
 package com.apus.drones.apusdronesbackend.model.entity;
 
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
