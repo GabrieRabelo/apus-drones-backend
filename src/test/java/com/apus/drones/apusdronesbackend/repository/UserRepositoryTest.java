@@ -19,11 +19,6 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    @BeforeEach
-    void setUp() {
-
-    }
-
     @Test
     void testFindAllPartnerUsers(){
         var partner = UserEntity.builder()
