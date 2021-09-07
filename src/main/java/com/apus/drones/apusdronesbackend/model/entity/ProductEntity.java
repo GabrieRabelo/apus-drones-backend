@@ -28,8 +28,8 @@ public class ProductEntity {
     @Column
     private Long id;
 
-    @Column
-    private Long userId;
+    @ManyToOne
+    private UserEntity user;
 
     @Column
     private String name;
@@ -44,8 +44,6 @@ public class ProductEntity {
     @Column
     private double weight;
 
-    //@CreatedDate
-    //@Temporal(value = TemporalType.TIMESTAMP)
     @Column
     private LocalDateTime createDate;
 
