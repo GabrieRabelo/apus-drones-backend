@@ -33,6 +33,6 @@ public class AddressEntity {
     @Column
     private String complement;
 
-    @OneToOne(mappedBy = "address")
+    @OneToOne
     private UserEntity user;
 }

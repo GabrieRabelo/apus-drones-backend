@@ -42,8 +42,4 @@ public class UserEntity {
 
     @Column
     private String avatarUrl;
-
-    @OneToOne
-    @JoinColumn(name = "address_id", referencedColumnName = "id")
-    private AddressEntity address;
 }

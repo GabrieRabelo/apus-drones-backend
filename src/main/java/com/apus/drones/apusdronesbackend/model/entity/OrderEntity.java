@@ -6,7 +6,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Entity(name = "orders")
 @Getter
@@ -40,4 +39,8 @@ public class OrderEntity {
     @OneToOne
     @JoinColumn()
     private AddressEntity deliveryAddress;
+
+    @ManyToOne
+    @JoinColumn()
+    private AddressEntity shopAddress;
 }
