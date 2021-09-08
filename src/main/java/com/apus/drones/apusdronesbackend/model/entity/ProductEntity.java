@@ -1,6 +1,7 @@
 package com.apus.drones.apusdronesbackend.model.entity;
 
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
+import lombok.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,10 +13,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity(name = "product")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductEntity {
-
-    public ProductEntity() {
-    }
 
     public ProductEntity(String name, BigDecimal price, ProductStatus status, double weight) {
         this.name = name;

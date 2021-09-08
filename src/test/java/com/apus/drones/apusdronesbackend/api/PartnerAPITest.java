@@ -1,6 +1,5 @@
-package com.apus.drones.apusdronesbackend.PartnerAPITest;
+package com.apus.drones.apusdronesbackend.api;
 
-import com.apus.drones.apusdronesbackend.api.PartnerAPI;
 import com.apus.drones.apusdronesbackend.service.PartnerServiceImpl;
 import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
