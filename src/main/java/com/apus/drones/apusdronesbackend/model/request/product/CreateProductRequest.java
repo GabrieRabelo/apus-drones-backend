@@ -1,4 +1,4 @@
-package com.apus.drones.apusdronesbackend.model.request;
+package com.apus.drones.apusdronesbackend.model.request.product;
 
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import lombok.Getter;
