@@ -3,6 +3,7 @@ package com.apus.drones.apusdronesbackend.config;
 import com.apus.drones.apusdronesbackend.model.entity.OrderEntity;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
+import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
 import com.apus.drones.apusdronesbackend.repository.OrderRepository;
@@ -75,7 +76,7 @@ public class Bootstrap {
         var order = OrderEntity.builder()
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
-                .status("Pendente")
+                .status(OrderStatus.ACCEPTED)
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
                 .build();

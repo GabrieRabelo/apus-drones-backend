@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.model.entity;
 
+import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -27,7 +28,7 @@ public class OrderEntity {
     private UserEntity partner;
 
     @Column
-    private String status;
+    private OrderStatus status;
 
     @Column
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
