@@ -1,6 +1,7 @@
 package com.apus.drones.apusdronesbackend.repository;
 
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
+import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,9 @@ class ProductRepositoryTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @BeforeEach
     void setUp() {
         productRepository.deleteAll();
@@ -27,24 +31,33 @@ class ProductRepositoryTest {
     @Test
     void testFindAllProductsByUserId() {
 
+        var user = UserEntity.builder().name("rabelo").build();
+
+        var anotherUser = UserEntity.builder().name("baza").build();
+
+        userRepository.save(user);
+        userRepository.save(anotherUser);
+        userRepository.flush();
+
         var product = ProductEntity
                 .builder()
-                .userId(1L)
+                .user(user)
                 .name("Carregador de Hiphone")
                 .status(ProductStatus.ACTIVE)
+                .productImages(List.of())
                 .build();
 
         var anotherPartnerProduct = ProductEntity.builder()
-                .userId(50L)
+                .user(anotherUser)
                 .name("Carregador de Xiaomi")
-                .status(ProductStatus.ACTIVE)
+                .status(ProductStatus.INACTIVE)
                 .build();
 
         productRepository.save(product);
         productRepository.save(anotherPartnerProduct);
         productRepository.flush();
 
-        var result = productRepository.findAllByUserIdAndStatus(1L, ProductStatus.ACTIVE);
+        var result = productRepository.findAllByUserIdAndStatus(2L, ProductStatus.ACTIVE);
         var expectedResult = List.of(product);
 
         assertThat(result)
