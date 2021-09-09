@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 
 @Configuration
 public class Bootstrap {
@@ -36,6 +37,7 @@ public class Bootstrap {
     }
 
     private void initUsers() {
+        populateUsers();
         var user = UserEntity.builder()
                 .name("Rabelo")
                 .role(Role.CUSTOMER)
@@ -46,9 +48,16 @@ public class Bootstrap {
                 .build();
 
         userRepository.save(user);
-    }
+
+
+
+        }
+
+
 
     private void initProducts() {
+        populateProducts();
+
         var user = userRepository.findById(1L).orElse(null);
         var productImage = ProductImage.builder().isMain(true).url("www.image.com.br").build();
 
@@ -80,5 +89,39 @@ public class Bootstrap {
 
         productImage1.setProduct(product1);
         productRepository.save(product1);
+    }
+
+    private void populateProducts() {
+        for (int i=20;i<240;i++){
+      String s = ""+i%20;
+        var user = userRepository.findById(Long.parseLong(s)).orElse(null);
+        var productImage = ProductImage.builder().isMain(true).url("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + i + ".png").build();
+
+        var product = ProductEntity.builder()
+                .user(user)
+                .weight(2D)
+                .status(ProductStatus.ACTIVE)
+                .name("Produto "+i)
+                .price(BigDecimal.valueOf(new Random().nextInt(1000)))
+                .createDate(LocalDateTime.now())
+                .productImages(List.of(productImage))
+                .build();
+
+        productImage.setProduct(product);
+        productRepository.save(product);
+        }
+    }
+    private void populateUsers() {
+        for (int i=1;i<20;i++) {
+            var user2 = UserEntity.builder()
+                    .name("Parceiro " + i)
+                    .role(Role.PARTNER)
+                    .avatarUrl("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + i + ".png")
+                    .cpfCnpj("12312312312")
+                    .password("blublu")
+                    .email("rabelo@rab.elo")
+                    .build();
+            userRepository.save(user2);
+        }
     }
 }
