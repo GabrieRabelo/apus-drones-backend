@@ -35,7 +35,7 @@ class ProductRepositoryTest {
 
         var anotherUser = UserEntity.builder().name("baza").build();
 
-        userRepository.save(user);
+        var savedUser = userRepository.save(user);
         userRepository.save(anotherUser);
         userRepository.flush();
 
@@ -53,16 +53,15 @@ class ProductRepositoryTest {
                 .status(ProductStatus.INACTIVE)
                 .build();
 
-        productRepository.save(product);
+        var savedProduct = productRepository.save(product);
         productRepository.save(anotherPartnerProduct);
         productRepository.flush();
 
-        var result = productRepository.findAllByUserIdAndStatus(2L, ProductStatus.ACTIVE);
-        var expectedResult = List.of(product);
+        var result = productRepository.findAllByUserIdAndStatus(savedUser.getId(), ProductStatus.ACTIVE).get(0);
 
         assertThat(result)
-                .usingRecursiveFieldByFieldElementComparator()
-                .usingElementComparatorIgnoringFields("id")
-                .hasSameElementsAs(expectedResult);
+                .usingRecursiveComparison()
+                .ignoringFields("user.productEntity")
+                .isEqualTo(savedProduct);
     }
 }

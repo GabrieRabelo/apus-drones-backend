@@ -52,7 +52,7 @@ public class Bootstrap {
         var user = userRepository.findById(1L).orElse(null);
         var productImage = ProductImage.builder().isMain(true).url("www.image.com.br").build();
 
-        var products = ProductEntity.builder()
+        var product = ProductEntity.builder()
                 .user(user)
                 .weight(2D)
                 .status(ProductStatus.ACTIVE)
@@ -62,8 +62,23 @@ public class Bootstrap {
                 .productImages(List.of(productImage))
                 .build();
 
-        productImage.setProduct(products);
+        productImage.setProduct(product);
+        productRepository.save(product);
 
-        productRepository.save(products);
+
+        var productImage1 = ProductImage.builder().isMain(true).url("www.image2.com.br").build();
+
+        var product1 = ProductEntity.builder()
+                .user(user)
+                .weight(3D)
+                .status(ProductStatus.ACTIVE)
+                .name("Teste123")
+                .price(BigDecimal.TEN)
+                .createDate(LocalDateTime.now())
+                .productImages(List.of(productImage1))
+                .build();
+
+        productImage1.setProduct(product1);
+        productRepository.save(product1);
     }
 }

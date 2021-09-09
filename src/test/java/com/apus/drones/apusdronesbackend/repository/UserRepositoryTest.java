@@ -24,6 +24,7 @@ class UserRepositoryTest {
                 .name("Mister X")
                 .avatarUrl("https://static-images.ifood.com.br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f/201807231152_mrxma.png")
                 .role(Role.PARTNER)
+                .productEntity(List.of())
                 .build();
 
         var customer = UserEntity.builder()
@@ -32,16 +33,14 @@ class UserRepositoryTest {
                 .role(Role.CUSTOMER)
                 .build();
 
-        userRepository.save(partner);
+        var savedUser = userRepository.save(partner);
         userRepository.save(customer);
         userRepository.flush();
 
-        var result = userRepository.findAllByRole(Role.PARTNER);
-        var expectedResult = List.of(partner);
+        var result = userRepository.findAllByRole(Role.PARTNER).get(0);
 
         assertThat(result)
-                .usingElementComparatorIgnoringFields("id")
-                .usingRecursiveFieldByFieldElementComparator()
-                .hasSameElementsAs(expectedResult);
+                .usingRecursiveComparison()
+                .isEqualTo(savedUser);
     }
 }

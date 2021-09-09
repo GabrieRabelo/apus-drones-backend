@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "users")
@@ -48,6 +49,6 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
     @ToString.Exclude
-    private List<ProductEntity> productEntity;
+    private List<ProductEntity> productEntity= new ArrayList<>();
 
 }
