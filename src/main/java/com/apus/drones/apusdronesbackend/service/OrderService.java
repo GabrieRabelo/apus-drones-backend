@@ -2,12 +2,13 @@ package com.apus.drones.apusdronesbackend.service;
 
 import com.apus.drones.apusdronesbackend.model.entity.OrderEntity;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
+import com.apus.drones.apusdronesbackend.model.response.OrderResponse;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface OrderSerivce {
-    List<OrderEntity> findAllByCustomerId(Long userId);
+public interface OrderService {
+    List<OrderResponse> findAllByCustomerId(Long userId);
 
-    Optional<OrderEntity> findById(Long orderId);
+    OrderResponse findById(Long orderId);
 }

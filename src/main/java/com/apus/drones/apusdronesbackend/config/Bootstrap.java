@@ -79,6 +79,7 @@ public class Bootstrap {
                 .status(OrderStatus.ACCEPTED)
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("50"))
                 .build();
 
         orderRepository.save(order);
