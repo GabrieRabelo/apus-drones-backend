@@ -38,7 +38,7 @@ public class Bootstrap {
     private void initUsers() {
         var user = UserEntity.builder()
                 .name("Rabelo")
-                .role(Role.CUSTOMER)
+                .role(Role.PARTNER)
                 .avatarUrl("none")
                 .cpfCnpj("12312312312")
                 .password("blublu")

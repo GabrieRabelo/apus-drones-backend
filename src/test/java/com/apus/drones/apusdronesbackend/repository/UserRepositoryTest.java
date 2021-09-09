@@ -2,6 +2,7 @@ package com.apus.drones.apusdronesbackend.repository;
 
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,11 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    @BeforeEach
+    void setUp() {
+        userRepository.deleteAll();
+    }
+
     @Test
     void testFindAllPartnerUsers() {
         var partner = UserEntity.builder()
@@ -31,6 +37,7 @@ class UserRepositoryTest {
                 .name("Bigodao")
                 .avatarUrl("https://static-images.ifood.com.br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f/201807231152_mrxma.png")
                 .role(Role.CUSTOMER)
+                .productEntity(List.of())
                 .build();
 
         var savedUser = userRepository.save(partner);
