@@ -1,6 +1,7 @@
 package com.apus.drones.apusdronesbackend.model.entity;
 
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
+import lombok.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +23,14 @@ import java.util.List;
 @ToString
 @Entity(name = "product")
 public class ProductEntity {
+
+    public ProductEntity(String name, BigDecimal price, ProductStatus status, double weight) {
+        this.name = name;
+        this.price = price;
+        this.status = status;
+        this.weight = weight;
+        this.createDate = LocalDateTime.now();
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

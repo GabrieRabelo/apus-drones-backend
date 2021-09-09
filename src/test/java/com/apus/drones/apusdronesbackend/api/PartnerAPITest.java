@@ -1,6 +1,5 @@
-package com.apus.drones.apusdronesbackend;
+package com.apus.drones.apusdronesbackend.api;
 
-import com.apus.drones.apusdronesbackend.api.PartnerAPI;
 import com.apus.drones.apusdronesbackend.service.PartnerServiceImpl;
 import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PartnerAPI.class)
-class PartnerControllerTest {
+class PartnerAPITest {
 
     @Autowired
     private MockMvc client;
