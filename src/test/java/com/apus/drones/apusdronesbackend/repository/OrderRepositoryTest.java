@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -31,6 +32,7 @@ class OrderRepositoryTest {
                 .cpfCnpj("12312312333")
                 .name("Jorge")
                 .role(Role.CUSTOMER)
+                .productEntity(List.of())
                 .build();
 
         var savedCustomer = userRepository.saveAndFlush(customer);
@@ -39,6 +41,7 @@ class OrderRepositoryTest {
                 .name("Mister X")
                 .avatarUrl("https://static-images.ifood.com.br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f/201807231152_mrxma.png")
                 .role(Role.PARTNER)
+                .productEntity(List.of())
                 .build();
 
         var savedPartner = userRepository.saveAndFlush(partner);
@@ -53,7 +56,7 @@ class OrderRepositoryTest {
         orderRepository.saveAndFlush(order);
 
         var result = orderRepository.findAllByCustomer_Id(savedCustomer.getId()).get(0);
-        assertThat(result).isEqualToComparingFieldByFieldRecursively(order);
+        assertThat(result).usingRecursiveComparison().isEqualTo(order);
     }
 
     @Test
@@ -64,6 +67,7 @@ class OrderRepositoryTest {
                 .cpfCnpj("02312312333")
                 .name("Jorge 2")
                 .role(Role.CUSTOMER)
+                .productEntity(List.of())
                 .build();
 
         var savedCustomer = userRepository.saveAndFlush(customer);
@@ -72,6 +76,7 @@ class OrderRepositoryTest {
                 .name("Mister X 2")
                 .avatarUrl("https://static-images.ifood.com.br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f/201807231152_mrxma.png")
                 .role(Role.PARTNER)
+                .productEntity(List.of())
                 .build();
 
         var savedPartner = userRepository.saveAndFlush(partner);
@@ -85,8 +90,8 @@ class OrderRepositoryTest {
 
         orderRepository.saveAndFlush(order);
 
-        var result = orderRepository.findById(order.getId());
-        assertThat(result).isEqualTo(order);
+        var result = orderRepository.findById(order.getId()).get();
+        assertThat(result).usingRecursiveComparison().isEqualTo(order);
     }
 
 }

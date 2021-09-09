@@ -1,6 +1,7 @@
 package com.apus.drones.apusdronesbackend.api;
 
 import com.apus.drones.apusdronesbackend.service.PartnerServiceImpl;
+import com.apus.drones.apusdronesbackend.service.ProductService;
 import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,8 @@ class PartnerAPITest {
 
     @Autowired
     private MockMvc client;
+    @MockBean
+    private ProductService productService;
     @MockBean
     private PartnerServiceImpl partnerService;
     @Autowired
