@@ -31,6 +31,7 @@ public class ProductImage {
     private boolean isMain;
 
     @JsonIgnore
+    @ToString.Exclude
     @ManyToOne
     private ProductEntity product;
 

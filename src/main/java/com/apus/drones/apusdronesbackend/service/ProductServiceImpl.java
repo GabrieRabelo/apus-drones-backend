@@ -1,7 +1,7 @@
 package com.apus.drones.apusdronesbackend.service;
 
+import com.apus.drones.apusdronesbackend.service.converter.ProductConverter;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
-import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.model.request.product.CreateProductRequest;
 import com.apus.drones.apusdronesbackend.model.request.product.UpdateProductRequest;
@@ -13,16 +13,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Slf4j
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
+    private final ProductConverter productConverter;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository,
+                              ProductConverter productConverter1) {
         this.productRepository = productRepository;
+        this.productConverter = productConverter1;
     }
 
     @Override
@@ -51,31 +53,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDTO> findAllActiveProductsByUserId(Long userId) {
         var resultFromDB = productRepository.findAllByUserIdAndStatus(userId, ProductStatus.ACTIVE);
-        var response = new ArrayList<ProductDTO>();
-
-        for (ProductEntity product : resultFromDB) {
-
-            var url = "https://nayemdevs.com/wp-content/uploads/2020/03/default-product-image.png";
-            var optionalImage = product.getProductImages()
-                    .stream()
-                    .filter(ProductImage::isMain)
-                    .findFirst();
-
-            if (optionalImage.isPresent()) {
-                url = optionalImage.get().getUrl();
-            }
-
-            var dto = ProductDTO.builder()
-                    .name(product.getName())
-                    .price(product.getPrice())
-                    .partnerName(product.getUser().getName())
-                    .imageUrl(url)
-                    .build();
-            response.add(dto);
-
-        }
-        return response;
+        return productConverter.toDTO(resultFromDB);
     }
+
     @Override
     public ResponseEntity<Void> update(UpdateProductRequest request) {
         ProductEntity entity =
