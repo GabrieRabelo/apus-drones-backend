@@ -48,15 +48,12 @@ public class Bootstrap {
                 .build();
 
         userRepository.save(user);
-
-
-
         }
-
-
 
     private void initProducts() {
         populateProducts();
+        if(true)
+        return;
 
         var user = userRepository.findById(1L).orElse(null);
         var productImage = ProductImage.builder().isMain(true).url("www.image.com.br").build();
@@ -92,27 +89,31 @@ public class Bootstrap {
     }
 
     private void populateProducts() {
-        for (int i=20;i<240;i++){
-      String s = ""+i%20;
-        var user = userRepository.findById(Long.parseLong(s)).orElse(null);
-        var productImage = ProductImage.builder().isMain(true).url("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + i + ".png").build();
+        int cont=0;
+        for (int i=1;i<21;i++){
+            for (int j=1;j<21;j++) {
+                cont++;
+                String s = "" + i;
+                var user = userRepository.findById(Long.parseLong(s)).orElse(null);
+                var productImage = ProductImage.builder().isMain(true).url("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + (i*20+j) + ".png").build();
 
-        var product = ProductEntity.builder()
-                .user(user)
-                .weight(2D)
-                .status(ProductStatus.ACTIVE)
-                .name("Produto "+i)
-                .price(BigDecimal.valueOf(new Random().nextInt(1000)))
-                .createDate(LocalDateTime.now())
-                .productImages(List.of(productImage))
-                .build();
+                var product = ProductEntity.builder()
+                        .user(user)
+                        .weight(2D)
+                        .status(ProductStatus.ACTIVE)
+                        .name("Produto " + cont)
+                        .price(BigDecimal.valueOf(new Random().nextInt(1000)))
+                        .createDate(LocalDateTime.now())
+                        .productImages(List.of(productImage))
+                        .build();
 
-        productImage.setProduct(product);
-        productRepository.save(product);
-        }
+                productImage.setProduct(product);
+                productRepository.save(product);
+            };
+        };
     }
     private void populateUsers() {
-        for (int i=1;i<20;i++) {
+        for (int i=1;i<21;i++) {
             var user2 = UserEntity.builder()
                     .name("Parceiro " + i)
                     .role(Role.PARTNER)
