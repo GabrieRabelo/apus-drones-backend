@@ -46,7 +46,6 @@ public class Bootstrap {
     }
 
     private void initUsers() {
-        populateUsers();
         var userPartner = UserEntity.builder()
                 .name("Rabelo")
                 .role(Role.PARTNER)
@@ -67,6 +66,8 @@ public class Bootstrap {
 
         userRepository.save(userCustomer);
         userRepository.save(userPartner);
+
+        populateUsers();
     }
 
     private void initProducts() {

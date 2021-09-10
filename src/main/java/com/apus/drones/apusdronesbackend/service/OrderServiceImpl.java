@@ -27,7 +27,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> findAllByCustomerId(Long userId) {
-        return orderRepository.findAllByCustomer_Id(userId).stream().map(OrderResponseMapper::fromOrderEntity).collect(Collectors.toList());
+        List<OrderEntity> orders = orderRepository.findAllByCustomer_Id(userId);
+        for(OrderEntity o : orders) {
+            List<OrderItemEntity> items = orderItemRepository.findAllByOrder_Id(o.getId());
+            o.setOrderItems(items);
+        }
+        return orders.stream().map(OrderResponseMapper::fromOrderEntity).collect(Collectors.toList());
     }
 
     @Override
