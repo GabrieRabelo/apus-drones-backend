@@ -15,6 +15,8 @@ public class OrderItemDto {
 
     private BigDecimal price;
 
-    private ProductDto productDto;
+    private ProductDTO productDto;
+
+    private Double weigth;
 
 }
