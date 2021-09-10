@@ -1,6 +1,7 @@
 package com.apus.drones.apusdronesbackend.model.response;
 
 import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
+import com.apus.drones.apusdronesbackend.service.dto.CustomerDTO;
 import com.apus.drones.apusdronesbackend.service.dto.OrderItemDto;
 import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
 import lombok.*;
@@ -17,9 +18,11 @@ public class OrderResponse {
 
     private OrderStatus status;
 
-    private List<OrderItemDto> orderItemList;
+    private List<OrderItemDto> items;
 
     private PartnerDTO partner;
+
+    private CustomerDTO customer;
 
     private BigDecimal deliveryPrice;
 

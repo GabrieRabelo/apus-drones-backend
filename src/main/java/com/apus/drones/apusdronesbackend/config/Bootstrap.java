@@ -46,7 +46,6 @@ public class Bootstrap {
     }
 
     private void initUsers() {
-        populateUsers();
         var userPartner = UserEntity.builder()
                 .name("Rabelo")
                 .role(Role.PARTNER)
@@ -67,44 +66,44 @@ public class Bootstrap {
 
         userRepository.save(userCustomer);
         userRepository.save(userPartner);
+
+        populateUsers();
     }
 
     private void initProducts() {
         populateProducts();
-        if (true)
-            return;
 
-        var user = userRepository.findById(1L).orElse(null);
-        var productImage = ProductImage.builder().isMain(true).url("www.image.com.br").build();
+//        var user = userRepository.findById(1L).orElse(null);
+//        var productImage = ProductImage.builder().isMain(true).url("www.image.com.br").build();
+//
+//        var product = ProductEntity.builder()
+//                .user(user)
+//                .weight(2D)
+//                .status(ProductStatus.ACTIVE)
+//                .name("Rabelo")
+//                .price(BigDecimal.ONE)
+//                .createDate(LocalDateTime.now())
+//                .productImages(List.of(productImage))
+//                .build();
+//
+//        productImage.setProduct(product);
+//        productRepository.save(product);
 
-        var product = ProductEntity.builder()
-                .user(user)
-                .weight(2D)
-                .status(ProductStatus.ACTIVE)
-                .name("Rabelo")
-                .price(BigDecimal.ONE)
-                .createDate(LocalDateTime.now())
-                .productImages(List.of(productImage))
-                .build();
-
-        productImage.setProduct(product);
-        productRepository.save(product);
-
-
-        var productImage1 = ProductImage.builder().isMain(true).url("www.image2.com.br").build();
-
-        var product1 = ProductEntity.builder()
-                .user(user)
-                .weight(3D)
-                .status(ProductStatus.ACTIVE)
-                .name("Teste123")
-                .price(BigDecimal.TEN)
-                .createDate(LocalDateTime.now())
-                .productImages(List.of(productImage1))
-                .build();
-
-        productImage1.setProduct(product1);
-        productRepository.save(product1);
+//
+//        var productImage1 = ProductImage.builder().isMain(true).url("www.image2.com.br").build();
+//
+//        var product1 = ProductEntity.builder()
+//                .user(user)
+//                .weight(3D)
+//                .status(ProductStatus.ACTIVE)
+//                .name("Teste123")
+//                .price(BigDecimal.TEN)
+//                .createDate(LocalDateTime.now())
+//                .productImages(List.of(productImage1))
+//                .build();
+//
+//        productImage1.setProduct(product1);
+//        productRepository.save(product1);
     }
 
     private void initOrders() {
@@ -130,8 +129,8 @@ public class Bootstrap {
 
     private void populateProducts() {
         int cont = 0;
-        for (int i = 1; i < 21; i++) {
-            for (int j = 1; j < 21; j++) {
+        for (int i = 1; i < 11; i++) {
+            for (int j = 1; j < 11; j++) {
                 cont++;
                 String s = "" + i;
                 var user = userRepository.findById(Long.parseLong(s)).orElse(null);
@@ -150,13 +149,11 @@ public class Bootstrap {
                 productImage.setProduct(product);
                 productRepository.save(product);
             }
-            ;
         }
-        ;
     }
 
     private void populateUsers() {
-        for (int i = 1; i < 21; i++) {
+        for (int i = 1; i < 11; i++) {
             var user2 = UserEntity.builder()
                     .name("Parceiro " + i)
                     .role(Role.PARTNER)
