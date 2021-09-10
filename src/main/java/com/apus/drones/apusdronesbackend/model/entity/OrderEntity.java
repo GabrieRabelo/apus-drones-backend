@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity(name = "orders")
 @Getter
@@ -44,4 +45,11 @@ public class OrderEntity {
     @ManyToOne
     @JoinColumn()
     private AddressEntity shopAddress;
+
+    @Column
+    private BigDecimal orderPrice;
+
+    @Transient
+    private List<OrderItemEntity> orderItems;
+
 }
