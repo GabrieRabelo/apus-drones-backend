@@ -1,11 +1,13 @@
 package com.apus.drones.apusdronesbackend.config;
 
 import com.apus.drones.apusdronesbackend.model.entity.OrderEntity;
+import com.apus.drones.apusdronesbackend.model.entity.OrderItemEntity;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
+import com.apus.drones.apusdronesbackend.repository.OrderItemRepository;
 import com.apus.drones.apusdronesbackend.repository.OrderRepository;
 import com.apus.drones.apusdronesbackend.repository.ProductRepository;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
@@ -21,12 +23,14 @@ public class Bootstrap {
     public final UserRepository userRepository;
     public final ProductRepository productRepository;
     public final OrderRepository orderRepository;
+    public final OrderItemRepository orderItemRepository;
 
-    public Bootstrap(UserRepository userRepository, ProductRepository productRepository, OrderRepository orderRepository) {
+    public Bootstrap(UserRepository userRepository, ProductRepository productRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
 
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     @Bean
@@ -82,6 +86,14 @@ public class Bootstrap {
                 .orderPrice(new BigDecimal("50"))
                 .build();
 
+        var orderItems = OrderItemEntity.builder()
+                .quantity(2)
+                .price(new BigDecimal(50))
+                .order(order)
+                .product(productRepository.findAll().get(0))
+                .build();
+
         orderRepository.save(order);
+        orderItemRepository.save(orderItems);
     }
 }
