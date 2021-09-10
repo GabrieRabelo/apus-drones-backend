@@ -1,6 +1,7 @@
 package com.apus.drones.apusdronesbackend.model.entity;
 
 import com.apus.drones.apusdronesbackend.model.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,6 +10,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "users")
 @Getter
@@ -42,4 +45,10 @@ public class UserEntity {
 
     @Column
     private String avatarUrl;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<ProductEntity> productEntity= new ArrayList<>();
+
 }
