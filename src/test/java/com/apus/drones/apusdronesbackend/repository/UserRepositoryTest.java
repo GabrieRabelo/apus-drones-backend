@@ -19,29 +19,35 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    @BeforeEach
+    void setUp() {
+        userRepository.deleteAll();
+    }
+
     @Test
-    void testFindAllPartnerUsers(){
+    void testFindAllPartnerUsers() {
         var partner = UserEntity.builder()
-                .id(1L)
                 .name("Mister X")
                 .avatarUrl("https://static-images.ifood.com.br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f/201807231152_mrxma.png")
                 .role(Role.PARTNER)
+                .productEntity(List.of())
                 .build();
 
         var customer = UserEntity.builder()
-                .id(2L)
                 .name("Bigodao")
                 .avatarUrl("https://static-images.ifood.com.br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f/201807231152_mrxma.png")
                 .role(Role.CUSTOMER)
+                .productEntity(List.of())
                 .build();
 
-        userRepository.save(partner);
+        var savedUser = userRepository.save(partner);
         userRepository.save(customer);
         userRepository.flush();
 
-        var result = userRepository.findAllByRole(Role.PARTNER);
-        var expectedResult = List.of(partner);
+        var result = userRepository.findAllByRole(Role.PARTNER).get(0);
 
-        assertThat(result).usingRecursiveFieldByFieldElementComparator().hasSameElementsAs(expectedResult);
+        assertThat(result)
+                .usingRecursiveComparison()
+                .isEqualTo(savedUser);
     }
 }

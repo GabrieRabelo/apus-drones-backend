@@ -2,17 +2,26 @@ package com.apus.drones.apusdronesbackend.model.entity;
 
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
-@Entity(name = "product")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
+@Entity(name = "product")
 public class ProductEntity {
 
     public ProductEntity(String name, BigDecimal price, ProductStatus status, double weight) {
@@ -28,6 +37,9 @@ public class ProductEntity {
     @Column
     private Long id;
 
+    @ManyToOne
+    private UserEntity user;
+
     @Column
     private String name;
 
@@ -41,8 +53,10 @@ public class ProductEntity {
     @Column
     private double weight;
 
-    //@CreatedDate
-    //@Temporal(value = TemporalType.TIMESTAMP)
     @Column
     private LocalDateTime createDate;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.EAGER, targetEntity = ProductImage.class)
+    private List<ProductImage> productImages = new ArrayList<>();
+
 }
