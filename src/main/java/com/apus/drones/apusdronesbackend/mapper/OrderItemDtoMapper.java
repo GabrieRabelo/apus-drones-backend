@@ -9,7 +9,7 @@ public class OrderItemDtoMapper {
         return OrderItemDto.builder()
                 .id(orderItemEntity.getId())
                 .price(orderItemEntity.getPrice())
-                .productDto(ProductDtoMapper.fromProductEntity(orderItemEntity.getProduct()))
+                .product(ProductDtoMapper.fromProductEntity(orderItemEntity.getProduct()))
                 .quantity(orderItemEntity.getQuantity())
                 .build();
     }
