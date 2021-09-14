@@ -27,13 +27,15 @@ public class ProductConverter {
             }
 
             var dto = ProductDTO.builder()
+                    .id(product.getId())
                     .name(product.getName())
                     .price(product.getPrice())
                     .partnerName(product.getUser().getName())
                     .imageUrl(url)
+                    .weight(product.getWeight())
+                    .status(product.getStatus())
                     .build();
             response.add(dto);
-
         }
         return response;
     }
