@@ -50,3 +50,7 @@ sonarqube {
 		property "sonar.qualitygate.wait", true
 	}
 }
+
+bootRun {
+	main = 'com.apus.drones.apusdronesbackend.ApusDronesBackendApplication'
+}
