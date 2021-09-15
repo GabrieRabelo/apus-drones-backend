@@ -11,4 +11,6 @@ public interface OrderService {
     List<OrderResponse> findAllByCustomerId(Long userId);
 
     OrderResponse findById(Long orderId);
+
+    OrderResponse update(OrderResponse orderResponse);
 }
