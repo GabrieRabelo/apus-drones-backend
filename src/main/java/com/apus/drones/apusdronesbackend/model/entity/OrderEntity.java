@@ -28,6 +28,7 @@ public class OrderEntity {
     @ManyToOne
     private UserEntity partner;
 
+    @Enumerated(EnumType.STRING)
     @Column
     private OrderStatus status;
 

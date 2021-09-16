@@ -63,7 +63,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO getById(Long orderId) {
-        OrderEntity order = orderRepository.findById(orderId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido não encontrado"));
+        OrderEntity order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido não encontrado"));
         List<OrderItemEntity> items = orderItemRepository.findAllByOrder_Id(orderId);
         order.setOrderItems(items);
 
@@ -153,5 +154,17 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return sum;
+    }
+
+    public List<OrderDTO> findAllByPartnerIdAndFilterByStatus(Long userId, OrderStatus status) {
+        List<OrderEntity> orders = status != null
+        ? orderRepository.findAllByPartner_IdAndStatus(userId, status)
+        : orderRepository.findAllByPartner_Id(userId);
+
+        for (OrderEntity o : orders) {
+            List<OrderItemEntity> items = orderItemRepository.findAllByOrder_Id(o.getId());
+            o.setOrderItems(items);
+        }
+        return orders.stream().map(OrderDTOMapper::fromOrderEntity).collect(Collectors.toList());
     }
 }
