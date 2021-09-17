@@ -116,6 +116,15 @@ public class Bootstrap {
                 .orderPrice(new BigDecimal("50"))
                 .build();
 
+        var order2 = OrderEntity.builder()
+                .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
+                .status(OrderStatus.IN_CART)
+                .createdAt(LocalDateTime.now())
+                .deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("50"))
+                .build();
+
         var orderItems = OrderItemEntity.builder()
                 .quantity(2)
                 .price(new BigDecimal(50))
@@ -124,6 +133,7 @@ public class Bootstrap {
                 .build();
 
         orderRepository.save(order);
+        orderRepository.save(order2);
         orderItemRepository.save(orderItems);
     }
 
