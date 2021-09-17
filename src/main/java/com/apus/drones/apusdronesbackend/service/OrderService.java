@@ -1,14 +1,12 @@
 package com.apus.drones.apusdronesbackend.service;
 
-import com.apus.drones.apusdronesbackend.model.entity.OrderEntity;
-import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
-import com.apus.drones.apusdronesbackend.model.response.OrderResponse;
+import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
+import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface OrderService {
-    List<OrderResponse> findAllByCustomerId(Long userId);
+    List<OrderDTO> getByCustomerId(Long userId, OrderStatus status);
 
-    OrderResponse findById(Long orderId);
+    OrderDTO getById(Long orderId);
 }
