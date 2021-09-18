@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
+import com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.model.request.product.CreateProductRequest;
@@ -14,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+import static com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper.fromProductEntity;
 import static com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper.fromProductEntityList;
 
 @Service
@@ -42,9 +44,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<ProductEntity> get(Long id) {
+    public ProductDTO get(Long id) {
         return productRepository.findById(id)
-                .map(ResponseEntity::ok)
+                .map(ProductDtoMapper::fromProductEntity)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Não foi possível encontrar o produto com ID " + id));
     }
 

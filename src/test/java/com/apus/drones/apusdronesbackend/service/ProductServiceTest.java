@@ -1,10 +1,14 @@
 package com.apus.drones.apusdronesbackend.service;
 
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
+import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
+import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.model.request.product.CreateProductRequest;
 import com.apus.drones.apusdronesbackend.model.request.product.UpdateProductRequest;
 import com.apus.drones.apusdronesbackend.repository.ProductRepository;
+import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
+import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,10 +16,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper.fromUserEntity;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,7 +53,17 @@ public class ProductServiceTest {
 
     @Test
     public void testFindProductById() {
-        ProductEntity entity = new ProductEntity("Produto test", new BigDecimal(1), ProductStatus.ACTIVE, 5);
+        var date = LocalDateTime.now();
+        UserEntity user = UserEntity.builder().id(1L).name("asdkfask").avatarUrl("www.www.www").build();
+        ProductImage productImage = ProductImage.builder().isMain(true).url("www.www.www").build();
+        ProductEntity entity = ProductEntity.builder()
+                .user(user)
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .status(ProductStatus.ACTIVE)
+                .productImages(List.of(productImage))
+                .createDate(date)
+                .build();
 
         entity.setId(12345L);
 
@@ -54,7 +71,19 @@ public class ProductServiceTest {
 
         var result = productService.get(12345L);
 
-        assertThat(result.getBody()).isEqualToComparingFieldByFieldRecursively(entity);
+        var expected = ProductDTO.builder()
+                .id(12345L)
+                .partner(fromUserEntity(user))
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .status(ProductStatus.ACTIVE)
+                .quantity(0)
+                .createdAt(date)
+                .imageUrl("www.www.www")
+                .weight(0D)
+                .build();
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test

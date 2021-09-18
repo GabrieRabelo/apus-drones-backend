@@ -4,6 +4,7 @@ import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.request.product.CreateProductRequest;
 import com.apus.drones.apusdronesbackend.model.request.product.UpdateProductRequest;
 import com.apus.drones.apusdronesbackend.service.ProductService;
+import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -27,10 +28,10 @@ public class ProductAPI {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductEntity> get(@PathVariable Long id) {
+    public ResponseEntity<ProductDTO> get(@PathVariable Long id) {
         log.info("Received a new get product request for product id [{}]", id);
 
-        return productService.get(id);
+        return ResponseEntity.ok(productService.get(id));
     }
 
     @PatchMapping
