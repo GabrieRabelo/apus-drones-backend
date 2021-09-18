@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Random;
 
 @Configuration
-@Profile({"dev","local","prd"})
+@Profile({"dev","local","prd", "default"})
 public class Bootstrap {
 
     private static int contEntities;
