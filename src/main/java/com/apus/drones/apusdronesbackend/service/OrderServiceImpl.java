@@ -1,11 +1,12 @@
 package com.apus.drones.apusdronesbackend.service;
 
-import com.apus.drones.apusdronesbackend.mapper.OrderResponseMapper;
+import com.apus.drones.apusdronesbackend.mapper.OrderDTOMapper;
 import com.apus.drones.apusdronesbackend.model.entity.OrderEntity;
 import com.apus.drones.apusdronesbackend.model.entity.OrderItemEntity;
-import com.apus.drones.apusdronesbackend.model.response.OrderResponse;
+import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.repository.OrderItemRepository;
 import com.apus.drones.apusdronesbackend.repository.OrderRepository;
+import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,21 +27,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> findAllByCustomerId(Long userId) {
-        List<OrderEntity> orders = orderRepository.findAllByCustomer_Id(userId);
+    public List<OrderDTO> getByCustomerId(Long userId, OrderStatus status) {
+        var ignoredStatuses = List.of(OrderStatus.IN_CART);
+        List<OrderEntity> orders = status == null
+                ? orderRepository.findAllByCustomer_IdAndStatusIsNotIn(userId, ignoredStatuses)
+                : orderRepository.findAllByCustomer_IdAndStatus(userId, status);
+
         for(OrderEntity o : orders) {
             List<OrderItemEntity> items = orderItemRepository.findAllByOrder_Id(o.getId());
             o.setOrderItems(items);
         }
-        return orders.stream().map(OrderResponseMapper::fromOrderEntity).collect(Collectors.toList());
+        return orders.stream().map(OrderDTOMapper::fromOrderEntity).collect(Collectors.toList());
     }
 
     @Override
-    public OrderResponse findById(Long orderId) {
+    public OrderDTO getById(Long orderId) {
         OrderEntity order = orderRepository.findById(orderId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido não encontrado"));
         List<OrderItemEntity> items = orderItemRepository.findAllByOrder_Id(orderId);
         order.setOrderItems(items);
 
-        return OrderResponseMapper.fromOrderEntity(order);
+        return OrderDTOMapper.fromOrderEntity(order);
     }
 }

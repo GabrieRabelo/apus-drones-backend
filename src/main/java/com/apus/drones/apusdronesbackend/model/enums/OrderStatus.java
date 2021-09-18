@@ -1,6 +1,7 @@
 package com.apus.drones.apusdronesbackend.model.enums;
 
 public enum OrderStatus {
+    IN_CART,
     ACCEPTED,
     REFUSED,
     PREPARING,
