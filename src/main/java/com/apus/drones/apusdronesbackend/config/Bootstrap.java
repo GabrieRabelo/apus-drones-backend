@@ -15,6 +15,7 @@ import com.apus.drones.apusdronesbackend.repository.ProductRepository;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,8 +23,11 @@ import java.util.List;
 import java.util.Random;
 
 @Configuration
+@Profile({"dev","local","prd"})
 public class Bootstrap {
 
+    private static final Random random = new Random();
+    private static final String cpfCnpj = "12345678912";
     public final UserRepository userRepository;
     public final ProductRepository productRepository;
     public final ProductImageRepository productImageRepository;
@@ -50,7 +54,7 @@ public class Bootstrap {
                 .name("Rabelo")
                 .role(Role.PARTNER)
                 .avatarUrl("none")
-                .cpfCnpj("12312312312")
+                .cpfCnpj(cpfCnpj)
                 .password("blublu")
                 .email("rabelo@rab.elo")
                 .build();
@@ -59,7 +63,7 @@ public class Bootstrap {
                 .name("Rabelo")
                 .role(Role.CUSTOMER)
                 .avatarUrl("none")
-                .cpfCnpj("12312312312")
+                .cpfCnpj(cpfCnpj)
                 .password("blublu")
                 .email("rabelo@rab.elo")
                 .build();
@@ -141,9 +145,11 @@ public class Bootstrap {
                         .weight(2D)
                         .status(ProductStatus.ACTIVE)
                         .name("Produto " + cont)
-                        .price(BigDecimal.valueOf(new Random().nextInt(1000)))
+                        .price(BigDecimal.valueOf(random.nextInt(1000)))
                         .createDate(LocalDateTime.now())
                         .productImages(List.of(productImage))
+                        .description("product nro: " + (i + j))
+                        .quantity(random.nextInt(25))
                         .build();
 
                 productImage.setProduct(product);
@@ -158,7 +164,7 @@ public class Bootstrap {
                     .name("Parceiro " + i)
                     .role(Role.PARTNER)
                     .avatarUrl("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + i + ".png")
-                    .cpfCnpj("12312312312")
+                    .cpfCnpj(cpfCnpj)
                     .password("blublu")
                     .email("rabelo@rab.elo")
                     .build();

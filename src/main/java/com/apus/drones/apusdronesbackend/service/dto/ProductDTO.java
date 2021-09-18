@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,9 +18,12 @@ import java.math.BigDecimal;
 public class ProductDTO {
     private Long id;
     private String name;
-    private String partnerName;
+    private String description;
     private BigDecimal price;
-    private String imageUrl;
-    private Double weight;
     private ProductStatus status;
+    private Double weight;
+    private LocalDateTime createdAt;
+    private String imageUrl;
+    private PartnerDTO partner;
+    private Integer quantity;
 }
