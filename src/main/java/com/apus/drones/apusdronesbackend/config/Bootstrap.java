@@ -116,14 +116,27 @@ public class Bootstrap {
                 .orderPrice(new BigDecimal("50"))
                 .build();
 
+        var order2 = OrderEntity.builder()
+                .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
+                .status(OrderStatus.IN_CART)
+                .createdAt(LocalDateTime.now())
+                .deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("50"))
+                .build();
+
+        int quantity = 1;
+
         var orderItems = OrderItemEntity.builder()
-                .quantity(2)
+                .quantity(quantity)
                 .price(new BigDecimal(50))
                 .order(order)
                 .product(productRepository.findAll().get(0))
+                .weight(productRepository.findAll().get(0).getWeight() * quantity)
                 .build();
 
         orderRepository.save(order);
+        orderRepository.save(order2);
         orderItemRepository.save(orderItems);
     }
 
@@ -138,7 +151,7 @@ public class Bootstrap {
 
                 var product = ProductEntity.builder()
                         .user(user)
-                        .weight(2D)
+                        .weight(500D)
                         .status(ProductStatus.ACTIVE)
                         .name("Produto " + cont)
                         .price(BigDecimal.valueOf(new Random().nextInt(1000)))

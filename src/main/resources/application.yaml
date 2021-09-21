@@ -1,7 +1,9 @@
 application:
   base:
     url: localhost
-
+server:
+  error:
+    include-message: always
 spring:
   h2:
     console:
