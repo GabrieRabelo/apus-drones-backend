@@ -157,14 +157,34 @@ public class OrderServiceImpl implements OrderService {
     }
 
     public List<OrderDTO> findAllByPartnerIdAndFilterByStatus(Long userId, OrderStatus status) {
-        List<OrderEntity> orders = status != null
-        ? orderRepository.findAllByPartner_IdAndStatus(userId, status)
-        : orderRepository.findAllByPartner_Id(userId);
+
+        List<OrderEntity> orders;
+        if (status == null) { //sem filtro
+            orders = orderRepository.findAllByPartner_Id(userId);
+        } else if(status == OrderStatus.WAITING_FOR_PARTNER) { //Se esta esperando por parceiro aceitar
+            orders = checkForExpiredProduct(userId);
+        } else {
+            orders = orderRepository.findAllByPartner_IdAndStatus(userId, status); // com filtro
+        }
 
         for (OrderEntity o : orders) {
             List<OrderItemEntity> items = orderItemRepository.findAllByOrder_Id(o.getId());
             o.setOrderItems(items);
         }
+
         return orders.stream().map(OrderDTOMapper::fromOrderEntity).collect(Collectors.toList());
+    }
+
+    private List<OrderEntity> checkForExpiredProduct(Long userId) {
+        var list = orderRepository.findAllByPartner_IdAndStatus(userId, OrderStatus.WAITING_FOR_PARTNER);
+
+        for (OrderEntity o: list) {
+            if(o.getStatus().equals(OrderStatus.REFUSED)){
+                o.setStatus(OrderStatus.REFUSED);
+                orderRepository.save(o);
+            }
+
+        }
+        return list;
     }
 }

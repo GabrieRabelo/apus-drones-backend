@@ -141,6 +141,7 @@ public class Bootstrap {
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
                 .status(OrderStatus.ACCEPTED)
+                        .expiresAt(LocalDateTime.now().plusMinutes(1))
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("100"))
@@ -150,6 +151,7 @@ public class Bootstrap {
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
                 .status(OrderStatus.IN_CART)
+                .expiresAt(LocalDateTime.now().plusMinutes(1))
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("50"))
@@ -159,6 +161,7 @@ public class Bootstrap {
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
                 .status(OrderStatus.WAITING_FOR_PARTNER)
+                .expiresAt(LocalDateTime.now().plusMinutes(1))
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("225"))
@@ -168,6 +171,7 @@ public class Bootstrap {
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(1))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
                 .status(OrderStatus.WAITING_FOR_PARTNER)
+                .expiresAt(LocalDateTime.now().minusMinutes(1))
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("100"))
