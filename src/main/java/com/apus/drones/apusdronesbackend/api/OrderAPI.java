@@ -10,6 +10,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -36,7 +37,7 @@ public class OrderAPI {
 
     @PutMapping()
     public ResponseEntity<OrderDTO> update(@RequestBody OrderDTO orderDto) {
-        log.info("Updating an order.");
+        log.info(Objects.nonNull(orderDto.getId()) ? "Updating an order." : "Creating an order.");
         return ResponseEntity.ok(orderService.update(orderDto));
     }
 }
