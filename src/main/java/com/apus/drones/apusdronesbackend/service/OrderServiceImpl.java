@@ -13,6 +13,7 @@ import com.apus.drones.apusdronesbackend.repository.ProductRepository;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 import com.apus.drones.apusdronesbackend.service.dto.OrderItemDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,9 +26,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
-
-    private static final BigDecimal DEFAULT_DELIVERY_PRICE = BigDecimal.TEN;
-    private static final Double WEIGHT_LIMIT_GRAMAS = 2_000.00;
+    private final BigDecimal DEFAULT_DELIVERY_PRICE;
+    private final Double WEIGHT_LIMIT_GRAMS;
 
     private final OrderRepository orderRepository;
 
@@ -37,11 +37,14 @@ public class OrderServiceImpl implements OrderService {
 
     private final ProductRepository productRepository;
 
-    public OrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, UserRepository userRepository, ProductRepository productRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, UserRepository userRepository, ProductRepository productRepository, @Value("${application.vars.default-delivery-price}") String deliveryPrice, @Value("${application.vars.grams-weight-limit}") String weightLimit) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+
+        this.DEFAULT_DELIVERY_PRICE = new BigDecimal(deliveryPrice);
+        this.WEIGHT_LIMIT_GRAMS = Double.parseDouble(weightLimit);
     }
 
     @Override
@@ -71,8 +74,8 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO update(OrderDTO orderDto) {
         double totalWeight = this.calcTotalWeight(orderDto.getItems());
 
-        if(totalWeight > WEIGHT_LIMIT_GRAMAS) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falha ao adicionar item. O carrinho passou do limite de peso de " + WEIGHT_LIMIT_GRAMAS + "g.");
+        if (totalWeight > WEIGHT_LIMIT_GRAMS) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falha ao adicionar item. O carrinho passou do limite de peso de " + WEIGHT_LIMIT_GRAMS + "g.");
         } else {
             OrderEntity savedEntity = this.updateOrder(orderDto);
             List<OrderItemEntity> savedItems = this.updateItems(orderDto.getItems(), savedEntity.getId());
@@ -91,6 +94,7 @@ public class OrderServiceImpl implements OrderService {
 
         return sum;
     }
+
     private OrderEntity updateOrder(OrderDTO orderDto) {
         UserEntity customer = Optional.ofNullable(orderDto.getCustomer())
                 .map(user -> userRepository.getById(user.getId()))
@@ -118,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
                 .filter(item -> item.getQuantity() < 1)
                 .forEach(item -> orderItemRepository.deleteById(item.getId()));
 
-        List<OrderItemEntity> ItemsEntities = items.stream()
+        List<OrderItemEntity> itemsEntities = items.stream()
                 .filter(item -> item.getQuantity() >= 1)
                 .map(item -> {
                     Double orderItemWeight = item.getProduct().getWeight() * item.getQuantity();
@@ -135,7 +139,7 @@ public class OrderServiceImpl implements OrderService {
                 })
                 .collect(Collectors.toList());
 
-        return orderItemRepository.saveAllAndFlush(ItemsEntities).stream()
+        return orderItemRepository.saveAllAndFlush(itemsEntities).stream()
                 .peek(item -> item.setProduct(productRepository.getById(item.getProduct().getId())))
                 .collect(Collectors.toList());
     }
