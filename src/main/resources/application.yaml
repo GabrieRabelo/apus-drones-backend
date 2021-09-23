@@ -1,7 +1,12 @@
 application:
+  vars:
+    default-delivery-price: 10
+    grams-weight-limit: 2000.00
   base:
     url: localhost
-
+server:
+  error:
+    include-message: always
 spring:
   h2:
     console:

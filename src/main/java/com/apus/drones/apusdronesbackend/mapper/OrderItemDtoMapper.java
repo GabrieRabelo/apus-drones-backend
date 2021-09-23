@@ -11,6 +11,7 @@ public class OrderItemDtoMapper {
                 .price(orderItemEntity.getPrice())
                 .product(ProductDtoMapper.fromProductEntity(orderItemEntity.getProduct()))
                 .quantity(orderItemEntity.getQuantity())
+                .weight(orderItemEntity.getWeight())
                 .build();
     }
 }
