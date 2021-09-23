@@ -44,6 +44,9 @@ public class ProductEntity {
     private String name;
 
     @Column
+    private String description;
+
+    @Column
     private BigDecimal price;
 
     @Column
@@ -52,6 +55,8 @@ public class ProductEntity {
 
     @Column
     private double weight;
+
+    @Column int quantity;
 
     @Column
     private LocalDateTime createDate;

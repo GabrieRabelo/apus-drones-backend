@@ -11,7 +11,7 @@ import java.util.List;
 public interface ProductService {
     ResponseEntity<Void> create(CreateProductRequest request);
 
-    ResponseEntity<ProductEntity> get(Long id);
+    ProductDTO get(Long id);
 
     ResponseEntity<Void> update(UpdateProductRequest request);
 
