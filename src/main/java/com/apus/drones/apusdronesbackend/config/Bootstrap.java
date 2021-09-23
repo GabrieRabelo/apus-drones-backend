@@ -131,8 +131,16 @@ public class Bootstrap {
                 .weight(productRepository.findAll().get(0).getWeight() * quantity)
                 .build();
 
+        var orderItems2 = OrderItemEntity.builder()
+                .quantity(3)
+                .price(new BigDecimal(75))
+                .order(order3)
+                .product(productRepository.findAll().get(1))
+                .build();
+
         orderRepository.save(order);
         orderRepository.save(order2);
         orderItemRepository.save(orderItems);
+        orderItemRepository.save(orderItems2);
     }
 }
