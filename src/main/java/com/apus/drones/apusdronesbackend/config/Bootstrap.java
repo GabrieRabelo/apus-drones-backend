@@ -161,7 +161,7 @@ public class Bootstrap {
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
                 .status(OrderStatus.WAITING_FOR_PARTNER)
-                .expiresAt(LocalDateTime.now().plusMinutes(1))
+                .expiresAt(LocalDateTime.now().plusMinutes(5))
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("225"))
@@ -171,7 +171,7 @@ public class Bootstrap {
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(1))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
                 .status(OrderStatus.WAITING_FOR_PARTNER)
-                .expiresAt(LocalDateTime.now().minusMinutes(1))
+                .expiresAt(LocalDateTime.now().plusMinutes(5))
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("100"))
