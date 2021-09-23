@@ -33,6 +33,8 @@ public class Bootstrap {
     public final ProductImageRepository productImageRepository;
     public final OrderRepository orderRepository;
     public final OrderItemRepository orderItemRepository;
+    private static final Integer NUMBER_OF_PARTNERS = 10;
+    private static final Integer TIME_TO_REJECT_ORDER_MINUTES = 60;
 
     public Bootstrap(UserRepository userRepository, ProductRepository productRepository, ProductImageRepository productImageRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
         this.userRepository = userRepository;
@@ -49,28 +51,7 @@ public class Bootstrap {
     }
 
     private void initUsers() {
-        populatePartners();
-
         List<UserEntity> usersToCreate = new ArrayList<>();
-
-        usersToCreate.add(UserEntity.builder()
-                .name("Rabelo")
-                .role(Role.PARTNER)
-                .avatarUrl("none")
-                .cpfCnpj("59503217000167")
-                .password("blublu")
-                .email("rabelo@rab.elo")
-                .build());
-
-        usersToCreate.add(UserEntity.builder()
-                .name("Ferragem Pinheiro machado")
-                .id((long)100)
-                .role(Role.PARTNER)
-                .avatarUrl("none")
-                .cpfCnpj("77782423000135")
-                .password("blublu")
-                .email("ferragem@doesnotexist.com")
-                .build());
 
         usersToCreate.add(UserEntity.builder()
                 .name("Rabelo")
@@ -78,7 +59,7 @@ public class Bootstrap {
                 .avatarUrl("none")
                 .cpfCnpj("12312312312")
                 .password("blublu")
-                .email("rabelo@rab.elo")
+                .email("rabelo@example.com")
                 .build());
 
         usersToCreate.add(UserEntity.builder()
@@ -87,61 +68,29 @@ public class Bootstrap {
                 .avatarUrl("none")
                 .cpfCnpj("40782976093")
                 .password("blublu")
-                .email("carlos.alberto@doesnotexist.com")
+                .email("carlos.alberto@example.com")
                 .build());
 
         for (UserEntity userEntity : usersToCreate) {
             userRepository.save(userEntity);
         }
-    }
 
-    private void populatePartners() {
-        for (int i = 0; i < 10; i++) {
-            var user2 = UserEntity.builder()
-                    .name("Parceiro " + contEntities)
-                    .role(Role.PARTNER)
-                    .avatarUrl("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + contEntities + ".png")
-                    .cpfCnpj("12312312312")
-                    .password("blublu")
-                    .email("rabelo@rab.elo")
-                    .build();
-            userRepository.save(user2);
-            contEntities++;
-            populateProducts(user2.getId());
-        }
-    }
-
-    private void populateProducts(long id) {
-        for (int i = 0; i < 5; i++) {
-            var user = userRepository.findById(id).orElse(null);
-            var productImage = ProductImage.builder().isMain(true).url("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + contEntities + ".png").build();
-
-            var product = ProductEntity.builder()
-                    .user(user)
-                    .weight(2D)
-                    .status(ProductStatus.ACTIVE)
-                    .name("Produto " + contEntities)
-                    .description("Lorem ipsum")
-                    .price(BigDecimal.valueOf(new Random().nextInt(1000)))
-                    .createDate(LocalDateTime.now())
-                    .productImages(List.of(productImage))
-                    .quantity(25)
-                    .build();
-
-            productImage.setProduct(product);
-            productRepository.save(product);
-            contEntities++;
-
-        }
+        populatePartners();
     }
 
     private void initOrders() {
+        for (int i = 0; i < NUMBER_OF_PARTNERS; i++) {
+            populateOrders(i);
+        }
+    }
+
+    private void populateOrders(Integer partnerIndex) {
         List<OrderEntity> ordersToCreate = new ArrayList<>();
         ordersToCreate.add(OrderEntity.builder()
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
                 .status(OrderStatus.ACCEPTED)
-                        .expiresAt(LocalDateTime.now().plusMinutes(1))
+                        .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("100"))
@@ -149,9 +98,9 @@ public class Bootstrap {
 
         ordersToCreate.add(OrderEntity.builder()
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
                 .status(OrderStatus.IN_CART)
-                .expiresAt(LocalDateTime.now().plusMinutes(1))
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("50"))
@@ -159,9 +108,9 @@ public class Bootstrap {
 
         ordersToCreate.add(OrderEntity.builder()
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
                 .status(OrderStatus.WAITING_FOR_PARTNER)
-                .expiresAt(LocalDateTime.now().plusMinutes(5))
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("225"))
@@ -169,9 +118,9 @@ public class Bootstrap {
 
         ordersToCreate.add(OrderEntity.builder()
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(1))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
                 .status(OrderStatus.WAITING_FOR_PARTNER)
-                .expiresAt(LocalDateTime.now().plusMinutes(5))
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("100"))
@@ -250,6 +199,45 @@ public class Bootstrap {
 
         for (OrderItemEntity orderItemEntity : ordersItemToCreate) {
             orderItemRepository.save(orderItemEntity);
+        }
+    }
+
+    private void populateProducts(long id) {
+        for (int i = 0; i < 5; i++) {
+            var user = userRepository.findById(id).orElse(null);
+            var productImage = ProductImage.builder().isMain(true).url("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + contEntities + ".png").build();
+
+            var product = ProductEntity.builder()
+                    .user(user)
+                    .weight(2D)
+                    .status(ProductStatus.ACTIVE)
+                    .name("Produto " + contEntities)
+                    .description("Lorem ipsum")
+                    .price(BigDecimal.valueOf(new Random().nextInt(1000)))
+                    .createDate(LocalDateTime.now())
+                    .productImages(List.of(productImage))
+                    .quantity(25)
+                    .build();
+
+            productImage.setProduct(product);
+            productRepository.save(product);
+            contEntities++;
+        }
+    }
+
+    private void populatePartners() {
+        for (int i = 0; i < NUMBER_OF_PARTNERS; i++) {
+            var user = UserEntity.builder()
+                    .name("Parceiro " + contEntities)
+                    .role(Role.PARTNER)
+                    .avatarUrl("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + contEntities + ".png")
+                    .cpfCnpj("12312312312")
+                    .password("blublu")
+                    .email("parceiro"+i+"@example.com")
+                    .build();
+            userRepository.save(user);
+            contEntities++;
+            populateProducts(user.getId());
         }
     }
 }
