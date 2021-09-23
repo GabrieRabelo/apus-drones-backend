@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Profile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -50,16 +51,48 @@ public class Bootstrap {
     private void initUsers() {
         populatePartners();
 
-        var userCustomer = UserEntity.builder()
+        List<UserEntity> usersToCreate = new ArrayList<>();
+
+        usersToCreate.add(UserEntity.builder()
+                .name("Rabelo")
+                .role(Role.PARTNER)
+                .avatarUrl("none")
+                .cpfCnpj("59503217000167")
+                .password("blublu")
+                .email("rabelo@rab.elo")
+                .build());
+
+        usersToCreate.add(UserEntity.builder()
+                .name("Ferragem Pinheiro machado")
+                .id((long)100)
+                .role(Role.PARTNER)
+                .avatarUrl("none")
+                .cpfCnpj("77782423000135")
+                .password("blublu")
+                .email("ferragem@doesnotexist.com")
+                .build());
+
+        usersToCreate.add(UserEntity.builder()
                 .name("Rabelo")
                 .role(Role.CUSTOMER)
                 .avatarUrl("none")
                 .cpfCnpj("12312312312")
                 .password("blublu")
                 .email("rabelo@rab.elo")
-                .build();
+                .build());
 
-        userRepository.save(userCustomer);
+        usersToCreate.add(UserEntity.builder()
+                .name("Carlos Alberto")
+                .role(Role.CUSTOMER)
+                .avatarUrl("none")
+                .cpfCnpj("40782976093")
+                .password("blublu")
+                .email("carlos.alberto@doesnotexist.com")
+                .build());
+
+        for (UserEntity userEntity : usersToCreate) {
+            userRepository.save(userEntity);
+        }
     }
 
     private void populatePartners() {
@@ -103,44 +136,116 @@ public class Bootstrap {
     }
 
     private void initOrders() {
-        var order = OrderEntity.builder()
+        List<OrderEntity> ordersToCreate = new ArrayList<>();
+        ordersToCreate.add(OrderEntity.builder()
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
                 .status(OrderStatus.ACCEPTED)
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
-                .orderPrice(new BigDecimal("50"))
-                .build();
+                .orderPrice(new BigDecimal("100"))
+                .build());
 
-        var order2 = OrderEntity.builder()
+        ordersToCreate.add(OrderEntity.builder()
                 .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
                 .status(OrderStatus.IN_CART)
                 .createdAt(LocalDateTime.now())
                 .deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("50"))
-                .build();
+                .build());
 
-        var quantity = 1;
+        ordersToCreate.add(OrderEntity.builder()
+                .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
+                .status(OrderStatus.WAITING_FOR_PARTNER)
+                .createdAt(LocalDateTime.now())
+                .deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("225"))
+                .build());
 
-        var orderItems = OrderItemEntity.builder()
+        ordersToCreate.add(OrderEntity.builder()
+                .customer(userRepository.findAllByRole(Role.CUSTOMER).get(1))
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
+                .status(OrderStatus.WAITING_FOR_PARTNER)
+                .createdAt(LocalDateTime.now())
+                .deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("100"))
+                .build());
+
+        List<OrderItemEntity> ordersItemToCreate = new ArrayList<>();
+
+        var quantity = 2;
+
+        ordersItemToCreate.add(OrderItemEntity.builder()
                 .quantity(quantity)
                 .price(new BigDecimal(50))
-                .order(order)
+                .order(ordersToCreate.get(0))
                 .product(productRepository.findAll().get(0))
                 .weight(productRepository.findAll().get(0).getWeight() * quantity)
-                .build();
+                .build());
 
-        var orderItems2 = OrderItemEntity.builder()
-                .quantity(3)
-                .price(new BigDecimal(75))
-                .order(order3)
+        quantity = 1;
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(50))
+                .order(ordersToCreate.get(1))
                 .product(productRepository.findAll().get(1))
-                .build();
+                .weight(productRepository.findAll().get(1).getWeight() * quantity)
+                .build());
 
-        orderRepository.save(order);
-        orderRepository.save(order2);
-        orderItemRepository.save(orderItems);
-        orderItemRepository.save(orderItems2);
+        quantity = 3;
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(75))
+                .order(ordersToCreate.get(2))
+                .product(productRepository.findAll().get(2))
+                .weight(productRepository.findAll().get(2).getWeight() * quantity)
+                .build());
+
+        quantity = 1;
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(10))
+                .order(ordersToCreate.get(2))
+                .product(productRepository.findAll().get(5))
+                .weight(productRepository.findAll().get(5).getWeight() * quantity)
+                .build());
+
+        quantity = 3;
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(5))
+                .order(ordersToCreate.get(2))
+                .product(productRepository.findAll().get(4))
+                .weight(productRepository.findAll().get(4).getWeight() * quantity)
+                .build());
+
+        quantity = 4;
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(25))
+                .order(ordersToCreate.get(3))
+                .product(productRepository.findAll().get(3))
+                .weight(productRepository.findAll().get(3).getWeight() * quantity)
+                .build());
+
+        quantity = 1;
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(10))
+                .order(ordersToCreate.get(3))
+                .product(productRepository.findAll().get(4))
+                .weight(productRepository.findAll().get(4).getWeight() * quantity)
+                .build());
+
+
+        for (OrderEntity orderEntity : ordersToCreate) {
+            orderRepository.save(orderEntity);
+        }
+
+        for (OrderItemEntity orderItemEntity : ordersItemToCreate) {
+            orderItemRepository.save(orderItemEntity);
+        }
     }
 }
