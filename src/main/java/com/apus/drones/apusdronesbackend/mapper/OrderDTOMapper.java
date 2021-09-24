@@ -6,6 +6,7 @@ import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 import com.apus.drones.apusdronesbackend.service.dto.OrderItemDto;
 import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -31,9 +32,9 @@ public class OrderDTOMapper {
         return OrderDTO.builder()
                 .id(orderEntity.getId())
                 .createdAt(orderEntity.getCreatedAt())
-                .deliveryPrice(orderEntity.getDeliveryPrice())
+                .deliveryPrice(orderEntity.getDeliveryPrice() == null ? BigDecimal.valueOf(0) : orderEntity.getDeliveryPrice())
                 .items(orderItemDtoList)
-                .orderPrice(orderEntity.getOrderPrice())
+                .orderPrice(orderEntity.getOrderPrice() == null ? BigDecimal.valueOf(0) : orderEntity.getOrderPrice())
                 .partner(partner)
                 .customer(customer)
                 .status(orderEntity.getStatus())

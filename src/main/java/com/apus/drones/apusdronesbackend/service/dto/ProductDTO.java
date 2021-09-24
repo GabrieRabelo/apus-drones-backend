@@ -10,6 +10,7 @@ import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,6 +27,7 @@ public class ProductDTO {
     private Double weight;
     private LocalDateTime createdAt;
     private String imageUrl;
+    private List<String> imagesUrls;
     private PartnerDTO partner;
     private Integer quantity;
 }

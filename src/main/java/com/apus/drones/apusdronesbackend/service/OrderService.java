@@ -7,6 +7,11 @@ import java.util.List;
 
 public interface OrderService {
     List<OrderDTO> getByCustomerId(Long userId, OrderStatus status);
+    List<OrderDTO> findAllByPartnerIdAndFilterByStatus(Long userId, OrderStatus status);
+
+    OrderDTO update(OrderDTO orderDto);
 
     OrderDTO getById(Long orderId);
+
+    void addToCart(Long userId, OrderDTO orderDTO);
 }

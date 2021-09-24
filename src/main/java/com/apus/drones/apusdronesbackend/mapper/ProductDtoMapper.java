@@ -2,22 +2,24 @@ package com.apus.drones.apusdronesbackend.mapper;
 
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
+import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
+import com.apus.drones.apusdronesbackend.model.enums.Role;
+import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
+import org.apache.catalina.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper.fromUserEntity;
 
 public class ProductDtoMapper {
 
     public static ProductDTO fromProductEntity(ProductEntity productEntity) {
-
-        ProductImage mainImg = productEntity.getProductImages()
-                .stream()
-                .filter(ProductImage::isMain)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Produto de id " + productEntity.getId() + " sem imagem principal cadastrada"));
+        Optional<ProductImage> mainImg = productEntity.getProductImages().stream().filter(ProductImage::isMain).findFirst();
+        String mainImgUrl = mainImg.map(ProductImage::getUrl).orElse(null);
 
         return ProductDTO.builder()
                 .id(productEntity.getId())
@@ -27,10 +29,10 @@ public class ProductDtoMapper {
                 .status(productEntity.getStatus())
                 .weight(productEntity.getWeight())
                 .createdAt(productEntity.getCreateDate())
-                .imageUrl(mainImg.getUrl())
+                .imageUrl(mainImgUrl)
+                .imagesUrls(productEntity.getProductImages().stream().map(ProductImage::getUrl).collect(Collectors.toList()))
                 .partner(fromUserEntity(productEntity.getUser()))
-                .quantity(productEntity.getQuantity())
-                .build();
+                .quantity(productEntity.getQuantity()).build();
     }
 
     public static List<ProductDTO> fromProductEntityList(List<ProductEntity> entity) {

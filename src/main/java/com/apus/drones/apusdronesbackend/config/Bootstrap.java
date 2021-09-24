@@ -19,11 +19,12 @@ import org.springframework.context.annotation.Profile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 @Configuration
-@Profile({"dev","local","prd", "default"})
+@Profile({"default", "prd"})
 public class Bootstrap {
 
     private static int contEntities;
@@ -32,6 +33,8 @@ public class Bootstrap {
     public final ProductImageRepository productImageRepository;
     public final OrderRepository orderRepository;
     public final OrderItemRepository orderItemRepository;
+    private static final Integer NUMBER_OF_PARTNERS = 10;
+    private static final Integer TIME_TO_REJECT_ORDER_MINUTES = 60;
 
     public Bootstrap(UserRepository userRepository, ProductRepository productRepository, ProductImageRepository productImageRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
         this.userRepository = userRepository;
@@ -48,33 +51,154 @@ public class Bootstrap {
     }
 
     private void initUsers() {
-        populatePartners();
+        List<UserEntity> usersToCreate = new ArrayList<>();
 
-        var userCustomer = UserEntity.builder()
+        usersToCreate.add(UserEntity.builder()
                 .name("Rabelo")
                 .role(Role.CUSTOMER)
                 .avatarUrl("none")
                 .cpfCnpj("12312312312")
                 .password("blublu")
-                .email("rabelo@rab.elo")
-                .build();
+                .email("rabelo@example.com")
+                .build());
 
-        userRepository.save(userCustomer);
+        usersToCreate.add(UserEntity.builder()
+                .name("Carlos Alberto")
+                .role(Role.CUSTOMER)
+                .avatarUrl("none")
+                .cpfCnpj("40782976093")
+                .password("blublu")
+                .email("carlos.alberto@example.com")
+                .build());
+
+        for (UserEntity userEntity : usersToCreate) {
+            userRepository.save(userEntity);
+        }
+
+        populatePartners();
     }
 
-    private void populatePartners() {
-        for (int i = 0; i < 10; i++) {
-            var user2 = UserEntity.builder()
-                    .name("Parceiro " + contEntities)
-                    .role(Role.PARTNER)
-                    .avatarUrl("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + contEntities + ".png")
-                    .cpfCnpj("12312312312")
-                    .password("blublu")
-                    .email("rabelo@rab.elo")
-                    .build();
-            userRepository.save(user2);
-            contEntities++;
-            populateProducts(user2.getId());
+    private void initOrders() {
+        for (int i = 0; i < NUMBER_OF_PARTNERS; i++) {
+            populateOrders(i);
+        }
+    }
+
+    private void populateOrders(Integer partnerIndex) {
+        List<OrderEntity> ordersToCreate = new ArrayList<>();
+        ordersToCreate.add(OrderEntity.builder()
+                .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
+                .status(OrderStatus.ACCEPTED)
+                        .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now())
+                .deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("100"))
+                .build());
+
+        ordersToCreate.add(OrderEntity.builder()
+                .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
+                .status(OrderStatus.IN_CART)
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now())
+                .deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("50"))
+                .build());
+
+        ordersToCreate.add(OrderEntity.builder()
+                .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
+                .status(OrderStatus.WAITING_FOR_PARTNER)
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now())
+                .deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("225"))
+                .build());
+
+        ordersToCreate.add(OrderEntity.builder()
+                .customer(userRepository.findAllByRole(Role.CUSTOMER).get(1))
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
+                .status(OrderStatus.WAITING_FOR_PARTNER)
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now())
+                .deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("100"))
+                .build());
+
+        List<OrderItemEntity> ordersItemToCreate = new ArrayList<>();
+
+        var quantity = 2;
+
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(50))
+                .order(ordersToCreate.get(0))
+                .product(productRepository.findAll().get(0))
+                .weight(productRepository.findAll().get(0).getWeight() * quantity)
+                .build());
+
+        quantity = 1;
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(50))
+                .order(ordersToCreate.get(1))
+                .product(productRepository.findAll().get(1))
+                .weight(productRepository.findAll().get(1).getWeight() * quantity)
+                .build());
+
+        quantity = 3;
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(75))
+                .order(ordersToCreate.get(2))
+                .product(productRepository.findAll().get(2))
+                .weight(productRepository.findAll().get(2).getWeight() * quantity)
+                .build());
+
+        quantity = 1;
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(10))
+                .order(ordersToCreate.get(2))
+                .product(productRepository.findAll().get(5))
+                .weight(productRepository.findAll().get(5).getWeight() * quantity)
+                .build());
+
+        quantity = 3;
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(5))
+                .order(ordersToCreate.get(2))
+                .product(productRepository.findAll().get(4))
+                .weight(productRepository.findAll().get(4).getWeight() * quantity)
+                .build());
+
+        quantity = 4;
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(25))
+                .order(ordersToCreate.get(3))
+                .product(productRepository.findAll().get(3))
+                .weight(productRepository.findAll().get(3).getWeight() * quantity)
+                .build());
+
+        quantity = 1;
+        ordersItemToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(new BigDecimal(10))
+                .order(ordersToCreate.get(3))
+                .product(productRepository.findAll().get(4))
+                .weight(productRepository.findAll().get(4).getWeight() * quantity)
+                .build());
+
+
+        for (OrderEntity orderEntity : ordersToCreate) {
+            orderRepository.save(orderEntity);
+        }
+
+        for (OrderItemEntity orderItemEntity : ordersItemToCreate) {
+            orderItemRepository.save(orderItemEntity);
         }
     }
 
@@ -98,38 +222,22 @@ public class Bootstrap {
             productImage.setProduct(product);
             productRepository.save(product);
             contEntities++;
-
         }
     }
 
-    private void initOrders() {
-        var order = OrderEntity.builder()
-                .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
-                .status(OrderStatus.ACCEPTED)
-                .createdAt(LocalDateTime.now())
-                .deliveryPrice(new BigDecimal("50"))
-                .orderPrice(new BigDecimal("50"))
-                .build();
-
-        var order2 = OrderEntity.builder()
-                .customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(0)) //TODO
-                .status(OrderStatus.IN_CART)
-                .createdAt(LocalDateTime.now())
-                .deliveryPrice(new BigDecimal("50"))
-                .orderPrice(new BigDecimal("50"))
-                .build();
-
-        var orderItems = OrderItemEntity.builder()
-                .quantity(2)
-                .price(new BigDecimal(50))
-                .order(order)
-                .product(productRepository.findAll().get(0))
-                .build();
-
-        orderRepository.save(order);
-        orderRepository.save(order2);
-        orderItemRepository.save(orderItems);
+    private void populatePartners() {
+        for (int i = 0; i < NUMBER_OF_PARTNERS; i++) {
+            var user = UserEntity.builder()
+                    .name("Parceiro " + contEntities)
+                    .role(Role.PARTNER)
+                    .avatarUrl("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + contEntities + ".png")
+                    .cpfCnpj("12312312312")
+                    .password("blublu")
+                    .email("parceiro"+i+"@example.com")
+                    .build();
+            userRepository.save(user);
+            contEntities++;
+            populateProducts(user.getId());
+        }
     }
 }
