@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -174,7 +175,7 @@ public class OrderServiceImpl implements OrderService {
         if (status == null) { //sem filtro
             orders = orderRepository.findAllByPartner_Id(userId);
         } else if(status == OrderStatus.WAITING_FOR_PARTNER) { //Se esta esperando por parceiro aceitar
-            orders = checkForExpiredProduct(userId);
+            orders = checkForExpiredOrder(userId);
         } else {
             orders = orderRepository.findAllByPartner_IdAndStatus(userId, status); // com filtro
         }
@@ -187,16 +188,19 @@ public class OrderServiceImpl implements OrderService {
         return orders.stream().map(OrderDTOMapper::fromOrderEntity).collect(Collectors.toList());
     }
 
-    private List<OrderEntity> checkForExpiredProduct(Long userId) {
-        var list = orderRepository.findAllByPartner_IdAndStatus(userId, OrderStatus.WAITING_FOR_PARTNER);
+    private List<OrderEntity> checkForExpiredOrder(Long userId) {
+        var ordersResult = orderRepository.findAllByPartner_IdAndStatus(userId, OrderStatus.WAITING_FOR_PARTNER);
+        var waitingOrderResult = new ArrayList<OrderEntity>();
 
-        for (OrderEntity o: list) {
-            if(o.getStatus().equals(OrderStatus.REFUSED)){
-                o.setStatus(OrderStatus.REFUSED);
-                orderRepository.save(o);
+        for (OrderEntity order: ordersResult) {
+            if(LocalDateTime.now().isAfter(order.getExpiresAt())){
+                order.setStatus(OrderStatus.REFUSED);
+                orderRepository.save(order);
+            } else {
+                waitingOrderResult.add(order);
             }
-
         }
-        return list;
+
+        return waitingOrderResult;
     }
 }

@@ -57,8 +57,4 @@ public class OrderEntity {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime expiresAt;
 
-    public OrderStatus getStatus() {
-        return LocalDateTime.now().isBefore(expiresAt) && this.status.equals(OrderStatus.WAITING_FOR_PARTNER) ? this.status : OrderStatus.REFUSED;
-    }
-
 }

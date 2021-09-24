@@ -34,7 +34,7 @@ public class Bootstrap {
     public final OrderRepository orderRepository;
     public final OrderItemRepository orderItemRepository;
     private static final Integer NUMBER_OF_PARTNERS = 10;
-    private static final Integer TIME_TO_REJECT_ORDER_MINUTES = 60;
+    private static final Integer TIME_TO_REJECT_ORDER_MINUTES = 5;
 
     public Bootstrap(UserRepository userRepository, ProductRepository productRepository, ProductImageRepository productImageRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
         this.userRepository = userRepository;
