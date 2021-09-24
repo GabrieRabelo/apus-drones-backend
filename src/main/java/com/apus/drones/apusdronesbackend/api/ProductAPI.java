@@ -1,9 +1,7 @@
 package com.apus.drones.apusdronesbackend.api;
 
-import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
-import com.apus.drones.apusdronesbackend.model.request.product.CreateProductRequest;
-import com.apus.drones.apusdronesbackend.model.request.product.UpdateProductRequest;
 import com.apus.drones.apusdronesbackend.service.ProductService;
+import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +19,10 @@ public class ProductAPI {
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody @Validated CreateProductRequest request) {
-        log.info("Received a new create product request for product name [{}]", request.getName());
+    public ResponseEntity<Void> create(@RequestBody @Validated CreateProductDTO createProductDTO) {
+        log.info("Received a new create product for product name [{}]", createProductDTO.getName());
 
-        return productService.create(request);
+        return productService.create(createProductDTO);
     }
 
     @GetMapping("/{id}")
@@ -34,11 +32,11 @@ public class ProductAPI {
         return ResponseEntity.ok(productService.get(id));
     }
 
-    @PatchMapping
-    public ResponseEntity<Void> update(@RequestBody @Validated UpdateProductRequest request) {
-        log.info("Received a new update product request for product id [{}]", request.getProductId());
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody @Validated ProductDTO productDTO) {
+        log.info("Received a new update product productDTO for product id [{}]", id);
 
-        return productService.update(request);
+        return productService.update(id, productDTO);
     }
 
     @DeleteMapping("/{id}")
