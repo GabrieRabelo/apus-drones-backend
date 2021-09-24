@@ -25,6 +25,8 @@ public class OrderDTO {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime expiresAt;
+
     private BigDecimal orderPrice;
 
     private AddressEntity deliveryAddress;

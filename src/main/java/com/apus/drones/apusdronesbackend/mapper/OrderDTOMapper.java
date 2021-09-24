@@ -37,6 +37,7 @@ public class OrderDTOMapper {
                 .orderPrice(orderEntity.getOrderPrice() == null ? BigDecimal.valueOf(0) : orderEntity.getOrderPrice())
                 .partner(partner)
                 .customer(customer)
+                .expiresAt(orderEntity.getExpiresAt())
                 .status(orderEntity.getStatus())
                 .build();
 
