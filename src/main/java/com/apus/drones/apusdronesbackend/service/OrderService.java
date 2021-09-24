@@ -12,4 +12,6 @@ public interface OrderService {
     OrderDTO update(OrderDTO orderDto);
 
     OrderDTO getById(Long orderId);
+
+    void addToCart(Long userId, OrderDTO orderDTO);
 }

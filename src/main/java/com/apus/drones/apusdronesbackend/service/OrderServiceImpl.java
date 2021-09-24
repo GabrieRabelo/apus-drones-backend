@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,17 @@ public class OrderServiceImpl implements OrderService {
 
         this.DEFAULT_DELIVERY_PRICE = new BigDecimal(deliveryPrice);
         this.WEIGHT_LIMIT_GRAMS = Double.parseDouble(weightLimit);
+    }
+
+    @Override
+    public void addToCart(Long userId, OrderDTO orderDTO) {
+        OrderDTO cart = this.getByCustomerId(userId, OrderStatus.IN_CART).stream().findFirst().orElse(null);
+        if (!Objects.isNull(cart)) {
+            cart.getItems().addAll(orderDTO.getItems());
+            this.update(cart);
+        } else {
+            this.update(orderDTO);
+        }
     }
 
     @Override

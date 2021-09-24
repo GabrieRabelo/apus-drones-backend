@@ -5,6 +5,7 @@ import com.apus.drones.apusdronesbackend.service.OrderService;
 import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.criterion.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -39,5 +40,11 @@ public class OrderAPI {
     public ResponseEntity<OrderDTO> update(@RequestBody OrderDTO orderDto) {
         log.info(Objects.nonNull(orderDto.getId()) ? "Updating an order." : "Creating an order.");
         return ResponseEntity.ok(orderService.update(orderDto));
+    }
+
+    @PostMapping("/cart/{userId}")
+    public ResponseEntity<Void> addToCart(@PathVariable Long userId, @RequestBody OrderDTO orderDto) {
+        orderService.addToCart(userId, orderDto);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
