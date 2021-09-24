@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Random;
 
 @Configuration
-@Profile({"dev","local","prd", "default"})
+@Profile({"default", "prd"})
 public class Bootstrap {
 
     private static int contEntities;
@@ -121,7 +121,7 @@ public class Bootstrap {
                 .orderPrice(new BigDecimal("50"))
                 .build();
 
-        int quantity = 1;
+        var quantity = 1;
 
         var orderItems = OrderItemEntity.builder()
                 .quantity(quantity)
@@ -134,44 +134,5 @@ public class Bootstrap {
         orderRepository.save(order);
         orderRepository.save(order2);
         orderItemRepository.save(orderItems);
-    }
-
-    private void populateProducts() {
-        int cont = 0;
-        for (int i = 1; i < 11; i++) {
-            for (int j = 1; j < 11; j++) {
-                cont++;
-                String s = "" + i;
-                var user = userRepository.findById(Long.parseLong(s)).orElse(null);
-                var productImage = ProductImage.builder().isMain(true).url("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + (i * 20 + j) + ".png").build();
-
-                var product = ProductEntity.builder()
-                        .user(user)
-                        .weight(500D)
-                        .status(ProductStatus.ACTIVE)
-                        .name("Produto " + cont)
-                        .price(BigDecimal.valueOf(new Random().nextInt(1000)))
-                        .createDate(LocalDateTime.now())
-                        .productImages(List.of(productImage))
-                        .build();
-
-                productImage.setProduct(product);
-                productRepository.save(product);
-            }
-        }
-    }
-
-    private void populateUsers() {
-        for (int i = 1; i < 11; i++) {
-            var user2 = UserEntity.builder()
-                    .name("Parceiro " + i)
-                    .role(Role.PARTNER)
-                    .avatarUrl("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + i + ".png")
-                    .cpfCnpj("12312312312")
-                    .password("blublu")
-                    .email("rabelo@rab.elo")
-                    .build();
-            userRepository.save(user2);
-        }
     }
 }

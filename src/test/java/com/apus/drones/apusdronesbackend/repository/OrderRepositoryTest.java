@@ -4,6 +4,8 @@ import com.apus.drones.apusdronesbackend.model.entity.OrderEntity;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +25,18 @@ class OrderRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @BeforeEach
+    void setUp() {
+        orderRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    @AfterEach
+    void tearDown() {
+        orderRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     @Test
     void testFindAllOrdersByCustomer() {

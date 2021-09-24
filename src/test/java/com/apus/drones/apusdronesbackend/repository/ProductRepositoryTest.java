@@ -3,6 +3,7 @@ package com.apus.drones.apusdronesbackend.repository;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,15 @@ class ProductRepositoryTest {
     @BeforeEach
     void setUp() {
         productRepository.deleteAll();
+        userRepository.deleteAll();
     }
+
+    @AfterEach
+    void tearDown() {
+        productRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
 
     @Test
     void testFindAllProductsByUserId() {

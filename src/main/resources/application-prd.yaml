@@ -1,0 +1,14 @@
+application:
+  base:
+    url: localhost
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/apus_drones
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL8Dialect

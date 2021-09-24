@@ -1,12 +1,19 @@
-version: '3'
+version: '3.1'
 
 services:
-  mongo:
-    image: mongo
+  db:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: ApusDrones!
+      MYSQL_DATABASE: apus_drones
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - "27017:27017"
-    volumes:
-      - ./local-env-docker/mongo:/data/db
+      - "3306:3306"
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_ARBITRARY=1
