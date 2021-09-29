@@ -4,6 +4,8 @@ import com.apus.drones.apusdronesbackend.model.entity.OrderEntity;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +25,18 @@ class OrderRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @BeforeEach
+    void setUp() {
+        orderRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    @AfterEach
+    void tearDown() {
+        orderRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     @Test
     void testFindAllOrdersByCustomer() {
@@ -55,12 +69,13 @@ class OrderRepositoryTest {
 
         orderRepository.saveAndFlush(order);
 
-        var result = orderRepository.findAllByCustomer_Id(savedCustomer.getId()).get(0);
+        var ignoredStatuses = List.of(OrderStatus.IN_CART);
+        var result = orderRepository.findAllByCustomer_IdAndStatusIsNotIn(savedCustomer.getId(), ignoredStatuses).get(0);
         assertThat(result).usingRecursiveComparison().isEqualTo(order);
     }
 
     @Test
-    void testFindByCustomerIdAndOrderId() {
+    void testFindByOrderId() {
         var customer = UserEntity.builder()
                 .email("customer2@gmail.com")
                 .password("coxinha123")
@@ -94,4 +109,46 @@ class OrderRepositoryTest {
         assertThat(result).usingRecursiveComparison().isEqualTo(order);
     }
 
+    @Test
+    void testFindOrderByUserIdAndOrderStatus() {
+        var customer = UserEntity.builder()
+                .email("customer@gmail.com")
+                .password("coxinha123")
+                .cpfCnpj("12312312333")
+                .name("Jorge")
+                .role(Role.CUSTOMER)
+                .productEntity(List.of())
+                .build();
+
+        var savedCustomer = userRepository.saveAndFlush(customer);
+
+        var partner = UserEntity.builder()
+                .name("Mister X")
+                .avatarUrl("https://static-images.ifood.com.br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f/201807231152_mrxma.png")
+                .role(Role.PARTNER)
+                .productEntity(List.of())
+                .build();
+
+        var savedPartner = userRepository.saveAndFlush(partner);
+
+        var order = OrderEntity.builder()
+                .customer(savedCustomer)
+                .partner(savedPartner)
+                .status(OrderStatus.IN_CART)
+                .deliveryPrice(new BigDecimal("50.00"))
+                .build();
+
+        var order2 = OrderEntity.builder()
+                .customer(savedCustomer)
+                .partner(savedPartner)
+                .status(OrderStatus.IN_FLIGHT)
+                .deliveryPrice(new BigDecimal("100.00"))
+                .build();
+
+        orderRepository.saveAndFlush(order);
+        orderRepository.saveAndFlush(order2);
+
+        var result = orderRepository.findAllByCustomer_IdAndStatus(customer.getId(), order.getStatus()).get(0);
+        assertThat(result).usingRecursiveComparison().isEqualTo(order);
+    }
 }

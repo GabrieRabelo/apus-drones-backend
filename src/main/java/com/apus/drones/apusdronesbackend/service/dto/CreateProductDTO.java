@@ -1,18 +1,25 @@
-package com.apus.drones.apusdronesbackend.model.request.product;
+package com.apus.drones.apusdronesbackend.service.dto;
 
+import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-public class CreateProductRequest {
+@Builder
+@ToString
+public class CreateProductDTO {
     @NotBlank(message = "Nome não pode ser nulo ou vazio")
     private String name;
+
+    private String description;
 
     @NotNull(message = "Preço não pode ser nulo ou vazio")
     private BigDecimal price;
@@ -22,4 +29,12 @@ public class CreateProductRequest {
 
     @NotNull(message = "Peso não pode ser nulo ou vazio")
     private double weight;
+
+    private String imageUrl;
+
+    private List<String> imagesUrls;
+
+    private Integer quantity;
+
+    private UserEntity partner;
 }

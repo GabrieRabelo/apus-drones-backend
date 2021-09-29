@@ -2,6 +2,7 @@ package com.apus.drones.apusdronesbackend.repository;
 
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,11 @@ class UserRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        userRepository.deleteAll();
+    }
+
+    @AfterEach
+    void tearDown() {
         userRepository.deleteAll();
     }
 

@@ -28,6 +28,7 @@ public class OrderEntity {
     @ManyToOne
     private UserEntity partner;
 
+    @Enumerated(EnumType.STRING)
     @Column
     private OrderStatus status;
 
@@ -51,5 +52,9 @@ public class OrderEntity {
 
     @Transient
     private List<OrderItemEntity> orderItems;
+
+    @Column
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime expiresAt;
 
 }

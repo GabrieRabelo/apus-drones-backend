@@ -1,42 +1,66 @@
 package com.apus.drones.apusdronesbackend.service;
 
-import com.apus.drones.apusdronesbackend.service.converter.ProductConverter;
+import com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
+import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
+import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
-import com.apus.drones.apusdronesbackend.model.request.product.CreateProductRequest;
-import com.apus.drones.apusdronesbackend.model.request.product.UpdateProductRequest;
+import com.apus.drones.apusdronesbackend.repository.ProductImageRepository;
 import com.apus.drones.apusdronesbackend.repository.ProductRepository;
+import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper.fromProductEntityList;
+
+@Transactional
 @Service
 @Slf4j
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
-    private final ProductConverter productConverter;
+    private final ProductImageRepository productImageRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository,
-                              ProductConverter productConverter1) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository) {
         this.productRepository = productRepository;
-        this.productConverter = productConverter1;
+        this.productImageRepository = productImageRepository;
     }
 
     @Override
-    public ResponseEntity<Void> create(CreateProductRequest request) {
+    public ResponseEntity<Void> create(CreateProductDTO productDTO) {
+        // TODO obter o parceiro da autenticação
+        UserEntity partner = UserEntity.builder().id(1L).build();
+
         ProductEntity entity = ProductEntity.builder()
-                .name(request.getName())
-                .price(request.getPrice())
-                .status(request.getStatus())
-                .weight(request.getWeight())
+                .name(productDTO.getName())
+                .description(productDTO.getDescription())
+                .price(productDTO.getPrice())
+                .status(ProductStatus.ACTIVE)
+                .weight(productDTO.getWeight())
+                .quantity(productDTO.getQuantity())
+                .createDate(LocalDateTime.now())
+                .user(partner)
                 .build();
 
         Long generatedId = productRepository.save(entity).getId();
+        entity.setId(generatedId);
+
+        List<ProductImage> productImages = productDTO.getImagesUrls().stream().map(
+                url -> ProductImage.builder().url(url).isMain(false).product(entity).build()
+        ).collect(Collectors.toList());
+
+        if (!productImages.isEmpty())
+            productImages.get(0).setMain(true);
+
+        productImageRepository.saveAll(productImages);
 
         log.info("Saved new product entity with id [{}]", generatedId);
 
@@ -44,25 +68,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<ProductEntity> get(Long id) {
-        return productRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Não foi possível encontrar o produto com ID " + id));
+    public ProductDTO get(Long id) {
+        return productRepository.findById(id).map(ProductDtoMapper::fromProductEntity)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Não foi possível encontrar o produto com ID " + id));
     }
 
     @Override
     public List<ProductDTO> findAllActiveProductsByUserId(Long userId) {
         var resultFromDB = productRepository.findAllByUserIdAndStatus(userId, ProductStatus.ACTIVE);
-        return productConverter.toDTO(resultFromDB);
+        return fromProductEntityList(resultFromDB);
     }
 
     @Override
-    public ResponseEntity<Void> update(UpdateProductRequest request) {
-        ProductEntity entity =
-                productRepository.findById(request.getProductId())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Não foi possível encontrar o produto com ID " + request.getProductId()));
+    public ResponseEntity<Void> update(Long id, ProductDTO productDTO) {
+        ProductEntity entity = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Não foi possível encontrar o produto com ID " + id));
 
-        updateProduct(request, entity);
+        updateProduct(productDTO, entity);
 
         productRepository.save(entity);
 
@@ -71,27 +95,51 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<Void> delete(Long id) {
-        ProductEntity entity =
-                productRepository.findById(id)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Não foi possível encontrar o produto com ID " + id));
+        ProductEntity entity = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Não foi possível encontrar o produto com ID " + id));
 
         productRepository.delete(entity);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    public void updateProduct(ProductDTO productDTO, ProductEntity entity) {
+        if (productDTO.getDescription() != null)
+            entity.setDescription(productDTO.getDescription());
 
-    private void updateProduct(UpdateProductRequest request, ProductEntity entity) {
-        if (request.getName() != null)
-            entity.setName(request.getName());
+        if (productDTO.getPrice() != null)
+            entity.setPrice(productDTO.getPrice());
 
-        if (request.getPrice() != null)
-            entity.setPrice(request.getPrice());
+        if (productDTO.getStatus() != null)
+            entity.setStatus(productDTO.getStatus());
 
-        if (request.getStatus() != null)
-            entity.setStatus(request.getStatus());
+        if (productDTO.getWeight() != null)
+            entity.setWeight(productDTO.getWeight());
 
-        if (request.getWeight() != null)
-            entity.setWeight(request.getWeight());
+        if (productDTO.getQuantity() != null)
+            entity.setQuantity(productDTO.getQuantity());
+
+        if (productDTO.getImagesUrls() != null) {
+            List<ProductImage> productImages = productDTO.getImagesUrls().stream().map(
+                    url -> {
+                        ProductImage productImage = productImageRepository
+                                .findProductImageByProductAndUrl(entity, url);
+                        return productImage != null
+                                ? productImage
+                                : ProductImage.builder()
+                                    .url(url)
+                                    .isMain(false)
+                                    .product(entity)
+                                    .build();
+                    }
+            ).collect(Collectors.toList());
+
+            if (!productImages.isEmpty())
+                productImages.get(0).setMain(true);
+
+            productImageRepository.deleteAllByProduct(entity);
+            entity.setProductImages(productImages);
+        }
     }
 }

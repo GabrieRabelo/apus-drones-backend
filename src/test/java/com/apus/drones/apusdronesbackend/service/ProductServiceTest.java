@@ -1,10 +1,13 @@
 package com.apus.drones.apusdronesbackend.service;
 
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
+import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
+import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
-import com.apus.drones.apusdronesbackend.model.request.product.CreateProductRequest;
-import com.apus.drones.apusdronesbackend.model.request.product.UpdateProductRequest;
+import com.apus.drones.apusdronesbackend.repository.ProductImageRepository;
 import com.apus.drones.apusdronesbackend.repository.ProductRepository;
+import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
+import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,10 +15,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper.fromUserEntity;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,28 +31,48 @@ public class ProductServiceTest {
     private ProductServiceImpl productService;
     @Mock
     private ProductRepository productRepository;
+    @Mock
+    private ProductImageRepository productImageRepository;
 
     @Test
     public void testCreateProduct() {
-        CreateProductRequest request = new CreateProductRequest();
-        request.setName("Produto test");
-        request.setPrice(new BigDecimal(1));
-        request.setStatus(ProductStatus.ACTIVE);
-        request.setWeight(5);
+        UserEntity partner = UserEntity.builder().name("Parceiro").build();
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setId(1L);
+        ProductImage productImage = new ProductImage();
+        productImage.setId(1L);
 
-        ProductEntity entity = new ProductEntity();
-        entity.setId(1L);
+        CreateProductDTO productDTO = CreateProductDTO.builder()
+                .name("Produto teste")
+                .description("Descrição teste")
+                .price(new BigDecimal(1))
+                .status(ProductStatus.ACTIVE)
+                .weight(100.0)
+                .imagesUrls(List.of("url"))
+                .quantity(1)
+                .partner(partner)
+                .build();
 
-        when(productRepository.save(Mockito.any())).thenReturn(entity);
-
-        var result = productService.create(request);
+        when(productRepository.save(Mockito.any())).thenReturn(productEntity);
+        when(productImageRepository.saveAll(Mockito.any())).thenReturn(List.of(productImage));
+        var result = productService.create(productDTO);
 
         assertThat(result).isNotNull();
     }
 
     @Test
     public void testFindProductById() {
-        ProductEntity entity = new ProductEntity("Produto test", new BigDecimal(1), ProductStatus.ACTIVE, 5);
+        var date = LocalDateTime.now();
+        UserEntity user = UserEntity.builder().id(1L).name("asdkfask").avatarUrl("www.www.www").build();
+        ProductImage productImage = ProductImage.builder().isMain(true).url("www.www.www").build();
+        ProductEntity entity = ProductEntity.builder()
+                .user(user)
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .status(ProductStatus.ACTIVE)
+                .productImages(List.of(productImage))
+                .createDate(date)
+                .build();
 
         entity.setId(12345L);
 
@@ -54,21 +80,45 @@ public class ProductServiceTest {
 
         var result = productService.get(12345L);
 
-        assertThat(result.getBody()).isEqualToComparingFieldByFieldRecursively(entity);
+        var expected = ProductDTO.builder()
+                .id(12345L)
+                .partner(fromUserEntity(user))
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .status(ProductStatus.ACTIVE)
+                .quantity(0)
+                .createdAt(date)
+                .imageUrl("www.www.www")
+                .imagesUrls(List.of("www.www.www"))
+                .weight(0D)
+                .build();
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
     public void testUpdateProduct() {
+        Long id = 12345l;
         ProductEntity entity = new ProductEntity("Produto test", new BigDecimal(1), ProductStatus.ACTIVE, 5);
-        entity.setId(12345L);
-
-        UpdateProductRequest request = new UpdateProductRequest();
-        request.setName("Update novo");
+        ProductDTO productDTO = ProductDTO.builder()
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .status(ProductStatus.ACTIVE)
+                .weight(1.0)
+                .quantity(1)
+                .build();
 
         when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
 
-        var result = productService.update(request);
-
+        var result = productService.update(id, productDTO);
+//
+//        UpdateProductRequest request = new UpdateProductRequest();
+//        request.setName("Update novo");
+//
+//        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+//
+//        var result = productService.update(request);
+//
         assertThat(result).isNotNull();
     }
 
