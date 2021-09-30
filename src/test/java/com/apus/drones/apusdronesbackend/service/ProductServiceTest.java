@@ -72,6 +72,8 @@ public class ProductServiceTest {
                 .status(ProductStatus.ACTIVE)
                 .productImages(List.of(productImage))
                 .createDate(date)
+                .quantity(1)
+                .weight(100.0)
                 .build();
 
         entity.setId(12345L);
@@ -86,11 +88,11 @@ public class ProductServiceTest {
                 .name("Produto test")
                 .price(new BigDecimal(1))
                 .status(ProductStatus.ACTIVE)
-                .quantity(0)
+                .quantity(1)
                 .createdAt(date)
                 .imageUrl("www.www.www")
                 .imagesUrls(List.of("www.www.www"))
-                .weight(0D)
+                .weight(100.0)
                 .build();
 
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);

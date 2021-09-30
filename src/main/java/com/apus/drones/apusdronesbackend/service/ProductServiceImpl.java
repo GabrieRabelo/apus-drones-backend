@@ -58,7 +58,7 @@ public class ProductServiceImpl implements ProductService {
         ).collect(Collectors.toList());
 
         if (!productImages.isEmpty())
-            productImages.get(0).setMain(true);
+            productImages.get(0).setIsMain(true);
 
         productImageRepository.saveAll(productImages);
 
@@ -136,7 +136,7 @@ public class ProductServiceImpl implements ProductService {
             ).collect(Collectors.toList());
 
             if (!productImages.isEmpty())
-                productImages.get(0).setMain(true);
+                productImages.get(0).setIsMain(true);
 
             productImageRepository.deleteAllByProduct(entity);
             entity.setProductImages(productImages);

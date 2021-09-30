@@ -28,7 +28,7 @@ public class ProductImage {
     @Column
     private Long id;
     private String url;
-    private boolean isMain;
+    private Boolean isMain;
 
     @JsonIgnore
     @ToString.Exclude

@@ -25,7 +25,8 @@ class ProductRepositoryTest {
     private UserRepository userRepository;
 
     @BeforeEach
-    void setUp() {
+    @AfterEach
+    void cleanState() {
         productRepository.deleteAll();
         userRepository.deleteAll();
     }

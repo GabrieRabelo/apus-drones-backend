@@ -1,15 +1,43 @@
+# Configuração para fazer build local. Não deve ser usada em produção!
+# Para produção, é utilizado o stack.yml (Docker Swarm).
 version: '3.1'
 
 services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+      args:
+        SPRING_PROFILES_ACTIVE: prd
+    container_name: ad-backend
+    env_file:
+      - .env.local
+    environment:
+      SPRING_PROFILES_ACTIVE: prd
+    ports:
+      - "8080:8080"
+    networks:
+      - apusdrones
+    depends_on:
+      - db
+
   db:
     image: mysql:latest
+    container_name: ad-db
     command: --default-authentication-plugin=mysql_native_password
     restart: always
+    env_file:
+      - .env.local
     environment:
       MYSQL_DATABASE: apus_drones
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: apusdrones
     ports:
       - "3306:3306"
+    networks:
+      - apusdrones
+#    volumes:
+#      - ./dbdata:/var/lib/mysql
+
   phpmyadmin:
     image: phpmyadmin
     restart: always
@@ -17,3 +45,8 @@ services:
       - "8081:80"
     environment:
       - PMA_ARBITRARY=1
+    networks:
+      - apusdrones
+
+networks:
+  apusdrones:

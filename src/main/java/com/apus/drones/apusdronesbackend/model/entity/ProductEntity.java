@@ -54,9 +54,9 @@ public class ProductEntity {
     private ProductStatus status;
 
     @Column
-    private double weight;
+    private Double weight;
 
-    @Column int quantity;
+    @Column Integer quantity;
 
     @Column
     private LocalDateTime createDate;
