@@ -40,6 +40,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation:2.5.4'
 	testImplementation('org.assertj:assertj-core:3.20.2')
 
+	implementation 'com.amazonaws:aws-java-sdk:1.12.77'
+
 	if (activeProfile == 'prd') {
 		//mysql db (production)
 		runtimeOnly 'mysql:mysql-connector-java:8.0.25'
