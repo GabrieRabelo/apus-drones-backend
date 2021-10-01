@@ -5,6 +5,7 @@ import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
 import com.apus.drones.apusdronesbackend.repository.*;
+import org.locationtech.jts.geom.Point;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Profile({ "local", "prd" })
+@Profile({"local", "prd"})
 @Configuration
 public class Bootstrap {
 
@@ -30,8 +31,8 @@ public class Bootstrap {
     public final AddressRepository addressRepository;
 
     public Bootstrap(UserRepository userRepository, ProductRepository productRepository,
-            ProductImageRepository productImageRepository, OrderRepository orderRepository,
-            AddressRepository addressRepository, OrderItemRepository orderItemRepository) {
+                     ProductImageRepository productImageRepository, OrderRepository orderRepository,
+                     AddressRepository addressRepository, OrderItemRepository orderItemRepository) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.productRepository = productRepository;
@@ -57,9 +58,23 @@ public class Bootstrap {
 
         for (UserEntity userEntity : usersToCreate) {
             userRepository.save(userEntity);
+            initAddress(userEntity);
+            initAddress(userEntity);
         }
 
         populatePartners();
+    }
+
+    private void initAddress(UserEntity userEntity) {
+        var address = AddressEntity.builder()
+                .number(123)
+                .zipCode("123456")
+                .complement("Complemento")
+                .description("Rua Teste do user " + userEntity.getName())
+                .user(userEntity)
+                .build();
+
+        addressRepository.save(address);
     }
 
     private void initOrders() {
