@@ -27,6 +27,7 @@ public class S3UploadPhotoServiceImpl implements S3UploadPhotoService {
 
         //nao ta retornando a url...
         //https://www.baeldung.com/aws-s3-java
+        //https://www.section.io/engineering-education/spring-boot-amazon-s3/
         PutObjectResult response = amazonS3.putObject("apusdrone", request.getFileName(), fileStream, null);
 
         String s = ";";
