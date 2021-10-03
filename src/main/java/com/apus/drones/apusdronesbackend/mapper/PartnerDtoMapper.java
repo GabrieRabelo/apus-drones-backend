@@ -10,11 +10,13 @@ public class PartnerDtoMapper {
 
     public static PartnerDTO fromUserEntity(UserEntity partner) {
         return PartnerDTO
-                .builder()
-                .id(partner.getId())
-                .name(partner.getName())
-                .avatarUrl(partner.getAvatarUrl())
-                .build();
+            .builder()
+            .id(partner.getId())
+            .email(partner.getEmail())
+            .name(partner.getName())
+            .cpfCnpj(partner.getCpfCnpj())
+            .avatarUrl(partner.getAvatarUrl())
+            .build();
     }
 
     public static List<PartnerDTO> fromUserEntityList(List<UserEntity> resultFromDB) {
