@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,6 +44,11 @@ public class PartnerAPI {
     @PostMapping
     public ResponseEntity<CreatePartnerResponseDTO> create(@RequestBody @Validated CreatePartnerDTO createPartnerDTO) {
         return ResponseEntity.ok(partnerService.create(createPartnerDTO));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<PartnerDTO> update(@PathVariable Long id, @RequestBody @Validated CreatePartnerDTO updatePartnerDTO) {
+        return ResponseEntity.ok(partnerService.update(id, updatePartnerDTO));
     }
 
     @GetMapping

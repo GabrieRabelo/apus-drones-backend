@@ -10,4 +10,5 @@ public interface PartnerService {
 
     List<PartnerDTO> findAllPartners();
     CreatePartnerResponseDTO create(CreatePartnerDTO createPartnerDTO);
+    PartnerDTO update(Long id, CreatePartnerDTO updatePartnerDTO);
 }

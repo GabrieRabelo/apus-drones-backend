@@ -54,4 +54,35 @@ public class PartnerServiceImpl implements PartnerService {
         return response;
     }
 
+    @Override
+    public PartnerDTO update(Long id, CreatePartnerDTO updatePartnerDTO) {
+        UserEntity entity = userRepository.findAllByIdAndRole(id, Role.PARTNER)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Não foi possível encontrar o Parceiro com ID " + id));
+
+        updatePartner(updatePartnerDTO, entity);
+
+        UserEntity savedUserEntity = userRepository.save(entity);
+
+        return PartnerDtoMapper.fromUserEntity(savedUserEntity);
+    }
+
+    private void updatePartner(CreatePartnerDTO partnerDTO, UserEntity entity) {
+        if (partnerDTO.getName() != null)
+            entity.setName(partnerDTO.getName());
+
+        if (partnerDTO.getEmail() != null)
+            entity.setEmail(partnerDTO.getEmail());
+
+        // TODO: Should it throw error or just dont update?
+        if (partnerDTO.getCpfCnpj() != null) {
+            entity.setCpfCnpj(partnerDTO.getCpfCnpj());
+        }
+
+        if (partnerDTO.getAvatarUrl() != null)
+            entity.setAvatarUrl(partnerDTO.getAvatarUrl());
+
+        if (partnerDTO.getPassword() != null)
+            entity.setPassword(partnerDTO.getPassword());
+    }
 }
