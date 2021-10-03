@@ -61,6 +61,9 @@ public class ProductEntity {
     @Column
     private LocalDateTime createDate;
 
+    @Column
+    private Boolean deleted = Boolean.FALSE;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.EAGER, targetEntity = ProductImage.class)
     private List<ProductImage> productImages = new ArrayList<>();
 
