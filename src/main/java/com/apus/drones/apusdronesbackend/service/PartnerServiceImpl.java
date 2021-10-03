@@ -34,6 +34,13 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
+    public PartnerDTO get(Long id) {
+        return userRepository.findAllByIdAndRole(id, Role.PARTNER).map(PartnerDtoMapper::fromUserEntity)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Não foi possível encontrar o Parceiro com ID " + id));
+    }
+
+    @Override
     public CreatePartnerResponseDTO create(CreatePartnerDTO createPartnerDTO) {
         UserEntity userEntityToSave = UserEntity.builder()
                 .name(createPartnerDTO.getName())
