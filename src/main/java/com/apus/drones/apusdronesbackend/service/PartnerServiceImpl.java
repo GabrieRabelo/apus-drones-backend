@@ -35,7 +35,7 @@ public class PartnerServiceImpl implements PartnerService {
 
     @Override
     public PartnerDTO get(Long id) {
-        return userRepository.findAllByIdAndRole(id, Role.PARTNER).map(PartnerDtoMapper::fromUserEntity)
+        return userRepository.findByIdAndRoleAndDeletedFalse(id, Role.PARTNER).map(PartnerDtoMapper::fromUserEntity)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o Parceiro com ID " + id));
     }
@@ -48,6 +48,7 @@ public class PartnerServiceImpl implements PartnerService {
                 .avatarUrl(createPartnerDTO.getAvatarUrl())
                 .cpfCnpj(createPartnerDTO.getCpfCnpj())
                 .password(createPartnerDTO.getPassword())
+                .deleted(Boolean.FALSE)
                 .role(Role.PARTNER)
                 .build();
 
@@ -91,5 +92,16 @@ public class PartnerServiceImpl implements PartnerService {
 
         if (partnerDTO.getPassword() != null)
             entity.setPassword(partnerDTO.getPassword());
+    }
+
+    @Override
+    public void delete(Long id) {
+        UserEntity entity = userRepository.findByIdAndRoleAndDeletedFalse(id, Role.PARTNER)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Não foi possível encontrar o Parceiro com ID " + id));
+
+        entity.setDeleted(Boolean.TRUE);
+
+        userRepository.save(entity);
     }
 }

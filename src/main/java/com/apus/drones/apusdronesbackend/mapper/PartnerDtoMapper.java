@@ -16,6 +16,7 @@ public class PartnerDtoMapper {
             .name(partner.getName())
             .cpfCnpj(partner.getCpfCnpj())
             .avatarUrl(partner.getAvatarUrl())
+            .deleted(partner.getDeleted())
             .build();
     }
 

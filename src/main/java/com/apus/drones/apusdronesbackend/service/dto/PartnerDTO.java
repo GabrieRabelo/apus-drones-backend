@@ -11,4 +11,5 @@ public class PartnerDTO {
     private String email;
     private String cpfCnpj;
     private String avatarUrl;
+    private Boolean deleted;
 }
