@@ -38,9 +38,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         //Para desabilitar a autenticação, comentar até o código até o ...
         http.cors().and().csrf().disable().authorizeRequests()
-                .antMatchers("/api/v1/authenticate/login", "/h2/**", "/csrf", "/v2/api-docs", "/configuration/ui",
+                .antMatchers("/api/v1/authenticate/login", "/h2/**", "/csrf", "/v3/api-docs", "/configuration/ui",
                         "/configuration/security", "/swagger-resources", "/swagger-resources/configuration/**",
-                        "/swagger-ui.html", "/webjars/springfox-swagger-ui/**", "/swagger-ui.html")
+                        "/swagger-ui.html", "/swagger-ui/*", "/webjars/springfox-swagger-ui/**")
                 .permitAll().anyRequest().authenticated().and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
