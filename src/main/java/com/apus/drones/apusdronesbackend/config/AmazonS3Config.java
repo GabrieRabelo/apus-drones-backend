@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectResult;
+import com.apus.drones.apusdronesbackend.service.dto.FileDTO;
 import com.apus.drones.apusdronesbackend.service.dto.UploadPhotoDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -37,7 +38,7 @@ public class AmazonS3Config {
                         .build();
     }
 
-    public void upload(UploadPhotoDTO request) {
+    public String upload(FileDTO request) {
         String[] nameSplit = request.getFileName().split("\\.");
         String extension = "png";
 
@@ -54,8 +55,6 @@ public class AmazonS3Config {
 
         PutObjectResult response = amazonS3.putObject(bucketName, request.getFileName(), fileStream, metadata);
 
-        String url = amazonS3.getUrl(bucketName, request.getFileName()).toString();
-
-        System.out.println("url: " + url);
+        return amazonS3.getUrl(bucketName, request.getFileName()).toString();
     }
 }

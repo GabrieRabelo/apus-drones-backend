@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
+import com.apus.drones.apusdronesbackend.config.AmazonS3Config;
 import com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
@@ -8,6 +9,7 @@ import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.repository.ProductImageRepository;
 import com.apus.drones.apusdronesbackend.repository.ProductRepository;
 import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
+import com.apus.drones.apusdronesbackend.service.dto.FileDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,16 +31,30 @@ import static com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper.fromProd
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
+    private final AmazonS3Config amazonS3;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository, AmazonS3Config amazonS3) {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
+        this.amazonS3 = amazonS3;
     }
 
     @Override
     public ResponseEntity<Void> create(CreateProductDTO productDTO) {
+        long mainFileCount = productDTO.getFiles().stream().map(FileDTO::isMainFile)
+                .filter(isMain -> isMain)
+                .count();
+
+        if (mainFileCount > 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Apenas uma imagem principal é permitida");
+        } else if (mainFileCount == 0) {
+            productDTO.getFiles().get(0).setMainFile(true);
+        }
+
         // TODO obter o parceiro da autenticação
         UserEntity partner = UserEntity.builder().id(1L).build();
+
+        List<ProductImage> images = uploadFiles(productDTO.getFiles());
 
         ProductEntity entity = ProductEntity.builder()
                 .name(productDTO.getName())
@@ -48,19 +65,17 @@ public class ProductServiceImpl implements ProductService {
                 .quantity(productDTO.getQuantity())
                 .createDate(LocalDateTime.now())
                 .user(partner)
+                .productImages(images)
                 .build();
 
         Long generatedId = productRepository.save(entity).getId();
         entity.setId(generatedId);
 
-        List<ProductImage> productImages = productDTO.getImagesUrls().stream().map(
-                url -> ProductImage.builder().url(url).isMain(false).product(entity).build()
-        ).collect(Collectors.toList());
+        for (ProductImage image : images) {
+            image.setProduct(entity);
+        }
 
-        if (!productImages.isEmpty())
-            productImages.get(0).setIsMain(true);
-
-        productImageRepository.saveAll(productImages);
+        productImageRepository.saveAll(images);
 
         log.info("Saved new product entity with id [{}]", generatedId);
 
@@ -104,6 +119,26 @@ public class ProductServiceImpl implements ProductService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    public List<ProductImage> uploadFiles(List<FileDTO> files) {
+        String url;
+        List<ProductImage> imageEntities = new ArrayList<>();
+
+        for (FileDTO file : files) {
+            url = amazonS3.upload(file);
+
+            var prod =
+                    ProductImage
+                            .builder()
+                            .url(url)
+                            .isMain(file.isMainFile())
+                            .build();
+
+            imageEntities.add(prod);
+        }
+
+        return imageEntities;
+    }
+
     public void updateProduct(ProductDTO productDTO, ProductEntity entity) {
         if (productDTO.getDescription() != null)
             entity.setDescription(productDTO.getDescription());
@@ -128,10 +163,10 @@ public class ProductServiceImpl implements ProductService {
                         return productImage != null
                                 ? productImage
                                 : ProductImage.builder()
-                                    .url(url)
-                                    .isMain(false)
-                                    .product(entity)
-                                    .build();
+                                .url(url)
+                                .isMain(false)
+                                .product(entity)
+                                .build();
                     }
             ).collect(Collectors.toList());
 
