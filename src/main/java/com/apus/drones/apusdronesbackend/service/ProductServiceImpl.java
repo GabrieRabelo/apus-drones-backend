@@ -1,6 +1,5 @@
 package com.apus.drones.apusdronesbackend.service;
 
-import com.apus.drones.apusdronesbackend.config.AmazonS3Config;
 import com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
@@ -31,12 +30,12 @@ import static com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper.fromProd
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
-    private final AmazonS3Config amazonS3;
+    private final ImageUploadService imageUploadService;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository, AmazonS3Config amazonS3) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository, ImageUploadService imageUploadService) {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
-        this.amazonS3 = amazonS3;
+        this.imageUploadService = imageUploadService;
     }
 
     @Override
@@ -124,7 +123,8 @@ public class ProductServiceImpl implements ProductService {
         List<ProductImage> imageEntities = new ArrayList<>();
 
         for (FileDTO file : files) {
-            url = amazonS3.upload(file);
+
+            url = imageUploadService.upload(file);
 
             var prod =
                     ProductImage
