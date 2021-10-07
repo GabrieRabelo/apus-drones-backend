@@ -83,7 +83,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDTO> findAllActiveProductsByUserId(Long userId) {
         var resultFromDB = productRepository.findAllByUserIdAndStatusAndDeletedFalse(userId, ProductStatus.ACTIVE);
-        return fromProductEntityListqq(resultFromDB);
+        return fromProductEntityList(resultFromDB);
     }
 
     @Override
