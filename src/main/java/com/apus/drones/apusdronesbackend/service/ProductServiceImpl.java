@@ -11,6 +11,7 @@ import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
 import com.apus.drones.apusdronesbackend.service.dto.FileDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -119,12 +120,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public List<ProductImage> uploadFiles(List<FileDTO> files) {
-        String url;
+        String url = "";
         List<ProductImage> imageEntities = new ArrayList<>();
 
         for (FileDTO file : files) {
 
-            url = imageUploadService.upload(file);
+            try {
+                url = imageUploadService.upload(file);
+            } catch (SizeLimitExceededException e) {
+                double actual = e.getActualSize() / 1048576D;
+                double max = e.getPermittedSize() / 1048576D;
+                log.error("Error at image upload, max size limite exceeded.", e);
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Imagem ultrapassa o limite de tamanho, tamanho atual: " + actual + "MB, tamanho máximo permitido: " + max + "MB");
+            }
 
             var prod =
                     ProductImage

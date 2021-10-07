@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.apus.drones.apusdronesbackend.service.dto.FileDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
@@ -23,7 +24,7 @@ public class ImageUploadService {
         this.bucketName = bucketName;
     }
 
-    public String upload(FileDTO request) {
+    public String upload(FileDTO request) throws SizeLimitExceededException {
 
         String[] nameSplit = request.getFileName().split("\\.");
         String extension = "png";
@@ -36,6 +37,10 @@ public class ImageUploadService {
         byte[] fileContent = Base64Utils.decodeFromString(request.getBase64());
 
         double fileSizeMB = fileContent.length / 1048576D;
+
+        if(fileSizeMB >= 1) {
+            throw new SizeLimitExceededException("Image size limite exceeded", fileContent.length, 1048576);
+        }
 
         InputStream fileStream = new ByteArrayInputStream(fileContent);
 
