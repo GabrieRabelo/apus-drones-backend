@@ -37,7 +37,6 @@ class ProductRepositoryTest {
         userRepository.deleteAll();
     }
 
-
     @Test
     void testFindAllProductsByUserId() {
 
@@ -49,19 +48,11 @@ class ProductRepositoryTest {
         userRepository.save(anotherUser);
         userRepository.flush();
 
-        var product = ProductEntity
-                .builder()
-                .user(user)
-                .name("Carregador de Hiphone")
-                .status(ProductStatus.ACTIVE)
-                .productImages(List.of())
-                .build();
+        var product = ProductEntity.builder().user(user).name("Carregador de Hiphone").status(ProductStatus.ACTIVE)
+                .productImages(List.of()).build();
 
-        var anotherPartnerProduct = ProductEntity.builder()
-                .user(anotherUser)
-                .name("Carregador de Xiaomi")
-                .status(ProductStatus.INACTIVE)
-                .build();
+        var anotherPartnerProduct = ProductEntity.builder().user(anotherUser).name("Carregador de Xiaomi")
+                .status(ProductStatus.INACTIVE).build();
 
         var savedProduct = productRepository.save(product);
         productRepository.save(anotherPartnerProduct);
@@ -69,9 +60,6 @@ class ProductRepositoryTest {
 
         var result = productRepository.findAllByUserIdAndStatus(savedUser.getId(), ProductStatus.ACTIVE).get(0);
 
-        assertThat(result)
-                .usingRecursiveComparison()
-                .ignoringFields("user.productEntity")
-                .isEqualTo(savedProduct);
+        assertThat(result).usingRecursiveComparison().ignoringFields("user.productEntity").isEqualTo(savedProduct);
     }
 }

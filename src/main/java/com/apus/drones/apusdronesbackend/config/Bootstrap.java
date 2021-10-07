@@ -5,7 +5,6 @@ import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
 import com.apus.drones.apusdronesbackend.repository.*;
-import org.locationtech.jts.geom.Point;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -44,6 +43,7 @@ public class Bootstrap {
     @Bean
     public void initDatabase() {
         initUsers();
+        populatePartners();
         initOrders();
     }
 
@@ -61,8 +61,6 @@ public class Bootstrap {
             initAddress(userEntity);
             initAddress(userEntity);
         }
-
-        populatePartners();
     }
 
     private void initAddress(UserEntity userEntity) {
@@ -86,26 +84,32 @@ public class Bootstrap {
     private void populateOrders(Integer partnerIndex) {
         List<OrderEntity> ordersToCreate = new ArrayList<>();
         ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex)).status(OrderStatus.ACCEPTED)
-                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES)).createdAt(LocalDateTime.now())
-                .deliveryPrice(new BigDecimal("50")).orderPrice(new BigDecimal("100")).build());
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
+                .status(OrderStatus.ACCEPTED)
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("100")).build());
 
         ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex)).status(OrderStatus.IN_CART)
-                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES)).createdAt(LocalDateTime.now())
-                .deliveryPrice(new BigDecimal("50")).orderPrice(new BigDecimal("50")).build());
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
+                .status(OrderStatus.IN_CART)
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("50")).build());
 
         ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
                 .status(OrderStatus.WAITING_FOR_PARTNER)
-                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES)).createdAt(LocalDateTime.now())
-                .deliveryPrice(new BigDecimal("50")).orderPrice(new BigDecimal("225")).build());
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("225")).build());
 
         ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(1))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
                 .status(OrderStatus.WAITING_FOR_PARTNER)
-                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES)).createdAt(LocalDateTime.now())
-                .deliveryPrice(new BigDecimal("50")).orderPrice(new BigDecimal("100")).build());
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("100")).build());
 
         List<OrderItemEntity> ordersItemToCreate = new ArrayList<>();
 
@@ -157,14 +161,16 @@ public class Bootstrap {
     private void populateProducts(long id) {
         for (int i = 0; i < 5; i++) {
             var user = userRepository.findById(id).orElse(null);
-            var productImage = ProductImage.builder().isMain(true).url(
-                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + contEntities + ".png")
+            var productImage = ProductImage.builder().isMain(true)
+                    .url("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
+                            + contEntities + ".png")
                     .build();
 
             var product = ProductEntity.builder().user(user).weight(2D).status(ProductStatus.ACTIVE)
                     .name("Produto " + contEntities).description("Lorem ipsum")
-                    .price(BigDecimal.valueOf(new Random().nextInt(1000))).createDate(LocalDateTime.now())
-                    .productImages(List.of(productImage)).quantity(25).build();
+                    .price(BigDecimal.valueOf(new Random().nextInt(1000)))
+                    .createDate(LocalDateTime.now()).productImages(List.of(productImage))
+                    .quantity(25).deleted(Boolean.FALSE).build();
 
             productImage.setProduct(product);
             productRepository.save(product);
@@ -174,10 +180,12 @@ public class Bootstrap {
 
     private void populatePartners() {
         for (int i = 0; i < NUMBER_OF_PARTNERS; i++) {
-            var user = UserEntity.builder().name("Parceiro " + contEntities).role(Role.PARTNER)
-                    .avatarUrl("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
+            var user = UserEntity.builder().name("Parceiro " + contEntities).role(Role.PARTNER).avatarUrl(
+                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
                             + contEntities + ".png")
-                    .cpfCnpj("12312312312").password("blublu").email("parceiro" + i + "@example.com").build();
+                    .cpfCnpj("12312312312").password("blublu")
+                    .email("parceiro" + i + "@example.com")
+                    .deleted(Boolean.FALSE).build();
             userRepository.save(user);
             contEntities++;
             populateProducts(user.getId());
