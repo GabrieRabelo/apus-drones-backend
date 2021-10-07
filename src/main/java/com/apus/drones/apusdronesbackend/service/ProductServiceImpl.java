@@ -28,16 +28,21 @@ import static com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper.fromProd
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
+    private final PartnerService partnerService;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository, PartnerService partnerService) {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
+        this.partnerService = partnerService;
     }
 
     @Override
     public ResponseEntity<Void> create(CreateProductDTO productDTO) {
         // TODO obter o parceiro da autenticação
-        UserEntity partner = UserEntity.builder().id(1L).build();
+        // partnerService.get may throw a ResponseStatusException
+        this.partnerService.get(productDTO.getPartner());
+
+        UserEntity partner = UserEntity.builder().id(productDTO.getPartner()).build();
 
         ProductEntity entity = ProductEntity.builder()
                 .name(productDTO.getName())

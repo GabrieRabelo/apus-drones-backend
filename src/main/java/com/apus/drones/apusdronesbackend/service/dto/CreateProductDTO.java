@@ -1,6 +1,5 @@
 package com.apus.drones.apusdronesbackend.service.dto;
 
-import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import lombok.*;
 
@@ -36,5 +35,5 @@ public class CreateProductDTO {
 
     private Integer quantity;
 
-    private UserEntity partner;
+    private Long partner;
 }
