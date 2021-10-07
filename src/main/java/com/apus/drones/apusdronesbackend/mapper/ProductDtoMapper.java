@@ -29,6 +29,7 @@ public class ProductDtoMapper {
                 .status(productEntity.getStatus())
                 .weight(productEntity.getWeight())
                 .createdAt(productEntity.getCreateDate())
+                .deleted(productEntity.getDeleted())
                 .imageUrl(mainImgUrl)
                 .imagesUrls(productEntity.getProductImages().stream().map(ProductImage::getUrl).collect(Collectors.toList()))
                 .partner(fromUserEntity(productEntity.getUser()))

@@ -46,6 +46,7 @@ public class ProductServiceImpl implements ProductService {
                 .status(ProductStatus.ACTIVE)
                 .weight(productDTO.getWeight())
                 .quantity(productDTO.getQuantity())
+                .deleted(Boolean.FALSE)
                 .createDate(LocalDateTime.now())
                 .user(partner)
                 .build();
@@ -69,15 +70,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO get(Long id) {
-        return productRepository.findById(id).map(ProductDtoMapper::fromProductEntity)
+        return productRepository.findByIdAndDeletedFalse(id).map(ProductDtoMapper::fromProductEntity)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o produto com ID " + id));
     }
 
     @Override
     public List<ProductDTO> findAllActiveProductsByUserId(Long userId) {
-        var resultFromDB = productRepository.findAllByUserIdAndStatus(userId, ProductStatus.ACTIVE);
-        return fromProductEntityList(resultFromDB);
+        var resultFromDB = productRepository.findAllByUserIdAndStatusAndDeletedFalse(userId, ProductStatus.ACTIVE);
+        return fromProductEntityListqq(resultFromDB);
     }
 
     @Override
@@ -95,11 +96,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<Void> delete(Long id) {
-        ProductEntity entity = productRepository.findById(id)
+        ProductEntity entity = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o produto com ID " + id));
 
-        productRepository.delete(entity);
+        entity.setDeleted(Boolean.TRUE);
+
+        productRepository.save(entity);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

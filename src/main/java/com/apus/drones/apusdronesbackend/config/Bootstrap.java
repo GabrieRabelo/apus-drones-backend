@@ -157,7 +157,7 @@ public class Bootstrap {
                                         .name("Produto " + contEntities).description("Lorem ipsum")
                                         .price(BigDecimal.valueOf(new Random().nextInt(1000)))
                                         .createDate(LocalDateTime.now()).productImages(List.of(productImage))
-                                        .quantity(25).build();
+                                        .quantity(25).deleted(Boolean.FALSE).build();
 
                         productImage.setProduct(product);
                         productRepository.save(product);
