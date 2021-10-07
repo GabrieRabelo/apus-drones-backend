@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/clients")
 public class CustomerAPI {
 
-    private CustomerService customerService;
+    private final CustomerService customerService;
 
     public CustomerAPI(CustomerService clientService) {
         this.customerService = clientService;
