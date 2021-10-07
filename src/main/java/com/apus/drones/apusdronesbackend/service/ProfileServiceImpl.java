@@ -14,12 +14,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class ProfileServiceImpl implements ProfileService {
 
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
 
-    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository) {
+    public ProfileServiceImpl(UserRepository userRepository, AddressRepository addressRepository) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
     }

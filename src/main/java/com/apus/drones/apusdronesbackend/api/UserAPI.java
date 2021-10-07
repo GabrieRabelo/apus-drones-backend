@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.api;
 
+import com.apus.drones.apusdronesbackend.service.ProfileService;
 import com.apus.drones.apusdronesbackend.service.UserService;
 import com.apus.drones.apusdronesbackend.service.dto.UserDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -14,16 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class UserAPI {
 
-    private final UserService userService;
+    private final ProfileService profileService;
 
-    public UserAPI(UserService userService) {
-        this.userService = userService;
+    public UserAPI(ProfileService profileService) {
+        this.profileService = profileService;
     }
 
     @GetMapping("/profile/{userId}")
     public ResponseEntity<UserDTO> getById(@PathVariable Long userId) {
         log.info("Getting an user profile.");
-        return ResponseEntity.ok(userService.getById(userId));
+        return ResponseEntity.ok(profileService.getById(userId));
     }
 
 }
