@@ -50,10 +50,12 @@ public class Bootstrap {
                 List<UserEntity> usersToCreate = new ArrayList<>();
 
                 usersToCreate.add(UserEntity.builder().name("Rabelo").role(Role.CUSTOMER).avatarUrl("none")
-                                .cpfCnpj("12312312312").password("blublu").email("rabelo@example.com").build());
+                                .cpfCnpj("12312312312").password("blublu").email("rabelo@example.com")
+                                .deleted(Boolean.FALSE).build());
 
                 usersToCreate.add(UserEntity.builder().name("Carlos Alberto").role(Role.CUSTOMER).avatarUrl("none")
-                                .cpfCnpj("40782976093").password("blublu").email("carlos.alberto@example.com").build());
+                                .cpfCnpj("40782976093").password("blublu").email("carlos.alberto@example.com")
+                                .deleted(Boolean.FALSE).build());
 
                 for (UserEntity userEntity : usersToCreate) {
                         userRepository.save(userEntity);
@@ -171,7 +173,8 @@ public class Bootstrap {
                                         "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
                                                         + contEntities + ".png")
                                         .cpfCnpj("12312312312").password("blublu")
-                                        .email("parceiro" + i + "@example.com").build();
+                                        .email("parceiro" + i + "@example.com")
+                                        .deleted(Boolean.FALSE).build();
                         userRepository.save(user);
                         contEntities++;
                         populateProducts(user.getId());
