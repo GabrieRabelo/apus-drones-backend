@@ -58,7 +58,7 @@ class ProductRepositoryTest {
         productRepository.save(anotherPartnerProduct);
         productRepository.flush();
 
-        var result = productRepository.findAllByUserIdAndStatus(savedUser.getId(), ProductStatus.ACTIVE).get(0);
+        var result = productRepository.findAllByUserIdAndStatusAndDeletedFalse(savedUser.getId(), ProductStatus.ACTIVE).get(0);
 
         assertThat(result).usingRecursiveComparison().ignoringFields("user.productEntity").isEqualTo(savedProduct);
     }

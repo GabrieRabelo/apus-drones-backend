@@ -50,7 +50,7 @@ public class ProductServiceTest {
                 .weight(100.0)
                 .imagesUrls(List.of("url"))
                 .quantity(1)
-                .partner(partner)
+                .partner(1L)
                 .build();
 
         when(productRepository.save(Mockito.any())).thenReturn(productEntity);
