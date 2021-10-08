@@ -75,11 +75,11 @@ class PartnerServiceTest {
         for (UserEntity user: resultFromDB) {
             var partner = PartnerDTO
                 .builder()
-                .id(partner.getId())
-                .email(partner.getEmail())
-                .name(partner.getName())
-                .cpfCnpj(partner.getCpfCnpj())
-                .avatarUrl(partner.getAvatarUrl())
+                .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .cpfCnpj(user.getCpfCnpj())
+                .avatarUrl(user.getAvatarUrl())
                 .build();
 
             responseList.add(partner);
