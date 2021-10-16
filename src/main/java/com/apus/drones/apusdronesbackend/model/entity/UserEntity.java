@@ -49,6 +49,6 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
     @ToString.Exclude
-    private List<ProductEntity> productEntity= new ArrayList<>();
+    private List<ProductEntity> productEntity = new ArrayList<>();
 
 }

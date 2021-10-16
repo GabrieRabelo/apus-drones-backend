@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     List<ProductEntity> findAllByUserIdAndStatus(Long userId, ProductStatus productStatus);
+
     List<ProductEntity> findAllByNameContainingIgnoreCaseAndStatus(String name, ProductStatus productStatus);
 }

@@ -25,11 +25,6 @@
         <property name="fileNamePattern" value="module\-info\.java$"/>
     </module>
     <!-- https://checkstyle.org/config_filters.html#SuppressionFilter -->
-    <module name="SuppressionFilter">
-        <property name="file" value="${org.checkstyle.google.suppressionfilter.config}"
-                  default="checkstyle-suppressions.xml" />
-        <property name="optional" value="true"/>
-    </module>
 
     <!-- Checks for whitespace                               -->
     <!-- See http://checkstyle.org/config_whitespace.html -->
@@ -39,7 +34,7 @@
 
     <module name="LineLength">
         <property name="fileExtensions" value="java"/>
-        <property name="max" value="100"/>
+        <property name="max" value="121"/>
         <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
     </module>
 
@@ -57,7 +52,6 @@
             <property name="allowByTailComment" value="true"/>
             <property name="allowNonPrintableEscapes" value="true"/>
         </module>
-        <module name="AvoidStarImport"/>
         <module name="OneTopLevelClass"/>
         <module name="NoLineWrap">
             <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT"/>
@@ -92,12 +86,6 @@
                       value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT,
                     INSTANCE_INIT, ANNOTATION_DEF, ENUM_DEF, INTERFACE_DEF, RECORD_DEF,
                     COMPACT_CTOR_DEF"/>
-        </module>
-        <module name="SuppressionXpathSingleFilter">
-            <!-- suppresion is required till https://github.com/checkstyle/checkstyle/issues/7541 -->
-            <property name="id" value="RightCurlyAlone"/>
-            <property name="query" value="//RCURLY[parent::SLIST[count(./*)=1]
-                                     or preceding-sibling::*[last()][self::LCURLY]]"/>
         </module>
         <module name="WhitespaceAfter">
             <property name="tokens"
@@ -243,7 +231,7 @@
                      value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
         </module>
         <module name="Indentation">
-            <property name="basicOffset" value="2"/>
+            <property name="basicOffset" value="4"/>
             <property name="braceAdjustment" value="2"/>
             <property name="caseIndent" value="2"/>
             <property name="throwsIndent" value="4"/>
@@ -252,7 +240,8 @@
         </module>
         <module name="AbbreviationAsWordInName">
             <property name="ignoreFinal" value="false"/>
-            <property name="allowedAbbreviationLength" value="0"/>
+            <property name="allowedAbbreviations" value="XML,URL,API,CPF,CNPJ,DTO,JWT"/>
+            <property name="allowedAbbreviationLength" value="1"/>
             <property name="tokens"
                       value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, ANNOTATION_DEF, ANNOTATION_FIELD_DEF,
                     PARAMETER_DEF, VARIABLE_DEF, METHOD_DEF, PATTERN_VARIABLE_DEF, RECORD_DEF,
@@ -262,9 +251,8 @@
         <module name="OverloadMethodsDeclarationOrder"/>
         <module name="VariableDeclarationUsageDistance"/>
         <module name="CustomImportOrder">
-            <property name="sortImportsInGroupAlphabetically" value="true"/>
             <property name="separateLineBetweenGroups" value="true"/>
-            <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
+            <property name="customImportOrderRules" value="THIRD_PARTY_PACKAGE###STANDARD_JAVA_PACKAGE###STATIC"/>
             <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>
         </module>
         <module name="MethodParamPad">
@@ -305,32 +293,38 @@
             <property name="allowSamelineMultipleAnnotations" value="true"/>
         </module>
         <module name="NonEmptyAtclauseDescription"/>
-        <module name="InvalidJavadocPosition"/>
-        <module name="JavadocTagContinuationIndentation"/>
-        <module name="SummaryJavadoc">
-            <property name="forbiddenSummaryFragments"
-                      value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )"/>
-        </module>
-        <module name="JavadocParagraph"/>
         <module name="RequireEmptyLineBeforeBlockTagGroup"/>
         <module name="AtclauseOrder">
             <property name="tagOrder" value="@param, @return, @throws, @deprecated"/>
             <property name="target"
                       value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
         </module>
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9_]*$"/>
+            <message key="name.invalidPattern"
+                     value="Method name ''{0}'' must match pattern ''{1}''."/>
+        </module>
+        <module name="EmptyCatchBlock">
+            <property name="exceptionVariableName" value="expected"/>
+        </module>
+        <module name="CommentsIndentation">
+            <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN"/>
+        </module>
+
+        <!--<module name="MissingJavadocMethod">
+            <property name="scope" value="public"/>
+            <property name="minLineCount" value="2"/>
+            <property name="allowedAnnotations" value="Override, Test"/>
+            <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF,
+                                   COMPACT_CTOR_DEF"/>
+        </module>
+        <module name="SingleLineJavadoc"/>
         <module name="JavadocMethod">
             <property name="accessModifiers" value="public"/>
             <property name="allowMissingParamTags" value="true"/>
             <property name="allowMissingReturnTag" value="true"/>
             <property name="allowedAnnotations" value="Override, Test"/>
             <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF, COMPACT_CTOR_DEF"/>
-        </module>
-        <module name="MissingJavadocMethod">
-            <property name="scope" value="public"/>
-            <property name="minLineCount" value="2"/>
-            <property name="allowedAnnotations" value="Override, Test"/>
-            <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF,
-                                   COMPACT_CTOR_DEF"/>
         </module>
         <module name="MissingJavadocType">
             <property name="scope" value="protected"/>
@@ -339,23 +333,12 @@
                       RECORD_DEF, ANNOTATION_DEF"/>
             <property name="excludeScope" value="nothing"/>
         </module>
-        <module name="MethodName">
-            <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9_]*$"/>
-            <message key="name.invalidPattern"
-                     value="Method name ''{0}'' must match pattern ''{1}''."/>
-        </module>
-        <module name="SingleLineJavadoc"/>
-        <module name="EmptyCatchBlock">
-            <property name="exceptionVariableName" value="expected"/>
-        </module>
-        <module name="CommentsIndentation">
-            <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN"/>
-        </module>
-        <!-- https://checkstyle.org/config_filters.html#SuppressionXpathFilter -->
-        <module name="SuppressionXpathFilter">
-            <property name="file" value="${org.checkstyle.google.suppressionxpathfilter.config}"
-                      default="checkstyle-xpath-suppressions.xml" />
-            <property name="optional" value="true"/>
-        </module>
+        <module name="JavadocParagraph"/>
+        <module name="InvalidJavadocPosition"/>
+        <module name="JavadocTagContinuationIndentation"/>
+        <module name="SummaryJavadoc">
+            <property name="forbiddenSummaryFragments"
+                      value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )"/>
+        </module>-->
     </module>
 </module>

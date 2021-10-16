@@ -28,25 +28,23 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
-    private final BigDecimal DEFAULT_DELIVERY_PRICE;
-    private final Double WEIGHT_LIMIT_GRAMS;
-
+    private final BigDecimal defaultDeliveryPrice;
+    private final Double weightLimitGrams;
     private final OrderRepository orderRepository;
-
     private final UserRepository userRepository;
-
     private final OrderItemRepository orderItemRepository;
-
     private final ProductRepository productRepository;
 
-    public OrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, UserRepository userRepository, ProductRepository productRepository, @Value("${application.vars.default-delivery-price}") String deliveryPrice, @Value("${application.vars.grams-weight-limit}") String weightLimit) {
+    public OrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository,
+                            UserRepository userRepository, ProductRepository productRepository,
+                            @Value("${application.vars.default-delivery-price}") String deliveryPrice,
+                            @Value("${application.vars.grams-weight-limit}") String weightLimit) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
-
-        this.DEFAULT_DELIVERY_PRICE = new BigDecimal(deliveryPrice);
-        this.WEIGHT_LIMIT_GRAMS = Double.parseDouble(weightLimit);
+        this.defaultDeliveryPrice = new BigDecimal(deliveryPrice);
+        this.weightLimitGrams = Double.parseDouble(weightLimit);
     }
 
     @Override
@@ -88,8 +86,10 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO update(OrderDTO orderDto) {
         double totalWeight = this.calcTotalWeight(orderDto.getItems());
 
-        if (totalWeight > WEIGHT_LIMIT_GRAMS) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falha ao adicionar item. O carrinho passou do limite de peso de " + WEIGHT_LIMIT_GRAMS + "g.");
+        if (totalWeight > weightLimitGrams) {
+            String message = "Falha ao adicionar item. O carrinho passou do limite de peso de "
+                    + weightLimitGrams + "g.";
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
         } else {
             OrderEntity savedEntity = this.updateOrder(orderDto);
             List<OrderItemEntity> savedItems = this.updateItems(orderDto.getItems(), savedEntity.getId());
@@ -118,7 +118,7 @@ public class OrderServiceImpl implements OrderService {
 
         OrderEntity entity = OrderEntity.builder()
                 .id(orderDto.getId())
-                .deliveryPrice(DEFAULT_DELIVERY_PRICE)
+                .deliveryPrice(defaultDeliveryPrice)
                 .orderPrice(this.calcOrderPrice(orderDto.getItems()))
                 .status(orderDto.getStatus() == null ? OrderStatus.IN_CART : orderDto.getStatus())
                 .customer(customer)
@@ -140,7 +140,8 @@ public class OrderServiceImpl implements OrderService {
                 .filter(item -> item.getQuantity() >= 1)
                 .map(item -> {
                     Double orderItemWeight = item.getProduct().getWeight() * item.getQuantity();
-                    BigDecimal orderItemPrice = item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+                    BigDecimal orderItemPrice = item.getProduct()
+                            .getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
 
                     return OrderItemEntity.builder()
                             .id(item.getId())
@@ -174,7 +175,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderEntity> orders;
         if (status == null) { //sem filtro
             orders = orderRepository.findAllByPartner_Id(userId);
-        } else if(status == OrderStatus.WAITING_FOR_PARTNER) { //Se esta esperando por parceiro aceitar
+        } else if (status == OrderStatus.WAITING_FOR_PARTNER) { //Se esta esperando por parceiro aceitar
             orders = checkForExpiredOrder(userId);
         } else {
             orders = orderRepository.findAllByPartner_IdAndStatus(userId, status); // com filtro
@@ -189,11 +190,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private List<OrderEntity> checkForExpiredOrder(Long userId) {
-        var ordersResult = orderRepository.findAllByPartner_IdAndStatus(userId, OrderStatus.WAITING_FOR_PARTNER);
+        var ordersResult = orderRepository.findAllByPartner_IdAndStatus(userId,
+                OrderStatus.WAITING_FOR_PARTNER);
         var waitingOrderResult = new ArrayList<OrderEntity>();
 
-        for (OrderEntity order: ordersResult) {
-            if(LocalDateTime.now().isAfter(order.getExpiresAt())){
+        for (OrderEntity order : ordersResult) {
+            if (LocalDateTime.now().isAfter(order.getExpiresAt())) {
                 order.setStatus(OrderStatus.REFUSED);
                 orderRepository.save(order);
             } else {

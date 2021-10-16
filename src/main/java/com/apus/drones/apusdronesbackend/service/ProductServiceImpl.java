@@ -57,8 +57,9 @@ public class ProductServiceImpl implements ProductService {
                 url -> ProductImage.builder().url(url).isMain(false).product(entity).build()
         ).collect(Collectors.toList());
 
-        if (!productImages.isEmpty())
+        if (!productImages.isEmpty()) {
             productImages.get(0).setIsMain(true);
+        }
 
         productImageRepository.saveAll(productImages);
 
@@ -105,20 +106,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public void updateProduct(ProductDTO productDTO, ProductEntity entity) {
-        if (productDTO.getDescription() != null)
+        if (productDTO.getDescription() != null) {
             entity.setDescription(productDTO.getDescription());
+        }
 
-        if (productDTO.getPrice() != null)
+        if (productDTO.getPrice() != null) {
             entity.setPrice(productDTO.getPrice());
+        }
 
-        if (productDTO.getStatus() != null)
+        if (productDTO.getStatus() != null) {
             entity.setStatus(productDTO.getStatus());
+        }
 
-        if (productDTO.getWeight() != null)
+        if (productDTO.getWeight() != null) {
             entity.setWeight(productDTO.getWeight());
+        }
 
-        if (productDTO.getQuantity() != null)
+        if (productDTO.getQuantity() != null) {
             entity.setQuantity(productDTO.getQuantity());
+        }
 
         if (productDTO.getImagesUrls() != null) {
             List<ProductImage> productImages = productDTO.getImagesUrls().stream().map(
@@ -128,15 +134,16 @@ public class ProductServiceImpl implements ProductService {
                         return productImage != null
                                 ? productImage
                                 : ProductImage.builder()
-                                    .url(url)
-                                    .isMain(false)
-                                    .product(entity)
-                                    .build();
+                                .url(url)
+                                .isMain(false)
+                                .product(entity)
+                                .build();
                     }
             ).collect(Collectors.toList());
 
-            if (!productImages.isEmpty())
+            if (!productImages.isEmpty()) {
                 productImages.get(0).setIsMain(true);
+            }
 
             productImageRepository.deleteAllByProduct(entity);
             entity.setProductImages(productImages);

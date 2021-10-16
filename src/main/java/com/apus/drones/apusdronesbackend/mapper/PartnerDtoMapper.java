@@ -20,7 +20,7 @@ public class PartnerDtoMapper {
     public static List<PartnerDTO> fromUserEntityList(List<UserEntity> resultFromDB) {
         var responseList = new ArrayList<PartnerDTO>();
 
-        for (UserEntity user: resultFromDB) {
+        for (UserEntity user : resultFromDB) {
             var partner = fromUserEntity(user);
 
             responseList.add(partner);

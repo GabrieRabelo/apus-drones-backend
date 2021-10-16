@@ -61,7 +61,8 @@ public class ProductEntity {
     @Column
     private LocalDateTime createDate;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.EAGER, targetEntity = ProductImage.class)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product",
+            fetch = FetchType.EAGER, targetEntity = ProductImage.class)
     private List<ProductImage> productImages = new ArrayList<>();
 
 }

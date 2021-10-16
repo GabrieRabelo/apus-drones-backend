@@ -24,8 +24,8 @@ import java.util.List;
 @Slf4j
 public class PartnerAPI {
 
-    private final PartnerServic partnerService;
-    private final ProductServic productService;
+    private final PartnerService partnerService;
+    private final ProductService productService;
     private final OrderService orderService;
 
     public PartnerAPI(PartnerService partnerService, ProductService productService, OrderService orderService) {

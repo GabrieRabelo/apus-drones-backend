@@ -26,15 +26,27 @@ public class OrderDTOMapper {
                 .map(OrderItemDtoMapper::fromOrderItemEntity)
                 .collect(Collectors.toList());
 
-        PartnerDTO partner = Optional.ofNullable(orderEntity.getPartner()).map(PartnerDtoMapper::fromUserEntity).orElse(null);
-        CustomerDTO customer = Optional.ofNullable(orderEntity.getCustomer()).map(CustomerDtoMapper::fromUserEntity).orElse(null);
+        PartnerDTO partner = Optional.ofNullable(orderEntity.getPartner())
+                .map(PartnerDtoMapper::fromUserEntity)
+                .orElse(null);
+        CustomerDTO customer = Optional.ofNullable(orderEntity.getCustomer())
+                .map(CustomerDtoMapper::fromUserEntity)
+                .orElse(null);
+
+        BigDecimal deliverPrice = orderEntity.getDeliveryPrice() == null
+                ? BigDecimal.valueOf(0)
+                : orderEntity.getDeliveryPrice();
+
+        BigDecimal orderPrice = orderEntity.getOrderPrice() == null
+                ? BigDecimal.valueOf(0)
+                : orderEntity.getOrderPrice();
 
         return OrderDTO.builder()
                 .id(orderEntity.getId())
                 .createdAt(orderEntity.getCreatedAt())
-                .deliveryPrice(orderEntity.getDeliveryPrice() == null ? BigDecimal.valueOf(0) : orderEntity.getDeliveryPrice())
+                .deliveryPrice(deliverPrice)
                 .items(orderItemDtoList)
-                .orderPrice(orderEntity.getOrderPrice() == null ? BigDecimal.valueOf(0) : orderEntity.getOrderPrice())
+                .orderPrice(orderPrice)
                 .partner(partner)
                 .customer(customer)
                 .expiresAt(orderEntity.getExpiresAt())

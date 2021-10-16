@@ -19,8 +19,8 @@ public class SwaggerUiWebMvcConfigurer implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String baseUrl = StringUtils.trimTrailingCharacter(this.baseUrl, '/');
-        registry.
-                addResourceHandler(baseUrl + "/swagger-ui/**")
+        registry
+                .addResourceHandler(baseUrl + "/swagger-ui/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/")
                 .resourceChain(false);
     }

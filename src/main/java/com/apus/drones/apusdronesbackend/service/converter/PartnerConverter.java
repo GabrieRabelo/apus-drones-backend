@@ -13,7 +13,7 @@ public class PartnerConverter {
     public List<PartnerDTO> toDTOList(List<UserEntity> resultFromDB) {
         var responseList = new ArrayList<PartnerDTO>();
 
-        for (UserEntity user: resultFromDB) {
+        for (UserEntity user : resultFromDB) {
             var partner = PartnerDTO
                     .builder()
                     .id(user.getId())

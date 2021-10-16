@@ -2,11 +2,7 @@ package com.apus.drones.apusdronesbackend.mapper;
 
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
-import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
-import com.apus.drones.apusdronesbackend.model.enums.Role;
-import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
-import org.apache.catalina.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +14,9 @@ import static com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper.fromUser
 public class ProductDtoMapper {
 
     public static ProductDTO fromProductEntity(ProductEntity productEntity) {
-        Optional<ProductImage> mainImg = productEntity.getProductImages().stream().filter(ProductImage::getIsMain).findFirst();
+        Optional<ProductImage> mainImg = productEntity.getProductImages().stream()
+                .filter(ProductImage::getIsMain)
+                .findFirst();
         String mainImgUrl = mainImg.map(ProductImage::getUrl).orElse(null);
 
         return ProductDTO.builder()
@@ -30,7 +28,9 @@ public class ProductDtoMapper {
                 .weight(productEntity.getWeight())
                 .createdAt(productEntity.getCreateDate())
                 .imageUrl(mainImgUrl)
-                .imagesUrls(productEntity.getProductImages().stream().map(ProductImage::getUrl).collect(Collectors.toList()))
+                .imagesUrls(productEntity.getProductImages().stream()
+                        .map(ProductImage::getUrl)
+                        .collect(Collectors.toList()))
                 .partner(fromUserEntity(productEntity.getUser()))
                 .quantity(productEntity.getQuantity()).build();
     }

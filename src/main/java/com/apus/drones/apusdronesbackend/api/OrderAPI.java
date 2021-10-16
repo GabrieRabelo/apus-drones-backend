@@ -4,10 +4,8 @@ import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.service.OrderService;
 import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.criterion.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +23,8 @@ public class OrderAPI {
     }
 
     @GetMapping("/by-user/{userId}")
-    public ResponseEntity<List<OrderDTO>> getOrders(@PathVariable Long userId, @RequestParam(required = false) OrderStatus status) {
+    public ResponseEntity<List<OrderDTO>> getOrders(@PathVariable Long userId,
+                                                    @RequestParam(required = false) OrderStatus status) {
         log.info("Getting a list of orders.");
         return ResponseEntity.ok(orderService.getByCustomerId(userId, status));
     }
