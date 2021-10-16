@@ -4,7 +4,6 @@ import com.apus.drones.apusdronesbackend.model.entity.AddressEntity;
 import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
