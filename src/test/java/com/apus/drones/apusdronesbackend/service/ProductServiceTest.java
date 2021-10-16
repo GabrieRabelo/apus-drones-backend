@@ -15,14 +15,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper.fromUserEntity;
-import static org.mockito.Mockito.*;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper.fromUserEntity;
+import static org.mockito.Mockito.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
@@ -100,7 +100,7 @@ public class ProductServiceTest {
 
     @Test
     public void testUpdateProduct() {
-        Long id = 12345l;
+        Long id = 12345L;
         ProductEntity entity = new ProductEntity("Produto test", new BigDecimal(1), ProductStatus.ACTIVE, 5);
         ProductDTO productDTO = ProductDTO.builder()
                 .name("Produto test")
@@ -113,14 +113,14 @@ public class ProductServiceTest {
         when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
 
         var result = productService.update(id, productDTO);
-//
-//        UpdateProductRequest request = new UpdateProductRequest();
-//        request.setName("Update novo");
-//
-//        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
-//
-//        var result = productService.update(request);
-//
+        /*
+               UpdateProductRequest request = new UpdateProductRequest();
+                request.setName("Update novo");
+
+                when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+
+                var result = productService.update(request);
+        */
         assertThat(result).isNotNull();
     }
 

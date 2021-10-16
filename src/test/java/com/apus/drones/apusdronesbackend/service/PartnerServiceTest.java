@@ -28,8 +28,8 @@ class PartnerServiceTest {
     @Mock
     private PartnerConverter partnerConverter;
 
-    @DisplayName("When repository returns multiple results " +
-            "should convert into response and return it")
+    @DisplayName("When repository returns multiple results "
+            + "should convert into response and return it")
     @Test
     void testFindPartners() {
 
@@ -50,15 +50,23 @@ class PartnerServiceTest {
 
         var result = partnerService.findAllPartners();
 
-        var partner1 = PartnerDTO.builder().id(1L).avatarUrl("www.static-img.com/dummy.jpg").name("Mister X").build();
-        var partner2 = PartnerDTO.builder().id(2L).avatarUrl("www.static-img.com/dummy.jpg").name("Cachorro do Bigode").build();
+        var partner1 = PartnerDTO.builder().id(1L)
+                .avatarUrl("www.static-img.com/dummy.jpg")
+                .name("Mister X")
+                .build();
+
+        var partner2 = PartnerDTO.builder().id(2L)
+                .avatarUrl("www.static-img.com/dummy.jpg")
+                .name("Cachorro do Bigode")
+                .build();
+
         var expectedResult = List.of(partner1, partner2);
 
         assertThat(result).isEqualToComparingFieldByFieldRecursively(expectedResult);
     }
 
-    @DisplayName("When repository returns no results " +
-            "should return an empty list")
+    @DisplayName("When repository returns no results "
+            + "should return an empty list")
     @Test
     void testFindPartners_emptyResult() {
 
@@ -74,7 +82,7 @@ class PartnerServiceTest {
     private List<PartnerDTO> toDTOList(List<UserEntity> resultFromDB) {
         var responseList = new ArrayList<PartnerDTO>();
 
-        for (UserEntity user: resultFromDB) {
+        for (UserEntity user : resultFromDB) {
             var partner = PartnerDTO
                     .builder()
                     .id(user.getId())

@@ -44,7 +44,7 @@ class ProductRepositoryTest {
 
         var anotherUser = UserEntity.builder().name("baza").build();
 
-        var savedUser = userRepository.save(user);
+        final var savedUser = userRepository.save(user);
         userRepository.save(anotherUser);
         userRepository.flush();
 
