@@ -82,7 +82,7 @@ public class ProductServiceTest {
 
         entity.setId(12345L);
 
-        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+        when(productRepository.findByIdAndDeletedFalse(Mockito.any())).thenReturn(Optional.of(entity));
 
         var result = productService.get(12345L);
 
@@ -118,14 +118,7 @@ public class ProductServiceTest {
         when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
 
         var result = productService.update(id, productDTO);
-//
-//        UpdateProductRequest request = new UpdateProductRequest();
-//        request.setName("Update novo");
-//
-//        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
-//
-//        var result = productService.update(request);
-//
+
         assertThat(result).isNotNull();
     }
 
@@ -134,7 +127,7 @@ public class ProductServiceTest {
         ProductEntity entity = new ProductEntity("Produto test", new BigDecimal(1), ProductStatus.ACTIVE, 5);
         entity.setId(12345L);
 
-        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+        when(productRepository.findByIdAndDeletedFalse(Mockito.any())).thenReturn(Optional.of(entity));
 
         var result = productService.delete(12345L);
 
