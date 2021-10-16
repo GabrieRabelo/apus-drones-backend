@@ -1,2 +1,2 @@
 #!/bin/bash
-ln -s pre-push.sh .git/hooks/pre-push
+ln -s -f ../../pre-push.sh .git/hooks/pre-push
