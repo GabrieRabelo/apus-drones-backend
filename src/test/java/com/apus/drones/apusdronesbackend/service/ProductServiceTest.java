@@ -6,6 +6,7 @@ import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.repository.ProductImageRepository;
 import com.apus.drones.apusdronesbackend.repository.ProductRepository;
+import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,8 @@ public class ProductServiceTest {
     private ProductRepository productRepository;
     @Mock
     private ProductImageRepository productImageRepository;
+    @Mock
+    private PartnerServiceImpl partnerService;
 
     @Test
     public void testCreateProduct() {
@@ -74,6 +77,7 @@ public class ProductServiceTest {
                 .createDate(date)
                 .quantity(1)
                 .weight(100.0)
+                .deleted(Boolean.FALSE)
                 .build();
 
         entity.setId(12345L);
@@ -93,6 +97,7 @@ public class ProductServiceTest {
                 .imageUrl("www.www.www")
                 .imagesUrls(List.of("www.www.www"))
                 .weight(100.0)
+                .deleted(Boolean.FALSE)
                 .build();
 
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
