@@ -44,7 +44,6 @@ class PartnerServiceTest {
         var userList = List.of(user1, user2);
 
         when(userRepository.findAllByRole(any())).thenReturn(userList);
-        when(PartnerDtoMapper.fromUserEntityList(any())).thenReturn(toDTOList(userList));
 
         var result = partnerService.findAllPartners();
 
