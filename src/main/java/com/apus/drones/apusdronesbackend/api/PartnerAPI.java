@@ -25,7 +25,7 @@ import java.util.List;
 public class PartnerAPI {
 
     private final PartnerServic partnerService;
-    private final ProductService productService;
+    private final ProductServic productService;
     private final OrderService orderService;
 
     public PartnerAPI(PartnerService partnerService, ProductService productService, OrderService orderService) {
