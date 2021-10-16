@@ -30,6 +30,7 @@ public class ProductEntity {
         this.status = status;
         this.weight = weight;
         this.createDate = LocalDateTime.now();
+        this.deleted = Boolean.FALSE;
     }
 
     @Id
