@@ -10,38 +10,59 @@ group = 'com.apus.drones'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
+bootJar {
+	archiveFileName = "${archiveBaseName.get()}.${archiveExtension.get()}"
+}
+
 repositories {
 	mavenCentral()
 }
 
 dependencies {
+	def activeProfile = System.getenv('SPRING_PROFILES_ACTIVE') ?: 'local'
+	logger.quiet(String.format('SPRING_PROFILES_ACTIVE: %s', activeProfile))
+
 	implementation 'org.springframework.boot:spring-boot-starter-web:2.5.4'
 	implementation 'io.springfox:springfox-swagger2:3.0.0'
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.4'
 
+	//Adding JWT
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	implementation 'javax.xml.bind:jaxb-api'
+
 	//json parsing
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.5.4'
-
-	//embedded db
-	runtimeOnly 'com.h2database:h2:1.4.200'
-
-	//mysql db (production)
-	runtimeOnly 'mysql:mysql-connector-java:8.0.25'
+	implementation 'org.hibernate:hibernate-spatial:5.5.7.Final'
 
 	compileOnly 'org.projectlombok:lombok:1.18.20'
 	annotationProcessor 'org.projectlombok:lombok:1.18.20'
 
 	implementation 'org.springframework.boot:spring-boot-starter-validation:2.5.4'
 	testImplementation('org.assertj:assertj-core:3.20.2')
+
+	if (activeProfile == 'prd') {
+		//mysql db (production)
+		runtimeOnly 'mysql:mysql-connector-java:8.0.25'
+	} else {
+		//embedded db
+		// A versão 1.4.200 do H2 não funciona com o h2gis
+		runtimeOnly 'com.h2database:h2:1.4.197'
+		runtimeOnly 'org.orbisgis:h2gis:1.5.0'
+	}
 }
 
 test {
 	useJUnitPlatform()
 	finalizedBy jacocoTestReport
+	testLogging {
+		events "failed"
+		exceptionFormat "full"
+	}
 }
 
 jacocoTestReport {

@@ -18,7 +18,7 @@ import static com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper.fromUser
 public class ProductDtoMapper {
 
     public static ProductDTO fromProductEntity(ProductEntity productEntity) {
-        Optional<ProductImage> mainImg = productEntity.getProductImages().stream().filter(ProductImage::isMain).findFirst();
+        Optional<ProductImage> mainImg = productEntity.getProductImages().stream().filter(ProductImage::getIsMain).findFirst();
         String mainImgUrl = mainImg.map(ProductImage::getUrl).orElse(null);
 
         return ProductDTO.builder()
@@ -29,6 +29,7 @@ public class ProductDtoMapper {
                 .status(productEntity.getStatus())
                 .weight(productEntity.getWeight())
                 .createdAt(productEntity.getCreateDate())
+                .deleted(productEntity.getDeleted())
                 .imageUrl(mainImgUrl)
                 .imagesUrls(productEntity.getProductImages().stream().map(ProductImage::getUrl).collect(Collectors.toList()))
                 .partner(fromUserEntity(productEntity.getUser()))

@@ -1,0 +1,50 @@
+image: docker:20.10
+
+services:
+  - docker:20.10-dind
+
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_CONTEXT: aws-ad
+
+default:
+  before_script:
+    - docker info
+    - apk add --update --no-cache curl python3 py3-pip build-base openssh-client
+    - pip install awscli && apk --purge -v del py-pip
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_URI
+
+test:
+  stage: test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME == "master"'
+  image: gradle:7.1.1-jdk11
+  before_script: []
+  script:
+    - SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE_TEST gradle check --no-daemon
+
+package:
+  stage: build
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+  script:
+    - docker build . -t apus-drones-backend
+    - docker tag apus-drones-backend $ECR_URI:latest
+    - docker push $ECR_URI:latest
+
+deploy:
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+  script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - docker context create --docker host=ssh://ec2-user@"$SWARM_HOST" $DOCKER_CONTEXT
+    - docker --context $DOCKER_CONTEXT stack deploy -c stack.yml --with-registry-auth apusdrones

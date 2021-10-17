@@ -1,7 +1,7 @@
 package com.apus.drones.apusdronesbackend.model.entity;
 
 import lombok.*;
-import org.springframework.data.geo.Point;
+import org.locationtech.jts.geom.Point;
 
 import javax.persistence.*;
 
@@ -18,7 +18,7 @@ public class AddressEntity {
     @Column
     private Long id;
 
-    @Column
+    @Column(columnDefinition = "POINT")
     private Point coordinates;
 
     @Column

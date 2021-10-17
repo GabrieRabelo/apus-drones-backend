@@ -28,16 +28,21 @@ import static com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper.fromProd
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
+    private final PartnerService partnerService;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository, PartnerService partnerService) {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
+        this.partnerService = partnerService;
     }
 
     @Override
     public ResponseEntity<Void> create(CreateProductDTO productDTO) {
         // TODO obter o parceiro da autenticação
-        UserEntity partner = UserEntity.builder().id(1L).build();
+        // partnerService.get may throw a ResponseStatusException
+        this.partnerService.get(productDTO.getPartner());
+
+        UserEntity partner = UserEntity.builder().id(productDTO.getPartner()).build();
 
         ProductEntity entity = ProductEntity.builder()
                 .name(productDTO.getName())
@@ -46,6 +51,7 @@ public class ProductServiceImpl implements ProductService {
                 .status(ProductStatus.ACTIVE)
                 .weight(productDTO.getWeight())
                 .quantity(productDTO.getQuantity())
+                .deleted(Boolean.FALSE)
                 .createDate(LocalDateTime.now())
                 .user(partner)
                 .build();
@@ -58,7 +64,7 @@ public class ProductServiceImpl implements ProductService {
         ).collect(Collectors.toList());
 
         if (!productImages.isEmpty())
-            productImages.get(0).setMain(true);
+            productImages.get(0).setIsMain(true);
 
         productImageRepository.saveAll(productImages);
 
@@ -69,14 +75,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO get(Long id) {
-        return productRepository.findById(id).map(ProductDtoMapper::fromProductEntity)
+        return productRepository.findByIdAndDeletedFalse(id).map(ProductDtoMapper::fromProductEntity)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o produto com ID " + id));
     }
 
     @Override
     public List<ProductDTO> findAllActiveProductsByUserId(Long userId) {
-        var resultFromDB = productRepository.findAllByUserIdAndStatus(userId, ProductStatus.ACTIVE);
+        var resultFromDB = productRepository.findAllByUserIdAndStatusAndDeletedFalse(userId, ProductStatus.ACTIVE);
         return fromProductEntityList(resultFromDB);
     }
 
@@ -95,11 +101,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<Void> delete(Long id) {
-        ProductEntity entity = productRepository.findById(id)
+        ProductEntity entity = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o produto com ID " + id));
 
-        productRepository.delete(entity);
+        entity.setDeleted(Boolean.TRUE);
+
+        productRepository.save(entity);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -136,7 +144,7 @@ public class ProductServiceImpl implements ProductService {
             ).collect(Collectors.toList());
 
             if (!productImages.isEmpty())
-                productImages.get(0).setMain(true);
+                productImages.get(0).setIsMain(true);
 
             productImageRepository.deleteAllByProduct(entity);
             entity.setProductImages(productImages);
