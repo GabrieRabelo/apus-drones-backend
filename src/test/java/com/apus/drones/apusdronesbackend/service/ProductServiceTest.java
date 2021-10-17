@@ -6,6 +6,7 @@ import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.repository.ProductImageRepository;
 import com.apus.drones.apusdronesbackend.repository.ProductRepository;
+import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,8 @@ public class ProductServiceTest {
     private ProductRepository productRepository;
     @Mock
     private ProductImageRepository productImageRepository;
+    @Mock
+    private PartnerServiceImpl partnerService;
 
     @Test
     public void testCreateProduct() {
@@ -50,7 +53,7 @@ public class ProductServiceTest {
                 .weight(100.0)
                 .imagesUrls(List.of("url"))
                 .quantity(1)
-                .partner(partner)
+                .partner(1L)
                 .build();
 
         when(productRepository.save(Mockito.any())).thenReturn(productEntity);
@@ -74,11 +77,12 @@ public class ProductServiceTest {
                 .createDate(date)
                 .quantity(1)
                 .weight(100.0)
+                .deleted(Boolean.FALSE)
                 .build();
 
         entity.setId(12345L);
 
-        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+        when(productRepository.findByIdAndDeletedFalse(Mockito.any())).thenReturn(Optional.of(entity));
 
         var result = productService.get(12345L);
 
@@ -93,6 +97,7 @@ public class ProductServiceTest {
                 .imageUrl("www.www.www")
                 .imagesUrls(List.of("www.www.www"))
                 .weight(100.0)
+                .deleted(Boolean.FALSE)
                 .build();
 
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
@@ -113,14 +118,7 @@ public class ProductServiceTest {
         when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
 
         var result = productService.update(id, productDTO);
-//
-//        UpdateProductRequest request = new UpdateProductRequest();
-//        request.setName("Update novo");
-//
-//        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
-//
-//        var result = productService.update(request);
-//
+
         assertThat(result).isNotNull();
     }
 
@@ -129,7 +127,7 @@ public class ProductServiceTest {
         ProductEntity entity = new ProductEntity("Produto test", new BigDecimal(1), ProductStatus.ACTIVE, 5);
         entity.setId(12345L);
 
-        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+        when(productRepository.findByIdAndDeletedFalse(Mockito.any())).thenReturn(Optional.of(entity));
 
         var result = productService.delete(12345L);
 
