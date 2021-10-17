@@ -21,8 +21,8 @@ default:
 
 test:
   stage: test
-   rules:
-     - if: '$CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME == "master"'
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME == "master"'
   image: gradle:7.1.1-jdk11
   before_script: []
   script:
