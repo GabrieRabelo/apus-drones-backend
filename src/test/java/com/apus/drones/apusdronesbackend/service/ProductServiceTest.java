@@ -6,8 +6,11 @@ import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.repository.ProductImageRepository;
 import com.apus.drones.apusdronesbackend.repository.ProductRepository;
+import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
+import com.apus.drones.apusdronesbackend.service.dto.FileDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,14 +36,19 @@ public class ProductServiceTest {
     private ProductRepository productRepository;
     @Mock
     private ProductImageRepository productImageRepository;
+    @Mock
+    private PartnerServiceImpl partnerService;
+    @Mock
+    private ImageUploadService imageUploadService;
 
     @Test
-    public void testCreateProduct() {
+    public void testCreateProduct() throws SizeLimitExceededException {
         UserEntity partner = UserEntity.builder().name("Parceiro").build();
         ProductEntity productEntity = new ProductEntity();
         productEntity.setId(1L);
         ProductImage productImage = new ProductImage();
         productImage.setId(1L);
+        List<FileDTO> images = List.of(FileDTO.builder().fileName("file.png").base64("base64").mainFile(true).build());
 
         CreateProductDTO productDTO = CreateProductDTO.builder()
                 .name("Produto teste")
@@ -48,13 +56,15 @@ public class ProductServiceTest {
                 .price(new BigDecimal(1))
                 .status(ProductStatus.ACTIVE)
                 .weight(100.0)
-                .imagesUrls(List.of("url"))
                 .quantity(1)
-                .partner(partner)
+                .partner(1L)
+                .files(images)
                 .build();
 
         when(productRepository.save(Mockito.any())).thenReturn(productEntity);
         when(productImageRepository.saveAll(Mockito.any())).thenReturn(List.of(productImage));
+        when(imageUploadService.upload(Mockito.any())).thenReturn("imageUrl");
+
         var result = productService.create(productDTO);
 
         assertThat(result).isNotNull();
@@ -74,11 +84,12 @@ public class ProductServiceTest {
                 .createDate(date)
                 .quantity(1)
                 .weight(100.0)
+                .deleted(Boolean.FALSE)
                 .build();
 
         entity.setId(12345L);
 
-        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+        when(productRepository.findByIdAndDeletedFalse(Mockito.any())).thenReturn(Optional.of(entity));
 
         var result = productService.get(12345L);
 
@@ -93,6 +104,7 @@ public class ProductServiceTest {
                 .imageUrl("www.www.www")
                 .imagesUrls(List.of("www.www.www"))
                 .weight(100.0)
+                .deleted(Boolean.FALSE)
                 .build();
 
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
@@ -113,14 +125,7 @@ public class ProductServiceTest {
         when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
 
         var result = productService.update(id, productDTO);
-//
-//        UpdateProductRequest request = new UpdateProductRequest();
-//        request.setName("Update novo");
-//
-//        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
-//
-//        var result = productService.update(request);
-//
+
         assertThat(result).isNotNull();
     }
 
@@ -129,7 +134,7 @@ public class ProductServiceTest {
         ProductEntity entity = new ProductEntity("Produto test", new BigDecimal(1), ProductStatus.ACTIVE, 5);
         entity.setId(12345L);
 
-        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+        when(productRepository.findByIdAndDeletedFalse(Mockito.any())).thenReturn(Optional.of(entity));
 
         var result = productService.delete(12345L);
 
