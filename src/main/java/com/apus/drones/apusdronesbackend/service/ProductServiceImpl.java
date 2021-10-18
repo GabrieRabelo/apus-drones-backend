@@ -191,8 +191,8 @@ public class ProductServiceImpl implements ProductService {
             if (!productImages.isEmpty())
                 productImages.get(0).setIsMain(true);
 
-            productImageRepository.deleteAllByProduct(entity);
-            entity.setProductImages(productImages);
+            entity.getProductImages().clear();
+            entity.getProductImages().addAll(productImages);
         }
     }
 }
