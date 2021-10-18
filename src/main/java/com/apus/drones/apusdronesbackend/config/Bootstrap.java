@@ -80,32 +80,46 @@ public class Bootstrap {
         }
 
         for (int i = 0; i < 2; i++) {
-            populateCarts(i);
+            populateCart(i);
         }
     }
 
-    private void populateCarts(Integer customerIndex) {
-        List<OrderEntity> ordersToCreate = new ArrayList<>();
-        ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(customerIndex))
+    private void populateCart(Integer customerIndex) {
+        OrderEntity orderToCreate = OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(customerIndex))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(0))
                 .status(OrderStatus.IN_CART)
                 .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
-                .orderPrice(new BigDecimal("50")).build());
+                .orderPrice(BigDecimal.ZERO).build();
 
         List<OrderItemEntity> orderItemsToCreate = new ArrayList<>();
 
         int quantity = 1;
-        orderItemsToCreate.add(OrderItemEntity.builder().quantity(quantity).price(new BigDecimal(50))
-                .order(ordersToCreate.get(0)).product(productRepository.findAll().get(0))
-                .weight(productRepository.findAll().get(1).getWeight() * quantity).build());
+        ProductEntity product = productRepository.findAll().get(0);
+        orderItemsToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(product.getPrice())
+                .order(orderToCreate).product(product)
+                .weight(product.getWeight() * quantity)
+                .build()
+        );
 
         quantity = 2;
-        orderItemsToCreate.add(OrderItemEntity.builder().quantity(quantity).price(new BigDecimal(50))
-                .order(ordersToCreate.get(0)).product(productRepository.findAll().get(1))
-                .weight(productRepository.findAll().get(1).getWeight() * quantity).build());
+        product = productRepository.findAll().get(1);
+        orderItemsToCreate.add(OrderItemEntity.builder()
+                .quantity(quantity)
+                .price(product.getPrice())
+                .order(orderToCreate).product(product)
+                .weight(product.getWeight() * quantity)
+                .build()
+        );
 
-        orderRepository.saveAll(ordersToCreate);
+        BigDecimal orderPrice = orderItemsToCreate.stream()
+                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, (acc, item) -> acc.add(item));
+        orderToCreate.setOrderPrice(orderPrice);
+
+        orderRepository.save(orderToCreate);
         orderItemRepository.saveAll(orderItemsToCreate);
     }
 
