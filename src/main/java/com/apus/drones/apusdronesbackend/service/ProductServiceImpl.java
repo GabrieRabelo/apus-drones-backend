@@ -47,10 +47,12 @@ public class ProductServiceImpl implements ProductService {
                 .filter(isMain -> isMain)
                 .count();
 
-        if (mainFileCount > 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Apenas uma imagem principal é permitida");
-        } else if (mainFileCount == 0) {
-            productDTO.getFiles().get(0).setMainFile(true);
+        if (productDTO.getFiles().size() > 0) {
+            if (mainFileCount > 1) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Apenas uma imagem principal é permitida");
+            } else if (mainFileCount == 0) {
+                productDTO.getFiles().get(0).setMainFile(true);
+            }
         }
 
         // TODO obter o parceiro da autenticação
