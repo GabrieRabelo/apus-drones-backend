@@ -42,6 +42,11 @@ public class OrderAPI {
         return ResponseEntity.ok(orderService.update(orderDto));
     }
 
+    @GetMapping("/cart/{userId}")
+    public ResponseEntity<OrderDTO> getCart(@PathVariable Long userId) {
+        return ResponseEntity.ok(orderService.getCart(userId));
+    }
+
     @PostMapping("/cart/{userId}")
     public ResponseEntity<Void> addToCart(@PathVariable Long userId, @RequestBody OrderDTO orderDto) {
         orderService.addToCart(userId, orderDto);

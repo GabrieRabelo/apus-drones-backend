@@ -13,5 +13,6 @@ public interface OrderService {
 
     OrderDTO getById(Long orderId);
 
+    OrderDTO getCart(Long userId);
     void addToCart(Long userId, OrderDTO orderDTO);
 }

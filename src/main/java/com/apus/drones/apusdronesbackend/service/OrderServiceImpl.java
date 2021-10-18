@@ -50,6 +50,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderDTO getCart(Long userId) {
+        return this.getByCustomerId(userId, OrderStatus.IN_CART).stream().findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Carrinho não encontrado"));
+    }
+
+    @Override
     public void addToCart(Long userId, OrderDTO orderDTO) {
         OrderDTO cart = this.getByCustomerId(userId, OrderStatus.IN_CART).stream().findFirst().orElse(null);
         if (!Objects.isNull(cart)) {

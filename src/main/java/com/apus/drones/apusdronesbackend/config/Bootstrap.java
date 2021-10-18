@@ -59,7 +59,6 @@ public class Bootstrap {
         for (UserEntity userEntity : usersToCreate) {
             userRepository.save(userEntity);
             initAddress(userEntity);
-            initAddress(userEntity);
         }
     }
 
@@ -79,6 +78,35 @@ public class Bootstrap {
         for (int i = 0; i < NUMBER_OF_PARTNERS; i++) {
             populateOrders(i);
         }
+
+        for (int i = 0; i < 2; i++) {
+            populateCarts(i);
+        }
+    }
+
+    private void populateCarts(Integer customerIndex) {
+        List<OrderEntity> ordersToCreate = new ArrayList<>();
+        ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(customerIndex))
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(0))
+                .status(OrderStatus.IN_CART)
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("50")).build());
+
+        List<OrderItemEntity> orderItemsToCreate = new ArrayList<>();
+
+        int quantity = 1;
+        orderItemsToCreate.add(OrderItemEntity.builder().quantity(quantity).price(new BigDecimal(50))
+                .order(ordersToCreate.get(0)).product(productRepository.findAll().get(0))
+                .weight(productRepository.findAll().get(1).getWeight() * quantity).build());
+
+        quantity = 2;
+        orderItemsToCreate.add(OrderItemEntity.builder().quantity(quantity).price(new BigDecimal(50))
+                .order(ordersToCreate.get(0)).product(productRepository.findAll().get(1))
+                .weight(productRepository.findAll().get(1).getWeight() * quantity).build());
+
+        orderRepository.saveAll(ordersToCreate);
+        orderItemRepository.saveAll(orderItemsToCreate);
     }
 
     private void populateOrders(Integer partnerIndex) {
@@ -89,13 +117,6 @@ public class Bootstrap {
                 .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("100")).build());
-
-        ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
-                .status(OrderStatus.IN_CART)
-                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
-                .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
-                .orderPrice(new BigDecimal("50")).build());
 
         ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
@@ -119,34 +140,31 @@ public class Bootstrap {
                 .order(ordersToCreate.get(0)).product(productRepository.findAll().get(0))
                 .weight(productRepository.findAll().get(0).getWeight() * quantity).build());
 
-        quantity = 1;
-        ordersItemToCreate.add(OrderItemEntity.builder().quantity(quantity).price(new BigDecimal(50))
-                .order(ordersToCreate.get(1)).product(productRepository.findAll().get(1))
-                .weight(productRepository.findAll().get(1).getWeight() * quantity).build());
+
 
         quantity = 3;
         ordersItemToCreate.add(OrderItemEntity.builder().quantity(quantity).price(new BigDecimal(75))
-                .order(ordersToCreate.get(2)).product(productRepository.findAll().get(2))
+                .order(ordersToCreate.get(1)).product(productRepository.findAll().get(2))
                 .weight(productRepository.findAll().get(2).getWeight() * quantity).build());
 
         quantity = 1;
         ordersItemToCreate.add(OrderItemEntity.builder().quantity(quantity).price(new BigDecimal(10))
-                .order(ordersToCreate.get(2)).product(productRepository.findAll().get(5))
-                .weight(productRepository.findAll().get(5).getWeight() * quantity).build());
+                .order(ordersToCreate.get(1)).product(productRepository.findAll().get(3))
+                .weight(productRepository.findAll().get(1).getWeight() * quantity).build());
 
         quantity = 3;
         ordersItemToCreate.add(OrderItemEntity.builder().quantity(quantity).price(new BigDecimal(5))
-                .order(ordersToCreate.get(2)).product(productRepository.findAll().get(4))
+                .order(ordersToCreate.get(1)).product(productRepository.findAll().get(4))
                 .weight(productRepository.findAll().get(4).getWeight() * quantity).build());
 
         quantity = 4;
         ordersItemToCreate.add(OrderItemEntity.builder().quantity(quantity).price(new BigDecimal(25))
-                .order(ordersToCreate.get(3)).product(productRepository.findAll().get(3))
+                .order(ordersToCreate.get(2)).product(productRepository.findAll().get(3))
                 .weight(productRepository.findAll().get(3).getWeight() * quantity).build());
 
         quantity = 1;
         ordersItemToCreate.add(OrderItemEntity.builder().quantity(quantity).price(new BigDecimal(10))
-                .order(ordersToCreate.get(3)).product(productRepository.findAll().get(4))
+                .order(ordersToCreate.get(2)).product(productRepository.findAll().get(4))
                 .weight(productRepository.findAll().get(4).getWeight() * quantity).build());
 
         for (OrderEntity orderEntity : ordersToCreate) {
