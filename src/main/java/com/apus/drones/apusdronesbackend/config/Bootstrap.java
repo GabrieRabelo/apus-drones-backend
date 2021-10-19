@@ -43,6 +43,7 @@ public class Bootstrap {
     @Bean
     public void initDatabase() {
         initUsers();
+        populatePartners();
         initOrders();
     }
 
@@ -57,9 +58,21 @@ public class Bootstrap {
 
         for (UserEntity userEntity : usersToCreate) {
             userRepository.save(userEntity);
+            initAddress(userEntity);
+            initAddress(userEntity);
         }
+    }
 
-        populatePartners();
+    private void initAddress(UserEntity userEntity) {
+        var address = AddressEntity.builder()
+                .number(123)
+                .zipCode("123456")
+                .complement("Complemento")
+                .description("Rua Teste do user " + userEntity.getName())
+                .user(userEntity)
+                .build();
+
+        addressRepository.save(address);
     }
 
     private void initOrders() {
@@ -157,7 +170,7 @@ public class Bootstrap {
                     .name("Produto " + contEntities).description("Lorem ipsum")
                     .price(BigDecimal.valueOf(new Random().nextInt(1000)))
                     .createDate(LocalDateTime.now()).productImages(List.of(productImage))
-                    .quantity(25).build();
+                    .quantity(25).deleted(Boolean.FALSE).build();
 
             productImage.setProduct(product);
             productRepository.save(product);
@@ -171,7 +184,8 @@ public class Bootstrap {
                             "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
                                     + contEntities + ".png")
                     .cpfCnpj("12312312312").password("blublu")
-                    .email("parceiro" + i + "@example.com").build();
+                    .email("parceiro" + i + "@example.com")
+                    .deleted(Boolean.FALSE).build();
             userRepository.save(user);
             contEntities++;
             populateProducts(user.getId());

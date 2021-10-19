@@ -1,7 +1,6 @@
 package com.apus.drones.apusdronesbackend.model.entity;
 
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
-import lombok.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Entity(name = "product")
+@Entity(name = "products")
 public class ProductEntity {
 
     public ProductEntity(String name, BigDecimal price, ProductStatus status, double weight) {
@@ -30,6 +29,7 @@ public class ProductEntity {
         this.status = status;
         this.weight = weight;
         this.createDate = LocalDateTime.now();
+        this.deleted = Boolean.FALSE;
     }
 
     @Id
@@ -56,13 +56,23 @@ public class ProductEntity {
     @Column
     private Double weight;
 
-    @Column Integer quantity;
+    @Column
+    Integer quantity;
 
     @Column
     private LocalDateTime createDate;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product",
-            fetch = FetchType.EAGER, targetEntity = ProductImage.class)
+    @Column
+    @Builder.Default
+    private Boolean deleted = Boolean.FALSE;
+
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            mappedBy = "product",
+            fetch = FetchType.EAGER,
+            targetEntity = ProductImage.class
+    )
+    @Builder.Default
     private List<ProductImage> productImages = new ArrayList<>();
 
 }

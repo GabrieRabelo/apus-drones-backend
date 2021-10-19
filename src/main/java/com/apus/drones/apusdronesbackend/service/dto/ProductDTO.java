@@ -30,4 +30,5 @@ public class ProductDTO {
     private List<String> imagesUrls;
     private PartnerDTO partner;
     private Integer quantity;
+    private Boolean deleted;
 }

@@ -174,7 +174,9 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderEntity> orders;
         if (status == null) { //sem filtro
-            orders = orderRepository.findAllByPartner_Id(userId);
+            orders = orderRepository.findAllByPartner_Id(userId).stream()
+                    .filter(it -> it.getStatus() != OrderStatus.IN_CART)
+                    .collect(Collectors.toList());
         } else if (status == OrderStatus.WAITING_FOR_PARTNER) { //Se esta esperando por parceiro aceitar
             orders = checkForExpiredOrder(userId);
         } else {

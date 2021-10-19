@@ -46,6 +46,9 @@ public class UserEntity {
     @Column
     private String avatarUrl;
 
+    @Column
+    private Boolean deleted = Boolean.FALSE;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
     @ToString.Exclude

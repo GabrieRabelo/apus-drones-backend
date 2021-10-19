@@ -2,7 +2,6 @@ package com.apus.drones.apusdronesbackend.service;
 
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
-import com.apus.drones.apusdronesbackend.service.converter.PartnerConverter;
 import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,8 +24,6 @@ class PartnerServiceTest {
     private PartnerServiceImpl partnerService;
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private PartnerConverter partnerConverter;
 
     @DisplayName("When repository returns multiple results "
             + "should convert into response and return it")
@@ -46,7 +43,6 @@ class PartnerServiceTest {
         var userList = List.of(user1, user2);
 
         when(userRepository.findAllByRole(any())).thenReturn(userList);
-        when(partnerConverter.toDTOList(any())).thenReturn(toDTOList(userList));
 
         var result = partnerService.findAllPartners();
 
@@ -84,11 +80,13 @@ class PartnerServiceTest {
 
         for (UserEntity user : resultFromDB) {
             var partner = PartnerDTO
-                    .builder()
-                    .id(user.getId())
-                    .name(user.getName())
-                    .avatarUrl(user.getAvatarUrl())
-                    .build();
+                .builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .cpfCnpj(user.getCpfCnpj())
+                .avatarUrl(user.getAvatarUrl())
+                .build();
 
             responseList.add(partner);
         }

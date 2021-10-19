@@ -49,16 +49,20 @@ class ProductRepositoryTest {
         userRepository.flush();
 
         var product = ProductEntity.builder().user(user).name("Carregador de Hiphone").status(ProductStatus.ACTIVE)
-                .productImages(List.of()).build();
+                .productImages(List.of()).deleted(Boolean.FALSE).build();
 
         var anotherPartnerProduct = ProductEntity.builder().user(anotherUser).name("Carregador de Xiaomi")
-                .status(ProductStatus.INACTIVE).build();
+                .status(ProductStatus.INACTIVE).deleted(Boolean.FALSE).build();
 
         var savedProduct = productRepository.save(product);
         productRepository.save(anotherPartnerProduct);
         productRepository.flush();
 
-        var result = productRepository.findAllByUserIdAndStatus(savedUser.getId(), ProductStatus.ACTIVE).get(0);
+        var result = productRepository
+                .findAllByUserIdAndStatusAndDeletedFalse(
+                        savedUser.getId(),
+                        ProductStatus.ACTIVE
+                ).get(0);
 
         assertThat(result).usingRecursiveComparison().ignoringFields("user.productEntity").isEqualTo(savedProduct);
     }
