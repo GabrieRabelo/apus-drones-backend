@@ -97,7 +97,7 @@ public class Bootstrap {
         var customer = userRepository.findAllByRole(Role.CUSTOMER).get(0);
         ordersToCreate.add(OrderEntity.builder().customer(customer)
                 .partner(partner)
-                .status(OrderStatus.ACCEPTED)
+                .status(OrderStatus.IN_FLIGHT)
                 .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("100"))
