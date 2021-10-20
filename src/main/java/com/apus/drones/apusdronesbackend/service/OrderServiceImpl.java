@@ -50,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
         this.addressRepository = addressRepository;
 
         this.DEFAULT_DELIVERY_PRICE = new BigDecimal(deliveryPrice);
-        this.WEIGHT_LIMIT_GRAMS = Double.parseDouble(weightLimit);
+        this.WEIGHT_LIMIT_GRAMS = 2000.0;
     }
 
     @Override
@@ -170,6 +170,15 @@ public class OrderServiceImpl implements OrderService {
                 .map(item -> {
                     Double orderItemWeight = item.getProduct().getWeight() * item.getQuantity();
                     BigDecimal orderItemPrice = item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+
+                    System.out.println("Finding existing item");
+                    OrderItemEntity existingItem = orderItemRepository.findAllByOrder_IdAndProduct_Id(orderId, item.getProduct().getId()).stream().findFirst().orElse(null);
+                    System.out.println(existingItem);
+                    if (existingItem != null) {
+                        existingItem.setQuantity(existingItem.getQuantity() + item.getQuantity());
+                        orderItemRepository.save(existingItem);
+                        return existingItem;
+                    }
 
                     return OrderItemEntity.builder()
                             .id(item.getId())
