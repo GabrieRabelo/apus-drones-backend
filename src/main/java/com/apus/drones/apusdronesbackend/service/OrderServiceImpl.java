@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
+import com.apus.drones.apusdronesbackend.mapper.AddressDTOMapper;
 import com.apus.drones.apusdronesbackend.mapper.OrderDTOMapper;
 import com.apus.drones.apusdronesbackend.model.entity.OrderEntity;
 import com.apus.drones.apusdronesbackend.model.entity.OrderItemEntity;
@@ -7,10 +8,7 @@ import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
-import com.apus.drones.apusdronesbackend.repository.OrderItemRepository;
-import com.apus.drones.apusdronesbackend.repository.OrderRepository;
-import com.apus.drones.apusdronesbackend.repository.ProductRepository;
-import com.apus.drones.apusdronesbackend.repository.UserRepository;
+import com.apus.drones.apusdronesbackend.repository.*;
 import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 import com.apus.drones.apusdronesbackend.service.dto.OrderItemDto;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,11 +37,14 @@ public class OrderServiceImpl implements OrderService {
 
     private final ProductRepository productRepository;
 
-    public OrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, UserRepository userRepository, ProductRepository productRepository, @Value("${application.vars.default-delivery-price}") String deliveryPrice, @Value("${application.vars.grams-weight-limit}") String weightLimit) {
+    private final AddressRepository addressRepository;
+
+    public OrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, UserRepository userRepository, ProductRepository productRepository, @Value("${application.vars.default-delivery-price}") String deliveryPrice, @Value("${application.vars.grams-weight-limit}") String weightLimit, AddressRepository addressRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.addressRepository = addressRepository;
 
         this.DEFAULT_DELIVERY_PRICE = new BigDecimal(deliveryPrice);
         this.WEIGHT_LIMIT_GRAMS = Double.parseDouble(weightLimit);
@@ -123,8 +124,8 @@ public class OrderServiceImpl implements OrderService {
                 .status(orderDto.getStatus() == null ? OrderStatus.IN_CART : orderDto.getStatus())
                 .customer(customer)
                 .partner(partner)
-                .deliveryAddress(orderDto.getDeliveryAddress())
-                .shopAddress(orderDto.getShopAddress())
+                .deliveryAddress(addressRepository.findAllByUser_Id(customer.getId()).get(0))
+                .shopAddress(addressRepository.findAllByUser_Id(partner.getId()).get(0))
                 .createdAt(orderDto.getCreatedAt() == null ? LocalDateTime.now() : orderDto.getCreatedAt())
                 .build();
 
@@ -173,7 +174,9 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderEntity> orders;
         if (status == null) { //sem filtro
-            orders = orderRepository.findAllByPartner_Id(userId);
+            orders = orderRepository.findAllByPartner_Id(userId).stream()
+                    .filter(it -> it.getStatus() != OrderStatus.IN_CART)
+                    .collect(Collectors.toList());
         } else if(status == OrderStatus.WAITING_FOR_PARTNER) { //Se esta esperando por parceiro aceitar
             orders = checkForExpiredOrder(userId);
         } else {

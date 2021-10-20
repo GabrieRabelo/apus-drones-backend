@@ -5,6 +5,7 @@ import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
 import com.apus.drones.apusdronesbackend.repository.*;
+import com.apus.drones.apusdronesbackend.service.PointCreatorService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -59,17 +60,26 @@ public class Bootstrap {
         for (UserEntity userEntity : usersToCreate) {
             userRepository.save(userEntity);
             initAddress(userEntity);
-            initAddress(userEntity);
         }
     }
 
     private void initAddress(UserEntity userEntity) {
+        Double x, y;
+        if (userEntity.getRole().equals(Role.CUSTOMER)) {
+            x = -30.067167;
+            y = -51.179395;
+        } else {
+            x = -30.0496352;
+            y = -51.1689972;
+        }
+
         var address = AddressEntity.builder()
                 .number(123)
                 .zipCode("123456")
                 .complement("Complemento")
                 .description("Rua Teste do user " + userEntity.getName())
                 .user(userEntity)
+                .coordinates(new PointCreatorService().createPoint(x, y))
                 .build();
 
         addressRepository.save(address);
@@ -83,32 +93,43 @@ public class Bootstrap {
 
     private void populateOrders(Integer partnerIndex) {
         List<OrderEntity> ordersToCreate = new ArrayList<>();
-        ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
-                .status(OrderStatus.ACCEPTED)
+        var partner = userRepository.findAllByRole(Role.PARTNER).get(partnerIndex);
+        var customer = userRepository.findAllByRole(Role.CUSTOMER).get(0);
+        ordersToCreate.add(OrderEntity.builder().customer(customer)
+                .partner(partner)
+                .status(OrderStatus.IN_FLIGHT)
                 .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
-                .orderPrice(new BigDecimal("100")).build());
+                .orderPrice(new BigDecimal("100"))
+                .deliveryAddress(addressRepository.findAllByUser_Id(partner.getId()).get(0))
+                .shopAddress(addressRepository.findAllByUser_Id(customer.getId()).get(0))
+                .build());
 
-        ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
+        ordersToCreate.add(OrderEntity.builder().customer(customer)
+                .partner(partner)
                 .status(OrderStatus.IN_CART)
                 .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .deliveryAddress(addressRepository.findAllByUser_Id(partner.getId()).get(0))
+                .shopAddress(addressRepository.findAllByUser_Id(customer.getId()).get(0))
                 .orderPrice(new BigDecimal("50")).build());
 
-        ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
+        ordersToCreate.add(OrderEntity.builder().customer(customer)
+                .partner(partner)
                 .status(OrderStatus.WAITING_FOR_PARTNER)
                 .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .deliveryAddress(addressRepository.findAllByUser_Id(partner.getId()).get(0))
+                .shopAddress(addressRepository.findAllByUser_Id(customer.getId()).get(0))
                 .orderPrice(new BigDecimal("225")).build());
 
-        ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(1))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
+        ordersToCreate.add(OrderEntity.builder().customer(customer)
+                .partner(partner)
                 .status(OrderStatus.WAITING_FOR_PARTNER)
                 .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .deliveryAddress(addressRepository.findAllByUser_Id(partner.getId()).get(0))
+                .shopAddress(addressRepository.findAllByUser_Id(customer.getId()).get(0))
                 .orderPrice(new BigDecimal("100")).build());
 
         List<OrderItemEntity> ordersItemToCreate = new ArrayList<>();
@@ -181,12 +202,14 @@ public class Bootstrap {
     private void populatePartners() {
         for (int i = 0; i < NUMBER_OF_PARTNERS; i++) {
             var user = UserEntity.builder().name("Parceiro " + contEntities).role(Role.PARTNER).avatarUrl(
-                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
-                            + contEntities + ".png")
+                            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
+                                    + contEntities + ".png")
                     .cpfCnpj("12312312312").password("blublu")
                     .email("parceiro" + i + "@example.com")
                     .deleted(Boolean.FALSE).build();
+
             userRepository.save(user);
+            initAddress(user);
             contEntities++;
             populateProducts(user.getId());
         }
