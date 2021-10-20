@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
+import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.mapper.AddressDTOMapper;
 import com.apus.drones.apusdronesbackend.mapper.UserDTOMapper;
 import com.apus.drones.apusdronesbackend.model.entity.AddressEntity;
@@ -8,7 +9,11 @@ import com.apus.drones.apusdronesbackend.repository.AddressRepository;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.AddressDTO;
 import com.apus.drones.apusdronesbackend.service.dto.UserDTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,12 +29,19 @@ public class ProfileServiceImpl implements ProfileService {
         this.addressRepository = addressRepository;
     }
     @Override
-    public UserDTO getById(Long userId) {
-        UserEntity entity = userRepository.getById(userId);
-        List<AddressEntity> addresses = addressRepository.findAllByUser_Id(userId);
+    public UserDTO getById() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        List<AddressDTO> addressesDto = addresses.stream().map(AddressDTOMapper::fromAddressEntity).collect(Collectors.toList());
+        if(auth.isAuthenticated()){
+            CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+            UserEntity entity = userRepository.getById(details.getUserID());
+            List<AddressEntity> addresses = addressRepository.findAllByUser_Id(details.getUserID());
 
-        return UserDTOMapper.fromUserEntity(entity, addressesDto);
+            List<AddressDTO> addressesDto = addresses.stream().map(AddressDTOMapper::fromAddressEntity).collect(Collectors.toList());
+
+            return UserDTOMapper.fromUserEntity(entity, addressesDto);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Falha ao carregar dados do perfil. Usuário não autenticado.");
+        }
     }
 }
