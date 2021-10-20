@@ -33,5 +33,6 @@ public class ProductDTO {
     private Integer quantity;
     //files to upload
     private List<FileDTO> files;
+    private boolean deleted;
 }
 
