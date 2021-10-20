@@ -9,12 +9,17 @@ public class AddressDTOMapper {
         if (addressEntity == null) {
             return null;
         }
-        return AddressDTO.builder()
+        var addressBuilder = AddressDTO.builder()
                 .id(addressEntity.getId())
                 .description(addressEntity.getDescription())
-                .number(addressEntity.getNumber())
-                .lat(addressEntity.getCoordinates().getX())
-                .lng(addressEntity.getCoordinates().getY())
-                .build();
+                .number(addressEntity.getNumber());
+
+        if (addressEntity.getCoordinates() != null) {
+            addressBuilder
+                    .lat(addressEntity.getCoordinates().getX())
+                    .lng(addressEntity.getCoordinates().getY());
+        }
+
+        return addressBuilder.build();
     }
 }
