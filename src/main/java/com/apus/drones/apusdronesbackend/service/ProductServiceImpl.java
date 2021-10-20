@@ -31,11 +31,13 @@ import static com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper.fromProd
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
+    private final PartnerService partnerService;
     private final ImageUploadService imageUploadService;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository, ImageUploadService imageUploadService) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository, PartnerService partnerService, ImageUploadService imageUploadService) {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
+        this.partnerService = partnerService;
         this.imageUploadService = imageUploadService;
     }
 
@@ -45,14 +47,19 @@ public class ProductServiceImpl implements ProductService {
                 .filter(isMain -> isMain)
                 .count();
 
-        if (mainFileCount > 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Apenas uma imagem principal é permitida");
-        } else if (mainFileCount == 0) {
-            productDTO.getFiles().get(0).setMainFile(true);
+        if (productDTO.getFiles().size() > 0) {
+            if (mainFileCount > 1) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Apenas uma imagem principal é permitida");
+            } else if (mainFileCount == 0) {
+                productDTO.getFiles().get(0).setMainFile(true);
+            }
         }
 
         // TODO obter o parceiro da autenticação
-        UserEntity partner = UserEntity.builder().id(1L).build();
+        // partnerService.get may throw a ResponseStatusException
+        this.partnerService.get(productDTO.getPartner());
+
+        UserEntity partner = UserEntity.builder().id(productDTO.getPartner()).build();
 
         List<ProductImage> images = uploadFiles(productDTO.getFiles());
 
@@ -63,6 +70,7 @@ public class ProductServiceImpl implements ProductService {
                 .status(ProductStatus.ACTIVE)
                 .weight(productDTO.getWeight())
                 .quantity(productDTO.getQuantity())
+                .deleted(Boolean.FALSE)
                 .createDate(LocalDateTime.now())
                 .user(partner)
                 .productImages(images)
@@ -84,14 +92,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO get(Long id) {
-        return productRepository.findById(id).map(ProductDtoMapper::fromProductEntity)
+        return productRepository.findByIdAndDeletedFalse(id).map(ProductDtoMapper::fromProductEntity)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o produto com ID " + id));
     }
 
     @Override
     public List<ProductDTO> findAllActiveProductsByUserId(Long userId) {
-        var resultFromDB = productRepository.findAllByUserIdAndStatus(userId, ProductStatus.ACTIVE);
+        var resultFromDB = productRepository.findAllByUserIdAndStatusAndDeletedFalse(userId, ProductStatus.ACTIVE);
         return fromProductEntityList(resultFromDB);
     }
 
@@ -110,11 +118,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<Void> delete(Long id) {
-        ProductEntity entity = productRepository.findById(id)
+        ProductEntity entity = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o produto com ID " + id));
 
-        productRepository.delete(entity);
+        entity.setDeleted(Boolean.TRUE);
+
+        productRepository.save(entity);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

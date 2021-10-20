@@ -8,3 +8,6 @@ aws:
     secretKey: "Ck7Niv8K7gXQojRRTw5a6aHKlXiMsvz/pofbyCSO"
   s3:
     bucketName: apusdrone
+jwt:
+  secret: secretkey123
+  token-validity: 18000

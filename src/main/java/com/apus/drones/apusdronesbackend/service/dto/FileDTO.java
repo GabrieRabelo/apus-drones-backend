@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.service.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
+@Builder
 public class FileDTO {
     @NotBlank(message = "fileName não pode ser nulo ou vazio")
     private String fileName;

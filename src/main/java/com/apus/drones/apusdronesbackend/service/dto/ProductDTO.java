@@ -31,7 +31,7 @@ public class ProductDTO {
     private List<String> removedImagesUrl;
     private PartnerDTO partner;
     private Integer quantity;
-
     //files to upload
     private List<FileDTO> files;
 }
+

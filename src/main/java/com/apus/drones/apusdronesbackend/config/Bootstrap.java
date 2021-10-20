@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Profile({ "local", "prd" })
+@Profile({"local", "prd"})
 @Configuration
 public class Bootstrap {
 
@@ -30,8 +30,8 @@ public class Bootstrap {
     public final AddressRepository addressRepository;
 
     public Bootstrap(UserRepository userRepository, ProductRepository productRepository,
-            ProductImageRepository productImageRepository, OrderRepository orderRepository,
-            AddressRepository addressRepository, OrderItemRepository orderItemRepository) {
+                     ProductImageRepository productImageRepository, OrderRepository orderRepository,
+                     AddressRepository addressRepository, OrderItemRepository orderItemRepository) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.productRepository = productRepository;
@@ -43,6 +43,7 @@ public class Bootstrap {
     @Bean
     public void initDatabase() {
         initUsers();
+        populatePartners();
         initOrders();
     }
 
@@ -57,9 +58,21 @@ public class Bootstrap {
 
         for (UserEntity userEntity : usersToCreate) {
             userRepository.save(userEntity);
+            initAddress(userEntity);
+            initAddress(userEntity);
         }
+    }
 
-        populatePartners();
+    private void initAddress(UserEntity userEntity) {
+        var address = AddressEntity.builder()
+                .number(123)
+                .zipCode("123456")
+                .complement("Complemento")
+                .description("Rua Teste do user " + userEntity.getName())
+                .user(userEntity)
+                .build();
+
+        addressRepository.save(address);
     }
 
     private void initOrders() {
@@ -71,26 +84,32 @@ public class Bootstrap {
     private void populateOrders(Integer partnerIndex) {
         List<OrderEntity> ordersToCreate = new ArrayList<>();
         ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex)).status(OrderStatus.ACCEPTED)
-                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES)).createdAt(LocalDateTime.now())
-                .deliveryPrice(new BigDecimal("50")).orderPrice(new BigDecimal("100")).build());
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
+                .status(OrderStatus.ACCEPTED)
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("100")).build());
 
         ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
-                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex)).status(OrderStatus.IN_CART)
-                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES)).createdAt(LocalDateTime.now())
-                .deliveryPrice(new BigDecimal("50")).orderPrice(new BigDecimal("50")).build());
+                .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
+                .status(OrderStatus.IN_CART)
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("50")).build());
 
         ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(0))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
                 .status(OrderStatus.WAITING_FOR_PARTNER)
-                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES)).createdAt(LocalDateTime.now())
-                .deliveryPrice(new BigDecimal("50")).orderPrice(new BigDecimal("225")).build());
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("225")).build());
 
         ordersToCreate.add(OrderEntity.builder().customer(userRepository.findAllByRole(Role.CUSTOMER).get(1))
                 .partner(userRepository.findAllByRole(Role.PARTNER).get(partnerIndex))
                 .status(OrderStatus.WAITING_FOR_PARTNER)
-                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES)).createdAt(LocalDateTime.now())
-                .deliveryPrice(new BigDecimal("50")).orderPrice(new BigDecimal("100")).build());
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("100")).build());
 
         List<OrderItemEntity> ordersItemToCreate = new ArrayList<>();
 
@@ -142,14 +161,16 @@ public class Bootstrap {
     private void populateProducts(long id) {
         for (int i = 0; i < 5; i++) {
             var user = userRepository.findById(id).orElse(null);
-            var productImage = ProductImage.builder().isMain(true).url(
-                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + contEntities + ".png")
+            var productImage = ProductImage.builder().isMain(true)
+                    .url("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
+                            + contEntities + ".png")
                     .build();
 
             var product = ProductEntity.builder().user(user).weight(2D).status(ProductStatus.ACTIVE)
                     .name("Produto " + contEntities).description("Lorem ipsum")
-                    .price(BigDecimal.valueOf(new Random().nextInt(1000))).createDate(LocalDateTime.now())
-                    .productImages(List.of(productImage)).quantity(25).build();
+                    .price(BigDecimal.valueOf(new Random().nextInt(1000)))
+                    .createDate(LocalDateTime.now()).productImages(List.of(productImage))
+                    .quantity(25).deleted(Boolean.FALSE).build();
 
             productImage.setProduct(product);
             productRepository.save(product);
@@ -159,10 +180,12 @@ public class Bootstrap {
 
     private void populatePartners() {
         for (int i = 0; i < NUMBER_OF_PARTNERS; i++) {
-            var user = UserEntity.builder().name("Parceiro " + contEntities).role(Role.PARTNER)
-                    .avatarUrl("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
+            var user = UserEntity.builder().name("Parceiro " + contEntities).role(Role.PARTNER).avatarUrl(
+                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
                             + contEntities + ".png")
-                    .cpfCnpj("12312312312").password("blublu").email("parceiro" + i + "@example.com").build();
+                    .cpfCnpj("12312312312").password("blublu")
+                    .email("parceiro" + i + "@example.com")
+                    .deleted(Boolean.FALSE).build();
             userRepository.save(user);
             contEntities++;
             populateProducts(user.getId());
