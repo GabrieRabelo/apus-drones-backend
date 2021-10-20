@@ -21,7 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import static com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper.fromProductEntityList;
 
@@ -163,26 +163,23 @@ public class ProductServiceImpl implements ProductService {
         if (productDTO.getQuantity() != null)
             entity.setQuantity(productDTO.getQuantity());
 
-        if (productDTO.getImagesUrls() != null) {
-            List<ProductImage> productImages = productDTO.getImagesUrls().stream().map(
-                    url -> {
-                        ProductImage productImage = productImageRepository
-                                .findProductImageByProductAndUrl(entity, url);
-                        return productImage != null
-                                ? productImage
-                                : ProductImage.builder()
-                                .url(url)
-                                .isMain(false)
-                                .product(entity)
-                                .build();
-                    }
-            ).collect(Collectors.toList());
+        List<ProductImage> uploadedImages;
 
-            if (!productImages.isEmpty())
-                productImages.get(0).setIsMain(true);
+        if (productDTO.getFiles() != null) {
+            uploadedImages = uploadFiles(productDTO.getFiles());
 
-            productImageRepository.deleteAllByProduct(entity);
-            entity.setProductImages(productImages);
+            for (ProductImage img : uploadedImages) {
+                img.setProduct(entity);
+            }
+
+            entity.getProductImages().addAll(uploadedImages);
+        }
+
+        if (productDTO.getRemovedImagesUrl() != null) {
+            for (String url : productDTO.getRemovedImagesUrl()) {
+                productImageRepository.deleteByProductAndUrl(entity, url);
+                entity.getProductImages().removeIf(img -> Objects.equals(img.getUrl(), url));
+            }
         }
     }
 }
