@@ -54,10 +54,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderDTO getCart() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth.isAuthenticated()) {
+            return this.getByCustomerId(OrderStatus.IN_CART).stream().findFirst()
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Carrinho não encontrado"));
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
+        }
+    }
+
+    @Override
     public void addToCart(OrderDTO orderDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if(auth.isAuthenticated()) {
+        if (auth.isAuthenticated()) {
             OrderDTO cart = this.getByCustomerId(OrderStatus.IN_CART).stream().findFirst().orElse(null);
             if (!Objects.isNull(cart)) {
                 cart.getItems().addAll(orderDTO.getItems());
@@ -74,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDTO> getByCustomerId(OrderStatus status) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if(auth.isAuthenticated()) {
+        if (auth.isAuthenticated()) {
             CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
             var ignoredStatuses = List.of(OrderStatus.IN_CART);
             List<OrderEntity> orders = status == null
@@ -217,8 +229,8 @@ public class OrderServiceImpl implements OrderService {
         var ordersResult = orderRepository.findAllByPartner_IdAndStatus(userId, OrderStatus.WAITING_FOR_PARTNER);
         var waitingOrderResult = new ArrayList<OrderEntity>();
 
-        for (OrderEntity order: ordersResult) {
-            if(LocalDateTime.now().isAfter(order.getExpiresAt())){
+        for (OrderEntity order : ordersResult) {
+            if (LocalDateTime.now().isAfter(order.getExpiresAt())) {
                 order.setStatus(OrderStatus.REFUSED);
                 orderRepository.save(order);
             } else {

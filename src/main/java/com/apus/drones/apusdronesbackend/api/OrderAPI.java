@@ -4,10 +4,8 @@ import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.service.OrderService;
 import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.criterion.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,6 +43,11 @@ public class OrderAPI {
     @PostMapping("/cart")
     public ResponseEntity<Void> addToCart(@RequestBody OrderDTO orderDto) {
         orderService.addToCart(orderDto);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping("/cart")
+    public ResponseEntity<OrderDTO> getCart() {
+        return ResponseEntity.ok(orderService.getCart());
     }
 }
