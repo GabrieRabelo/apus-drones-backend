@@ -48,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
     public ResponseEntity<Void> create(CreateProductDTO productDTO) {
         // TODO obter o parceiro da autenticação
         // partnerService.get may throw a ResponseStatusException
-        this.partnerService.get();
+        this.partnerService.get(productDTO.getPartner());
 
         UserEntity partner = UserEntity.builder().id(productDTO.getPartner()).build();
 

@@ -47,9 +47,9 @@ public class PartnerAPI {
         return ResponseEntity.ok(partnerService.create(createPartnerDTO));
     }
 
-    @GetMapping
-    public ResponseEntity<PartnerDTO> get() {
-        return ResponseEntity.ok(partnerService.get());
+    @GetMapping("/{id}")
+    public ResponseEntity<PartnerDTO> get(@PathVariable Long id) {
+        return ResponseEntity.ok(partnerService.get(id));
     }
 
     @PatchMapping

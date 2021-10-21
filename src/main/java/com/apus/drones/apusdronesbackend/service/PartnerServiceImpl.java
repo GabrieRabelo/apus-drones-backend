@@ -37,17 +37,11 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
-    public PartnerDTO get() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    public PartnerDTO get(Long id) {
+        return userRepository.findByIdAndRoleAndDeletedFalse(id, Role.PARTNER).map(PartnerDtoMapper::fromUserEntity)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Não foi possível encontrar o Parceiro com ID " + id));
 
-        if(auth.isAuthenticated()) {
-            CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
-            return userRepository.findByIdAndRoleAndDeletedFalse(details.getUserID(), Role.PARTNER).map(PartnerDtoMapper::fromUserEntity)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                            "Não foi possível encontrar o Parceiro com ID " + details.getUserID()));
-        } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
-        }
     }
 
     @Override
