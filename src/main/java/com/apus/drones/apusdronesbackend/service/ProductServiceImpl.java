@@ -89,17 +89,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDTO> findAllActiveProductsByUserId() {
+    public List<ProductDTO> findAllActiveProductsByUserId(Long userId) {
+        var resultFromDB = productRepository.findAllByUserIdAndStatusAndDeletedFalse(userId, ProductStatus.ACTIVE);
+        return fromProductEntityList(resultFromDB);
+    }
+
+    @Override
+    public List<ProductDTO> findAllActiveProductsByUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if(auth.isAuthenticated()) {
+        if (auth.isAuthenticated()) {
             CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
             var resultFromDB = productRepository.findAllByUserIdAndStatusAndDeletedFalse(details.getUserID(), ProductStatus.ACTIVE);
             return fromProductEntityList(resultFromDB);
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
         }
-
     }
 
     @Override
@@ -152,10 +157,10 @@ public class ProductServiceImpl implements ProductService {
                         return productImage != null
                                 ? productImage
                                 : ProductImage.builder()
-                                    .url(url)
-                                    .isMain(false)
-                                    .product(entity)
-                                    .build();
+                                .url(url)
+                                .isMain(false)
+                                .product(entity)
+                                .build();
                     }
             ).collect(Collectors.toList());
 

@@ -65,7 +65,7 @@ public class PartnerAPI {
 
     @GetMapping("/products")
     public ResponseEntity<List<ProductDTO>> findAllProductsByPartnerId() {
-        var response = productService.findAllActiveProductsByUserId();
+        var response = productService.findAllActiveProductsByUser();
 
         return ResponseEntity.ok(response);
     }
