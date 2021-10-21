@@ -9,8 +9,8 @@ import java.util.List;
 public interface PartnerService {
 
     List<PartnerDTO> findAllPartners();
-    PartnerDTO get(Long id);
+    PartnerDTO get();
     CreatePartnerResponseDTO create(CreatePartnerDTO createPartnerDTO);
-    PartnerDTO update(Long id, CreatePartnerDTO updatePartnerDTO);
-    void delete(Long id);
+    PartnerDTO update(CreatePartnerDTO updatePartnerDTO);
+    void delete();
 }

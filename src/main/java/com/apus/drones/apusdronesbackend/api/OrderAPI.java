@@ -24,10 +24,10 @@ public class OrderAPI {
         this.orderService = orderService;
     }
 
-    @GetMapping("/by-user/{userId}")
-    public ResponseEntity<List<OrderDTO>> getOrders(@PathVariable Long userId, @RequestParam(required = false) OrderStatus status) {
+    @GetMapping("/by-user")
+    public ResponseEntity<List<OrderDTO>> getOrders(@RequestParam(required = false) OrderStatus status) {
         log.info("Getting a list of orders.");
-        return ResponseEntity.ok(orderService.getByCustomerId(userId, status));
+        return ResponseEntity.ok(orderService.getByCustomerId(status));
     }
 
     @GetMapping("/{orderId}")
@@ -42,9 +42,9 @@ public class OrderAPI {
         return ResponseEntity.ok(orderService.update(orderDto));
     }
 
-    @PostMapping("/cart/{userId}")
-    public ResponseEntity<Void> addToCart(@PathVariable Long userId, @RequestBody OrderDTO orderDto) {
-        orderService.addToCart(userId, orderDto);
+    @PostMapping("/cart")
+    public ResponseEntity<Void> addToCart(@RequestBody OrderDTO orderDto) {
+        orderService.addToCart(orderDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
