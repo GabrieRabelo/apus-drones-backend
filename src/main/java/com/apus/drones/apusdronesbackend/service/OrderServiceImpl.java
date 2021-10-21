@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
+import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.mapper.AddressDTOMapper;
 import com.apus.drones.apusdronesbackend.mapper.OrderDTOMapper;
 import com.apus.drones.apusdronesbackend.model.entity.OrderEntity;
@@ -13,6 +14,8 @@ import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 import com.apus.drones.apusdronesbackend.service.dto.OrderItemDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -51,28 +54,41 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void addToCart(Long userId, OrderDTO orderDTO) {
-        OrderDTO cart = this.getByCustomerId(userId, OrderStatus.IN_CART).stream().findFirst().orElse(null);
-        if (!Objects.isNull(cart)) {
-            cart.getItems().addAll(orderDTO.getItems());
-            this.update(cart);
+    public void addToCart(OrderDTO orderDTO) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if(auth.isAuthenticated()) {
+            OrderDTO cart = this.getByCustomerId(OrderStatus.IN_CART).stream().findFirst().orElse(null);
+            if (!Objects.isNull(cart)) {
+                cart.getItems().addAll(orderDTO.getItems());
+                this.update(cart);
+            } else {
+                this.update(orderDTO);
+            }
         } else {
-            this.update(orderDTO);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
         }
     }
 
     @Override
-    public List<OrderDTO> getByCustomerId(Long userId, OrderStatus status) {
-        var ignoredStatuses = List.of(OrderStatus.IN_CART);
-        List<OrderEntity> orders = status == null
-                ? orderRepository.findAllByCustomer_IdAndStatusIsNotIn(userId, ignoredStatuses)
-                : orderRepository.findAllByCustomer_IdAndStatus(userId, status);
+    public List<OrderDTO> getByCustomerId(OrderStatus status) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        for (OrderEntity o : orders) {
-            List<OrderItemEntity> items = orderItemRepository.findAllByOrder_Id(o.getId());
-            o.setOrderItems(items);
+        if(auth.isAuthenticated()) {
+            CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+            var ignoredStatuses = List.of(OrderStatus.IN_CART);
+            List<OrderEntity> orders = status == null
+                    ? orderRepository.findAllByCustomer_IdAndStatusIsNotIn(details.getUserID(), ignoredStatuses)
+                    : orderRepository.findAllByCustomer_IdAndStatus(details.getUserID(), status);
+
+            for (OrderEntity o : orders) {
+                List<OrderItemEntity> items = orderItemRepository.findAllByOrder_Id(o.getId());
+                o.setOrderItems(items);
+            }
+            return orders.stream().map(OrderDTOMapper::fromOrderEntity).collect(Collectors.toList());
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
         }
-        return orders.stream().map(OrderDTOMapper::fromOrderEntity).collect(Collectors.toList());
     }
 
     @Override
@@ -170,25 +186,31 @@ public class OrderServiceImpl implements OrderService {
         return sum;
     }
 
-    public List<OrderDTO> findAllByPartnerIdAndFilterByStatus(Long userId, OrderStatus status) {
+    public List<OrderDTO> findAllByPartnerIdAndFilterByStatus(OrderStatus status) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        List<OrderEntity> orders;
-        if (status == null) { //sem filtro
-            orders = orderRepository.findAllByPartner_Id(userId).stream()
-                    .filter(it -> it.getStatus() != OrderStatus.IN_CART)
-                    .collect(Collectors.toList());
-        } else if(status == OrderStatus.WAITING_FOR_PARTNER) { //Se esta esperando por parceiro aceitar
-            orders = checkForExpiredOrder(userId);
+        if(auth.isAuthenticated()) {
+            CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+            List<OrderEntity> orders;
+            if (status == null) { //sem filtro
+                orders = orderRepository.findAllByPartner_Id(details.getUserID()).stream()
+                        .filter(it -> it.getStatus() != OrderStatus.IN_CART)
+                        .collect(Collectors.toList());
+            } else if (status == OrderStatus.WAITING_FOR_PARTNER) { //Se esta esperando por parceiro aceitar
+                orders = checkForExpiredOrder(details.getUserID());
+            } else {
+                orders = orderRepository.findAllByPartner_IdAndStatus(details.getUserID(), status); // com filtro
+            }
+
+            for (OrderEntity o : orders) {
+                List<OrderItemEntity> items = orderItemRepository.findAllByOrder_Id(o.getId());
+                o.setOrderItems(items);
+            }
+
+            return orders.stream().map(OrderDTOMapper::fromOrderEntity).collect(Collectors.toList());
         } else {
-            orders = orderRepository.findAllByPartner_IdAndStatus(userId, status); // com filtro
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
         }
-
-        for (OrderEntity o : orders) {
-            List<OrderItemEntity> items = orderItemRepository.findAllByOrder_Id(o.getId());
-            o.setOrderItems(items);
-        }
-
-        return orders.stream().map(OrderDTOMapper::fromOrderEntity).collect(Collectors.toList());
     }
 
     private List<OrderEntity> checkForExpiredOrder(Long userId) {

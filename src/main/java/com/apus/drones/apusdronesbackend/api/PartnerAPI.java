@@ -52,9 +52,9 @@ public class PartnerAPI {
         return ResponseEntity.ok(partnerService.get(id));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<PartnerDTO> update(@PathVariable Long id, @RequestBody @Validated CreatePartnerDTO updatePartnerDTO) {
-        return ResponseEntity.ok(partnerService.update(id, updatePartnerDTO));
+    @PatchMapping
+    public ResponseEntity<PartnerDTO> update(@RequestBody @Validated CreatePartnerDTO updatePartnerDTO) {
+        return ResponseEntity.ok(partnerService.update(updatePartnerDTO));
     }
 
     @GetMapping
@@ -63,23 +63,22 @@ public class PartnerAPI {
         return ResponseEntity.ok(partnerService.findAllPartners());
     }
 
-    @GetMapping("/{partnerId}/products")
-    public ResponseEntity<List<ProductDTO>> findAllProductsByPartnerId(@PathVariable Long partnerId) {
-        var response = productService.findAllActiveProductsByUserId(partnerId);
+    @GetMapping("/products")
+    public ResponseEntity<List<ProductDTO>> findAllProductsByPartnerId() {
+        var response = productService.findAllActiveProductsByUserId();
 
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{partnerId}/orders")
-    public ResponseEntity<List<OrderDTO>> findAllOrdersByPartnerIdFilterStatus(@PathVariable Long partnerId,
-            @RequestParam(required = false) OrderStatus status) {
-        var response = orderService.findAllByPartnerIdAndFilterByStatus(partnerId, status);
+    @GetMapping("/orders")
+    public ResponseEntity<List<OrderDTO>> findAllOrdersByPartnerIdFilterStatus(@RequestParam(required = false) OrderStatus status) {
+        var response = orderService.findAllByPartnerIdAndFilterByStatus(status);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        partnerService.delete(id);
+    @DeleteMapping
+    public ResponseEntity<Void> delete() {
+        partnerService.delete();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

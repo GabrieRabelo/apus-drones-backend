@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
+import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
@@ -8,12 +9,14 @@ import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerDTO;
 import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerResponseDTO;
 import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 
 @Transactional
@@ -38,6 +41,7 @@ public class PartnerServiceImpl implements PartnerService {
         return userRepository.findByIdAndRoleAndDeletedFalse(id, Role.PARTNER).map(PartnerDtoMapper::fromUserEntity)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o Parceiro com ID " + id));
+
     }
 
     @Override
@@ -63,16 +67,23 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
-    public PartnerDTO update(Long id, CreatePartnerDTO updatePartnerDTO) {
-        UserEntity entity = userRepository.findAllByIdAndRole(id, Role.PARTNER)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                "Não foi possível encontrar o Parceiro com ID " + id));
+    public PartnerDTO update(CreatePartnerDTO updatePartnerDTO) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        updatePartner(updatePartnerDTO, entity);
+        if (auth.isAuthenticated()) {
+            CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+            UserEntity entity = userRepository.findAllByIdAndRole(details.getUserID(), Role.PARTNER)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Não foi possível encontrar o Parceiro com ID " + details.getUserID()));
 
-        UserEntity savedUserEntity = userRepository.save(entity);
+            updatePartner(updatePartnerDTO, entity);
 
-        return PartnerDtoMapper.fromUserEntity(savedUserEntity);
+            UserEntity savedUserEntity = userRepository.save(entity);
+
+            return PartnerDtoMapper.fromUserEntity(savedUserEntity);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
+        }
     }
 
     private void updatePartner(CreatePartnerDTO partnerDTO, UserEntity entity) {
@@ -95,13 +106,20 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
-    public void delete(Long id) {
-        UserEntity entity = userRepository.findByIdAndRoleAndDeletedFalse(id, Role.PARTNER)
+    public void delete() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if(auth.isAuthenticated()) {
+            CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+            UserEntity entity = userRepository.findByIdAndRoleAndDeletedFalse(details.getUserID(), Role.PARTNER)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                            "Não foi possível encontrar o Parceiro com ID " + id));
+                            "Não foi possível encontrar o Parceiro com ID " + details.getUserID()));
 
-        entity.setDeleted(Boolean.TRUE);
+            entity.setDeleted(Boolean.TRUE);
 
-        userRepository.save(entity);
+            userRepository.save(entity);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
+        }
     }
 }
