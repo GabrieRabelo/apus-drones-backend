@@ -31,10 +31,6 @@ public class CreateProductDTO {
 
     private List<FileDTO> files;
 
-    private String imageUrl;
-
-    private List<String> imagesUrls;
-
     private Integer quantity;
 
     private Long partner;

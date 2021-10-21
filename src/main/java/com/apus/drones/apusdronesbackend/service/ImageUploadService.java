@@ -1,7 +1,9 @@
 package com.apus.drones.apusdronesbackend.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.apus.drones.apusdronesbackend.service.dto.FileDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
@@ -38,8 +40,8 @@ public class ImageUploadService {
 
         double fileSizeMB = fileContent.length / 1048576D;
 
-        if(fileSizeMB >= 1) {
-            throw new SizeLimitExceededException("Image size limite exceeded", fileContent.length, 1048576);
+        if (fileSizeMB >= 1) {
+            throw new SizeLimitExceededException("Image size limit exceeded", fileContent.length, 1048576);
         }
 
         InputStream fileStream = new ByteArrayInputStream(fileContent);
@@ -49,7 +51,6 @@ public class ImageUploadService {
         metadata.setContentType("image/" + extension);
 
         amazonS3.putObject(bucketName, request.getFileName(), fileStream, metadata);
-
 
         log.info("Image \"{}\" with size: \"{}MB\" has sent to aws s3 bucket: \"{}\"", filename, fileSizeMB, bucketName);
 
