@@ -15,5 +15,7 @@ public interface ProductService {
 
     ResponseEntity<Void> delete(Long id);
 
-    List<ProductDTO> findAllActiveProductsByUserId();
+    List<ProductDTO> findAllActiveProductsByUserId(Long userId);
+
+    List<ProductDTO> findAllActiveProductsByUser();
 }
