@@ -54,7 +54,7 @@ public class Bootstrap {
         usersToCreate.add(UserEntity.builder().name("Rabelo").role(Role.CUSTOMER).avatarUrl("none")
                 .cpfCnpj("12312312312").password("blublu").email("rabelo@example.com").build());
 
-        usersToCreate.add(UserEntity.builder().name("Carlos Alberto").role(Role.CUSTOMER).avatarUrl("none")
+        usersToCreate.add(UserEntity.builder().name("Carlos Alberto").role(Role.CUSTOMER).avatarUrl("https://static.poder360.com.br/2020/12/Apple-868x644.jpg")
                 .cpfCnpj("40782976093").password("blublu").email("carlos.alberto@example.com").build());
 
         for (UserEntity userEntity : usersToCreate) {
