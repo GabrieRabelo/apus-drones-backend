@@ -170,13 +170,13 @@ public class OrderServiceImpl implements OrderService {
                 .map(item -> {
                     Double orderItemWeight = item.getProduct().getWeight() * item.getQuantity();
                     BigDecimal orderItemPrice = item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
-
-                    System.out.println("Finding existing item");
-                    OrderItemEntity existingItem = orderItemRepository.findAllByOrder_IdAndProduct_Id(orderId, item.getProduct().getId()).stream().findFirst().orElse(null);
-                    System.out.println(existingItem);
-                    if (existingItem != null) {
+                    OrderItemEntity existingItem = orderItemRepository.findOneByOrder_IdAndProduct_Id(orderId, item.getProduct().getId()).stream().findFirst().orElse(null);
+                    if (existingItem != null && item.getId() == 0) {
                         existingItem.setQuantity(existingItem.getQuantity() + item.getQuantity());
                         orderItemRepository.save(existingItem);
+                        return existingItem;
+                    } else if (existingItem  != null) {
+                        existingItem.setQuantity(item.getQuantity());
                         return existingItem;
                     }
 
