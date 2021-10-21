@@ -1,9 +1,7 @@
 package com.apus.drones.apusdronesbackend.service;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.apus.drones.apusdronesbackend.service.dto.FileDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
@@ -30,7 +28,7 @@ public class ImageUploadService {
 
         String[] nameSplit = request.getFileName().split("\\.");
         String extension = "png";
-        String filename = nameSplit[1] != null ? request.getFileName() : nameSplit[0] + extension;
+        String filename = nameSplit.length > 1 ? request.getFileName() : nameSplit[0] + "." + extension;
 
         if (nameSplit.length > 1) {
             extension = nameSplit[nameSplit.length - 1];
@@ -50,10 +48,10 @@ public class ImageUploadService {
         metadata.setContentLength(fileContent.length);
         metadata.setContentType("image/" + extension);
 
-        amazonS3.putObject(bucketName, request.getFileName(), fileStream, metadata);
+        amazonS3.putObject(bucketName, filename, fileStream, metadata);
 
         log.info("Image \"{}\" with size: \"{}MB\" has sent to aws s3 bucket: \"{}\"", filename, fileSizeMB, bucketName);
 
-        return amazonS3.getUrl(bucketName, request.getFileName()).toString();
+        return amazonS3.getUrl(bucketName, filename).toString();
     }
 }
