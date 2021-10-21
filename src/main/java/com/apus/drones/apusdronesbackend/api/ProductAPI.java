@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/product")
 @Slf4j
@@ -16,6 +18,12 @@ public class ProductAPI {
 
     public ProductAPI(ProductService productService) {
         this.productService = productService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProductDTO>> find(@RequestParam Long partner) {
+        log.info("Received a new find product request");
+        return ResponseEntity.ok(productService.findAllActiveProductsByUserId(partner));
     }
 
     @PostMapping

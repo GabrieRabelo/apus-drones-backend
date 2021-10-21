@@ -29,9 +29,9 @@ public class OrderDTO {
 
     private BigDecimal orderPrice;
 
-    private AddressEntity deliveryAddress;
+    private AddressDTO deliveryAddress;
 
-    private AddressEntity shopAddress;
+    private AddressDTO shopAddress;
 
     private List<OrderItemDto> items;
 }
