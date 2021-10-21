@@ -50,7 +50,8 @@ public class OrderServiceImpl implements OrderService {
         this.addressRepository = addressRepository;
 
         this.DEFAULT_DELIVERY_PRICE = new BigDecimal(deliveryPrice);
-        this.WEIGHT_LIMIT_GRAMS = 2000.0;
+        this.WEIGHT_LIMIT_GRAMS = Double.parseDouble(weightLimit);
+        ;
     }
 
     @Override
@@ -175,7 +176,7 @@ public class OrderServiceImpl implements OrderService {
                         existingItem.setQuantity(existingItem.getQuantity() + item.getQuantity());
                         orderItemRepository.save(existingItem);
                         return existingItem;
-                    } else if (existingItem  != null) {
+                    } else if (existingItem != null) {
                         existingItem.setQuantity(item.getQuantity());
                         return existingItem;
                     }
