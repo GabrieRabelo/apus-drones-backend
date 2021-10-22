@@ -51,7 +51,8 @@ public class Bootstrap {
     private void initUsers() {
         List<UserEntity> usersToCreate = new ArrayList<>();
 
-        usersToCreate.add(UserEntity.builder().name("Rabelo").role(Role.CUSTOMER).avatarUrl("none")
+        usersToCreate.add(UserEntity.builder().name("Rabelo").role(Role.CUSTOMER)
+                .avatarUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/User_with_smile.svg/1024px-User_with_smile.svg.png")
                 .cpfCnpj("12312312312").password("blublu").email("rabelo@example.com").build());
 
         usersToCreate.add(UserEntity.builder().name("Carlos Alberto").role(Role.CUSTOMER).avatarUrl("https://static.poder360.com.br/2020/12/Apple-868x644.jpg")
@@ -227,7 +228,7 @@ public class Bootstrap {
                             + contEntities + ".png")
                     .build();
 
-            var product = ProductEntity.builder().user(user).weight(2D).status(ProductStatus.ACTIVE)
+            var product = ProductEntity.builder().user(user).weight(200.0).status(ProductStatus.ACTIVE)
                     .name("Produto " + contEntities).description("Lorem ipsum")
                     .price(BigDecimal.valueOf(new Random().nextInt(1000)))
                     .createDate(LocalDateTime.now()).productImages(List.of(productImage))
