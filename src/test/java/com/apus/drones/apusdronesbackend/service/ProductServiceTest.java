@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
+import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
@@ -17,6 +18,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper.fromUserEntity;
 import static org.mockito.Mockito.*;
@@ -24,6 +28,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,12 +42,19 @@ public class ProductServiceTest {
     @Mock
     private ProductImageRepository productImageRepository;
     @Mock
-    private PartnerServiceImpl partnerService;
+    private UserRepository userRepository;
     @Mock
     private ImageUploadService imageUploadService;
 
     @Test
     public void testCreateProduct() throws SizeLimitExceededException {
+        Authentication authentication = Mockito.mock(Authentication.class);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getPrincipal()).thenReturn(new CustomUserDetails("user", "pass", Collections.emptyList(), 1L));
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
         UserEntity partner = UserEntity.builder().name("Parceiro").build();
         ProductEntity productEntity = new ProductEntity();
         productEntity.setId(1L);
@@ -64,6 +76,7 @@ public class ProductServiceTest {
         when(productRepository.save(Mockito.any())).thenReturn(productEntity);
         when(productImageRepository.saveAll(Mockito.any())).thenReturn(List.of(productImage));
         when(imageUploadService.upload(Mockito.any())).thenReturn("imageUrl");
+        when(userRepository.findAllByIdAndRole(Mockito.any(), Mockito.any())).thenReturn(Optional.of(partner));
 
         var result = productService.create(productDTO);
 
@@ -111,9 +124,17 @@ public class ProductServiceTest {
     }
 
     @Test
+//    @WithMockUser(roles = "PARTNER")
     public void testUpdateProduct() {
         Long id = 12345l;
-        ProductEntity entity = new ProductEntity("Produto test", new BigDecimal(1), ProductStatus.ACTIVE, 5);
+        ProductEntity entity = ProductEntity.builder()
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .weight(5.0)
+                .status(ProductStatus.ACTIVE)
+                .quantity(1)
+                .productImages(Collections.emptyList())
+                .build();
         ProductDTO productDTO = ProductDTO.builder()
                 .name("Produto test")
                 .price(new BigDecimal(1))
