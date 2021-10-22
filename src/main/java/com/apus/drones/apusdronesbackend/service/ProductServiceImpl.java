@@ -201,8 +201,8 @@ public class ProductServiceImpl implements ProductService {
             entity.getProductImages().addAll(uploadedImages);
         }
 
-        if (productDTO.getRemovedImagesUrl() != null) {
-            for (String url : productDTO.getRemovedImagesUrl()) {
+        if (productDTO.getRemovedImagesUrls() != null) {
+            for (String url : productDTO.getRemovedImagesUrls()) {
                 productImageRepository.deleteByProductAndUrl(entity, url);
                 entity.getProductImages().removeIf(img -> Objects.equals(img.getUrl(), url));
             }
