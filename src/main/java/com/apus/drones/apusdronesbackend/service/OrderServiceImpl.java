@@ -1,7 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
 import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
-import com.apus.drones.apusdronesbackend.mapper.AddressDTOMapper;
 import com.apus.drones.apusdronesbackend.mapper.OrderDTOMapper;
 import com.apus.drones.apusdronesbackend.model.entity.OrderEntity;
 import com.apus.drones.apusdronesbackend.model.entity.OrderItemEntity;
@@ -170,6 +169,15 @@ public class OrderServiceImpl implements OrderService {
                 .map(item -> {
                     Double orderItemWeight = item.getProduct().getWeight() * item.getQuantity();
                     BigDecimal orderItemPrice = item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+                    OrderItemEntity existingItem = orderItemRepository.findOneByOrder_IdAndProduct_Id(orderId, item.getProduct().getId()).stream().findFirst().orElse(null);
+                    if (existingItem != null && item.getId() == 0) {
+                        existingItem.setQuantity(existingItem.getQuantity() + item.getQuantity());
+                        orderItemRepository.save(existingItem);
+                        return existingItem;
+                    } else if (existingItem != null) {
+                        existingItem.setQuantity(item.getQuantity());
+                        return existingItem;
+                    }
 
                     return OrderItemEntity.builder()
                             .id(item.getId())

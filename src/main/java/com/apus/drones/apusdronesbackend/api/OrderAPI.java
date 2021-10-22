@@ -43,7 +43,7 @@ public class OrderAPI {
     @PostMapping("/cart")
     public ResponseEntity<Void> addToCart(@RequestBody OrderDTO orderDto) {
         orderService.addToCart(orderDto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/cart")
