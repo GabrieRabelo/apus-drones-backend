@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
+import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
@@ -14,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -101,6 +104,19 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductDTO> findAllActiveProductsByUserId(Long userId) {
         var resultFromDB = productRepository.findAllByUserIdAndStatusAndDeletedFalse(userId, ProductStatus.ACTIVE);
         return fromProductEntityList(resultFromDB);
+    }
+
+    @Override
+    public List<ProductDTO> findAllActiveProductsByUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth.isAuthenticated()) {
+            CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+            var resultFromDB = productRepository.findAllByUserIdAndStatusAndDeletedFalse(details.getUserID(), ProductStatus.ACTIVE);
+            return fromProductEntityList(resultFromDB);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
+        }
     }
 
     @Override
