@@ -207,5 +207,8 @@ public class ProductServiceImpl implements ProductService {
                 entity.getProductImages().removeIf(img -> Objects.equals(img.getUrl(), url));
             }
         }
+
+        if (!entity.getProductImages().isEmpty() && entity.getProductImages().stream().noneMatch(ProductImage::getIsMain))
+            entity.getProductImages().get(0).setIsMain(true);
     }
 }
