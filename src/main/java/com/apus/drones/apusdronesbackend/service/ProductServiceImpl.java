@@ -6,8 +6,10 @@ import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
+import com.apus.drones.apusdronesbackend.model.enums.Role;
 import com.apus.drones.apusdronesbackend.repository.ProductImageRepository;
 import com.apus.drones.apusdronesbackend.repository.ProductRepository;
+import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
 import com.apus.drones.apusdronesbackend.service.dto.FileDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
@@ -34,18 +36,30 @@ import static com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper.fromProd
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
+    private final UserRepository userRepository;
     private final PartnerService partnerService;
     private final ImageUploadService imageUploadService;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository, PartnerService partnerService, ImageUploadService imageUploadService) {
+    public ProductServiceImpl(ProductRepository productRepository, UserRepository userRepository, ProductImageRepository productImageRepository, PartnerService partnerService, ImageUploadService imageUploadService) {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
+        this.userRepository = userRepository;
         this.partnerService = partnerService;
         this.imageUploadService = imageUploadService;
     }
 
     @Override
     public ResponseEntity<Void> create(CreateProductDTO productDTO) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!auth.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
+        }
+
+        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+        UserEntity partner = userRepository.findAllByIdAndRole(details.getUserID(), Role.PARTNER)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Não foi possível encontrar o Parceiro com ID " + details.getUserID()));
+
         long mainFileCount = productDTO.getFiles().stream().map(FileDTO::isMainFile)
                 .filter(isMain -> isMain)
                 .count();
@@ -60,9 +74,10 @@ public class ProductServiceImpl implements ProductService {
 
         // TODO obter o parceiro da autenticação
         // partnerService.get may throw a ResponseStatusException
-        this.partnerService.get(productDTO.getPartner());
+//        this.partnerService.get(details.getUserID());
 
-        UserEntity partner = UserEntity.builder().id(productDTO.getPartner()).build();
+
+//        UserEntity partner = UserEntity.builder().id(productDTO.getPartner()).build();
 
         List<ProductImage> images = uploadFiles(productDTO.getFiles());
 
