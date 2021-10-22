@@ -1,7 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
 import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
-import com.apus.drones.apusdronesbackend.mapper.AddressDTOMapper;
 import com.apus.drones.apusdronesbackend.mapper.OrderDTOMapper;
 import com.apus.drones.apusdronesbackend.model.entity.OrderEntity;
 import com.apus.drones.apusdronesbackend.model.entity.OrderItemEntity;
@@ -51,7 +50,6 @@ public class OrderServiceImpl implements OrderService {
 
         this.DEFAULT_DELIVERY_PRICE = new BigDecimal(deliveryPrice);
         this.WEIGHT_LIMIT_GRAMS = Double.parseDouble(weightLimit);
-        ;
     }
 
     @Override
