@@ -90,9 +90,9 @@ public class Bootstrap {
             populateOrders(i);
         }
 
-        for (int i = 0; i < 2; i++) {
-            populateCart(i);
-        }
+//        for (int i = 0; i < 2; i++) {
+//            populateCart(i);
+//        }
     }
 
     private void populateCart(Integer customerIndex) {
@@ -150,7 +150,7 @@ public class Bootstrap {
 
         ordersToCreate.add(OrderEntity.builder().customer(customer)
                 .partner(partner)
-                .status(OrderStatus.IN_CART)
+                .status(OrderStatus.ACCEPTED)
                 .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
                 .deliveryAddress(addressRepository.findAllByUser_Id(partner.getId()).get(0))
