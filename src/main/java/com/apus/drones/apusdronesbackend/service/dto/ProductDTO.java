@@ -28,7 +28,11 @@ public class ProductDTO {
     private LocalDateTime createdAt;
     private String imageUrl;
     private List<String> imagesUrls;
+    private List<String> removedImagesUrls;
     private PartnerDTO partner;
     private Integer quantity;
-    private Boolean deleted;
+    //files to upload
+    private List<FileDTO> files;
+    private boolean deleted;
 }
+
