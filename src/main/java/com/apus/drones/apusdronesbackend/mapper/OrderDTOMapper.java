@@ -39,6 +39,8 @@ public class OrderDTOMapper {
                 .customer(customer)
                 .expiresAt(orderEntity.getExpiresAt())
                 .status(orderEntity.getStatus())
+                .deliveryAddress(AddressDTOMapper.fromAddressEntity(orderEntity.getDeliveryAddress()))
+                .shopAddress(AddressDTOMapper.fromAddressEntity(orderEntity.getShopAddress()))
                 .build();
 
     }

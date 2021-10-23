@@ -29,9 +29,7 @@ public class CreateProductDTO {
     @NotNull(message = "Peso não pode ser nulo ou vazio")
     private double weight;
 
-    private String imageUrl;
-
-    private List<String> imagesUrls;
+    private List<FileDTO> files;
 
     private Integer quantity;
 
