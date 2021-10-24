@@ -16,14 +16,17 @@ public class CustomerService {
 
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
+    private final PointCreatorService pointCreatorService;
 
-    public CustomerService(UserRepository userRepository, AddressRepository addressRepository) {
+    public CustomerService(UserRepository userRepository, AddressRepository addressRepository, PointCreatorService pointCreatorService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
+        this.pointCreatorService = pointCreatorService;
     }
 
     public CreateCustomerResponseDTO create(CreateCustomerDTO createCustomerDTO) {
-        UserEntity userEntityToSave = UserEntity.builder()
+
+        final var userEntityToSave = UserEntity.builder()
                 .name(createCustomerDTO.getName())
                 .cpfCnpj(createCustomerDTO.getCpfCnpj())
                 .email(createCustomerDTO.getEmail())
@@ -33,12 +36,16 @@ public class CustomerService {
                 .deleted(Boolean.FALSE)
                 .build();
 
-        UserEntity savedUserEntity = userRepository.save(userEntityToSave);
+        final var savedUserEntity = userRepository.save(userEntityToSave);
 
-        var userAddress = createCustomerDTO.getAddress();
-        var address = AddressEntity.builder()
+        final var userAddress = createCustomerDTO.getAddress();
+
+        final var coords = pointCreatorService.createPoint(userAddress.getLng(), userAddress.getLat());
+
+        final var address = AddressEntity.builder()
                 .description(userAddress.getDescription())
                 .number(userAddress.getNumber())
+                .coordinates(coords)
                 .user(savedUserEntity)
                 .build();
 
@@ -46,12 +53,8 @@ public class CustomerService {
 
         log.info("Saved new user entity with id [{}]", savedUserEntity.getId());
 
-        CreateCustomerResponseDTO response = new CreateCustomerResponseDTO();
-        response.setId(savedUserEntity.getId());
-
-        return response;
+        return new CreateCustomerResponseDTO(savedUserEntity.getId());
     }
-
 
 
 }
