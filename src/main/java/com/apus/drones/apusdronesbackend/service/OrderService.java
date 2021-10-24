@@ -6,12 +6,14 @@ import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 import java.util.List;
 
 public interface OrderService {
-    List<OrderDTO> getByCustomerId(Long userId, OrderStatus status);
-    List<OrderDTO> findAllByPartnerIdAndFilterByStatus(Long userId, OrderStatus status);
+    List<OrderDTO> getByCustomerId(OrderStatus status);
+    List<OrderDTO> findAllByPartnerIdAndFilterByStatus(OrderStatus status);
 
     OrderDTO update(OrderDTO orderDto);
 
     OrderDTO getById(Long orderId);
 
-    void addToCart(Long userId, OrderDTO orderDTO);
+    void addToCart(OrderDTO orderDTO);
+
+    OrderDTO getCart();
 }

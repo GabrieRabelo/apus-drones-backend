@@ -66,7 +66,7 @@ public class ProductEntity {
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.EAGER, targetEntity = ProductImage.class)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.EAGER, targetEntity = ProductImage.class, orphanRemoval = true)
     @Builder.Default
     private List<ProductImage> productImages = new ArrayList<>();
 
