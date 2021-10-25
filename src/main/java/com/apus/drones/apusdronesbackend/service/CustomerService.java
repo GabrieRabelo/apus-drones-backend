@@ -47,6 +47,7 @@ public class CustomerService {
                 .number(userAddress.getNumber())
                 .coordinates(coords)
                 .user(savedUserEntity)
+                .zipCode(userAddress.getZipCode())
                 .build();
 
         addressRepository.save(address);

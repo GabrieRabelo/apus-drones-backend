@@ -20,4 +20,5 @@ public class AddressDTO {
 
     private Double lng;
 
+    private String zipCode;
 }
