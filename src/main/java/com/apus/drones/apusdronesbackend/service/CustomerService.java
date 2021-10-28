@@ -50,9 +50,10 @@ public class CustomerService {
                 .zipCode(userAddress.getZipCode())
                 .build();
 
-        addressRepository.save(address);
+        final var savedAddress = addressRepository.save(address);
 
-        log.info("Saved new user entity with id [{}]", savedUserEntity.getId());
+        log.info("Saved new user entity: {}", savedUserEntity);
+        log.info("Saved new user address: {}", savedAddress);
 
         return new CreateCustomerResponseDTO(savedUserEntity.getId());
     }
