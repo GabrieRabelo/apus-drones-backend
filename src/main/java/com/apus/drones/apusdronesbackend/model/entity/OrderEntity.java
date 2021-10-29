@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "orders")
@@ -50,8 +51,9 @@ public class OrderEntity {
     @Column
     private BigDecimal orderPrice;
 
-    @Transient
-    private List<OrderItemEntity> orderItems;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<OrderItemEntity> orderItems = new ArrayList<>();
 
     @Column
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
