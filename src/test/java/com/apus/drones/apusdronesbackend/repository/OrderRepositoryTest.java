@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,6 +35,7 @@ class OrderRepositoryTest {
         }
 
         @Test
+        @Transactional
         void testFindAllOrdersByCustomer() {
                 var customer = UserEntity.builder().email("customer@gmail.com").password("coxinha123")
                                 .cpfCnpj("12312312333").name("Jorge").role(Role.CUSTOMER).productEntity(List.of())
@@ -59,6 +61,7 @@ class OrderRepositoryTest {
         }
 
         @Test
+        @Transactional
         void testFindByOrderId() {
                 var customer = UserEntity.builder().email("customer2@gmail.com").password("coxinha123")
                                 .cpfCnpj("02312312333").name("Jorge 2").role(Role.CUSTOMER).productEntity(List.of())
@@ -82,6 +85,7 @@ class OrderRepositoryTest {
         }
 
         @Test
+        @Transactional
         void testFindOrderByUserIdAndOrderStatus() {
                 var customer = UserEntity.builder().email("customer@gmail.com").password("coxinha123")
                                 .cpfCnpj("12312312333").name("Jorge").role(Role.CUSTOMER).productEntity(List.of())

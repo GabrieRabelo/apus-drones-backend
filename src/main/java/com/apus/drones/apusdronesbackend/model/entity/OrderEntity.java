@@ -51,7 +51,7 @@ public class OrderEntity {
     @Column
     private BigDecimal orderPrice;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.ALL)
     @Builder.Default
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 
