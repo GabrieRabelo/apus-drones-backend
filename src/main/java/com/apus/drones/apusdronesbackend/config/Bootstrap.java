@@ -20,14 +20,15 @@ import java.util.Random;
 @Configuration
 public class Bootstrap {
 
-    private static int contEntities;
+    private static int entityCount;
+    private static final Integer NUMBER_OF_PARTNERS = 10;
+    private static final Integer TIME_TO_REJECT_ORDER_MINUTES = 5;
+
     public final UserRepository userRepository;
     public final ProductRepository productRepository;
     public final ProductImageRepository productImageRepository;
     public final OrderRepository orderRepository;
     public final OrderItemRepository orderItemRepository;
-    private static final Integer NUMBER_OF_PARTNERS = 10;
-    private static final Integer TIME_TO_REJECT_ORDER_MINUTES = 5;
     public final AddressRepository addressRepository;
 
     public Bootstrap(UserRepository userRepository, ProductRepository productRepository,
@@ -50,6 +51,15 @@ public class Bootstrap {
 
     private void initUsers() {
         List<UserEntity> usersToCreate = new ArrayList<>();
+
+        var admin = UserEntity.builder()
+                .name("Admin")
+                .deleted(false)
+                .role(Role.ADMIN)
+                .password("APU2DR0N3")
+                .email("apus.admin@example.com")
+                .build();
+        usersToCreate.add(admin);
 
         usersToCreate.add(UserEntity.builder().name("Rabelo").role(Role.CUSTOMER)
                 .avatarUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/User_with_smile.svg/1024px-User_with_smile.svg.png")
@@ -185,7 +195,6 @@ public class Bootstrap {
                 .weight(productRepository.findAll().get(0).getWeight() * quantity).build());
 
 
-
         quantity = 3;
         ordersItemToCreate.add(OrderItemEntity.builder().quantity(quantity).price(new BigDecimal(75))
                 .order(ordersToCreate.get(1)).product(productRepository.findAll().get(2))
@@ -225,33 +234,33 @@ public class Bootstrap {
             var user = userRepository.findById(id).orElse(null);
             var productImage = ProductImage.builder().isMain(true)
                     .url("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
-                            + contEntities + ".png")
+                            + entityCount + ".png")
                     .build();
 
             var product = ProductEntity.builder().user(user).weight(200.0).status(ProductStatus.ACTIVE)
-                    .name("Produto " + contEntities).description("Lorem ipsum")
+                    .name("Produto " + entityCount).description("Lorem ipsum")
                     .price(BigDecimal.valueOf(new Random().nextInt(1000)))
                     .createDate(LocalDateTime.now()).productImages(List.of(productImage))
                     .quantity(25).deleted(Boolean.FALSE).build();
 
             productImage.setProduct(product);
             productRepository.save(product);
-            contEntities++;
+            entityCount++;
         }
     }
 
     private void populatePartners() {
         for (int i = 0; i < NUMBER_OF_PARTNERS; i++) {
-            var user = UserEntity.builder().name("Parceiro " + contEntities).role(Role.PARTNER).avatarUrl(
+            var user = UserEntity.builder().name("Parceiro " + entityCount).role(Role.PARTNER).avatarUrl(
                             "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
-                                    + contEntities + ".png")
+                                    + entityCount + ".png")
                     .cpfCnpj("12312312312").password("blublu")
                     .email("parceiro" + i + "@example.com")
                     .deleted(Boolean.FALSE).build();
 
             userRepository.save(user);
             initAddress(user);
-            contEntities++;
+            entityCount++;
             populateProducts(user.getId());
         }
     }
