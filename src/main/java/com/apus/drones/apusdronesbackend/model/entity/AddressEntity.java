@@ -34,6 +34,6 @@ public class AddressEntity {
     private String complement;
 
     @OneToOne
-    @JoinColumn()
+    @JoinColumn
     private UserEntity user;
 }
