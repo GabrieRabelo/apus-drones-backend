@@ -92,4 +92,11 @@ public class PartnerAPI {
         System.out.println(message);
         return ResponseEntity.unprocessableEntity().body(null);
     }
+
+    @PatchMapping("/{partnerId}/approve")
+    public ResponseEntity<Void> changeApprovalStatus(@PathVariable Long partnerId) {
+        partnerService.changeApprovalStatus(partnerId);
+
+        return ResponseEntity.ok(null);
+    }
 }

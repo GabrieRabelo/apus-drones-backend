@@ -13,4 +13,5 @@ public interface PartnerService {
     CreatePartnerResponseDTO create(CreatePartnerDTO createPartnerDTO);
     PartnerDTO update(CreatePartnerDTO updatePartnerDTO);
     void delete();
+    void changeApprovalStatus(Long partnerId);
 }
