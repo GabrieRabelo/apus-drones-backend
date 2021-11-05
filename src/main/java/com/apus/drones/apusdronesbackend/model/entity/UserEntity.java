@@ -47,11 +47,13 @@ public class UserEntity {
     private String avatarUrl;
 
     @Column
+    @Builder.Default
     private Boolean deleted = Boolean.FALSE;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
     @ToString.Exclude
+    @Builder.Default
     private List<ProductEntity> productEntity= new ArrayList<>();
 
 }
