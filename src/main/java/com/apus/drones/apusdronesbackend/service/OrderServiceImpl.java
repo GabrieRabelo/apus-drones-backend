@@ -9,6 +9,7 @@ import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
 import com.apus.drones.apusdronesbackend.repository.*;
+import com.apus.drones.apusdronesbackend.service.dto.UpdateCartDTO;
 import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 import com.apus.drones.apusdronesbackend.service.dto.OrderItemDto;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,16 +66,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void addToCart(OrderDTO orderDTO) {
+    public void addToCart(UpdateCartDTO updateCartDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth.isAuthenticated()) {
             OrderDTO cart = this.getByCustomerId(OrderStatus.IN_CART).stream().findFirst().orElse(null);
             if (!Objects.isNull(cart)) {
-                cart.getItems().addAll(orderDTO.getItems());
+                cart.getItems().addAll(updateCartDTO.getItems());
                 this.update(cart);
             } else {
-                this.update(orderDTO);
+                CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+                this.createCart(updateCartDTO, details.getUserID());
             }
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
@@ -115,15 +117,30 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO update(OrderDTO orderDto) {
         double totalWeight = this.calcTotalWeight(orderDto.getItems());
+        checkTotalWeight(totalWeight);
 
+        OrderEntity savedEntity = this.updateOrder(orderDto);
+        List<OrderItemEntity> savedItems = this.updateItems(orderDto.getItems(), savedEntity.getId());
+        savedEntity.setOrderItems(savedItems);
+
+        return OrderDTOMapper.fromOrderEntity(savedEntity);
+    }
+
+    @Override
+    public OrderDTO createCart(UpdateCartDTO updateCartDTO, Long customerId) {
+        double totalWeight = this.calcTotalWeight(updateCartDTO.getItems());
+        checkTotalWeight(totalWeight);
+
+        OrderEntity savedEntity = this.createCartOrder(updateCartDTO, customerId);
+        List<OrderItemEntity> savedItems = this.updateItems(updateCartDTO.getItems(), savedEntity.getId());
+        savedEntity.setOrderItems(savedItems);
+
+        return OrderDTOMapper.fromOrderEntity(savedEntity);
+    }
+
+    private void checkTotalWeight(double totalWeight) {
         if (totalWeight > WEIGHT_LIMIT_GRAMS) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falha ao adicionar item. O carrinho passou do limite de peso de " + WEIGHT_LIMIT_GRAMS + "g.");
-        } else {
-            OrderEntity savedEntity = this.updateOrder(orderDto);
-            List<OrderItemEntity> savedItems = this.updateItems(orderDto.getItems(), savedEntity.getId());
-            savedEntity.setOrderItems(savedItems);
-
-            return OrderDTOMapper.fromOrderEntity(savedEntity);
         }
     }
 
@@ -136,6 +153,27 @@ public class OrderServiceImpl implements OrderService {
 
         return sum;
     }
+
+    private OrderEntity createCartOrder(UpdateCartDTO updateCartDTO, Long customerId) {
+        UserEntity customer = userRepository.getById(customerId);
+
+        UserEntity partner = userRepository.getById(updateCartDTO.getPartner().getId());
+
+        OrderEntity entity = OrderEntity.builder()
+                .deliveryPrice(DEFAULT_DELIVERY_PRICE)
+                .orderPrice(this.calcOrderPrice(updateCartDTO.getItems()))
+                .status(OrderStatus.IN_CART)
+                .customer(customer)
+                .partner(partner)
+                .deliveryAddress(addressRepository.findAllByUser_Id(customer.getId()).get(0))
+                .shopAddress(addressRepository.findAllByUser_Id(partner.getId()).get(0))
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        return orderRepository.save(entity);
+    }
+
+
 
     private OrderEntity updateOrder(OrderDTO orderDto) {
         UserEntity customer = Optional.ofNullable(orderDto.getCustomer())
@@ -209,7 +247,7 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDTO> findAllByPartnerIdAndFilterByStatus(OrderStatus status) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if(auth.isAuthenticated()) {
+        if (auth.isAuthenticated()) {
             CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
             List<OrderEntity> orders;
             if (status == null) { //sem filtro
