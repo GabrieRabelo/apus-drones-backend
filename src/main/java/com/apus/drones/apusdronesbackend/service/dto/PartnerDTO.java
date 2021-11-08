@@ -11,5 +11,6 @@ public class PartnerDTO {
     private String email;
     private String cpfCnpj;
     private String avatarUrl;
-    private Boolean deleted;
+    @Builder.Default
+    private Boolean deleted = Boolean.FALSE;
 }

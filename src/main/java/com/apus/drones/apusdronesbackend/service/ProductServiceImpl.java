@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
+import com.amazonaws.services.securityhub.model.Product;
 import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
@@ -13,6 +14,7 @@ import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
 import com.apus.drones.apusdronesbackend.service.dto.FileDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
+import com.apus.drones.apusdronesbackend.service.dto.UpdateProductDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper.fromProductEntityList;
 
@@ -71,13 +74,6 @@ public class ProductServiceImpl implements ProductService {
                 productDTO.getFiles().get(0).setMainFile(true);
             }
         }
-
-        // TODO obter o parceiro da autenticação
-        // partnerService.get may throw a ResponseStatusException
-//        this.partnerService.get(details.getUserID());
-
-
-//        UserEntity partner = UserEntity.builder().id(productDTO.getPartner()).build();
 
         List<ProductImage> images = uploadFiles(productDTO.getFiles());
 
@@ -135,16 +131,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<Void> update(Long id, ProductDTO productDTO) {
+    public ProductDTO update(Long id, UpdateProductDTO updateProductDTO) {
         ProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o produto com ID " + id));
 
-        updateProduct(productDTO, entity);
+        updateProduct(updateProductDTO, entity);
 
         productRepository.save(entity);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ProductDtoMapper.fromProductEntity(entity);
     }
 
     @Override
@@ -188,42 +184,73 @@ public class ProductServiceImpl implements ProductService {
         return imageEntities;
     }
 
-    public void updateProduct(ProductDTO productDTO, ProductEntity entity) {
-        if (productDTO.getDescription() != null)
-            entity.setDescription(productDTO.getDescription());
+    public void updateProduct(UpdateProductDTO updateProductDTO, ProductEntity entity) {
+        List<FileDTO> productImagesFiles = updateProductDTO.getFiles();
+        List<String> removedImagesUrls = updateProductDTO.getRemovedImagesUrls();
+        String mainImageUrl = updateProductDTO.getMainImageUrl();
 
-        if (productDTO.getPrice() != null)
-            entity.setPrice(productDTO.getPrice());
+        long mainFileCount = productImagesFiles != null
+                ? productImagesFiles.stream().filter(FileDTO::isMainFile).count()
+                : 0;
 
-        if (productDTO.getStatus() != null)
-            entity.setStatus(productDTO.getStatus());
+        if (mainFileCount > 1 || mainFileCount > 0 && mainImageUrl != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Apenas uma imagem principal é permitida");
+        }
 
-        if (productDTO.getWeight() != null)
-            entity.setWeight(productDTO.getWeight());
+        if (removedImagesUrls != null && removedImagesUrls.stream().anyMatch(r -> r.equals(mainImageUrl))) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Uma imagem a ser removida não pode ser definida como principal"
+            );
+        }
 
-        if (productDTO.getQuantity() != null)
-            entity.setQuantity(productDTO.getQuantity());
+        if (updateProductDTO.getDescription() != null)
+            entity.setDescription(updateProductDTO.getDescription());
+
+        if (updateProductDTO.getPrice() != null)
+            entity.setPrice(updateProductDTO.getPrice());
+
+        if (updateProductDTO.getStatus() != null)
+            entity.setStatus(updateProductDTO.getStatus());
+
+        if (updateProductDTO.getWeight() != null)
+            entity.setWeight(updateProductDTO.getWeight());
+
+        if (updateProductDTO.getQuantity() != null)
+            entity.setQuantity(updateProductDTO.getQuantity());
 
         List<ProductImage> uploadedImages;
 
-        if (productDTO.getFiles() != null) {
-            uploadedImages = uploadFiles(productDTO.getFiles());
-
+        if (productImagesFiles != null) {
+            uploadedImages = uploadFiles(productImagesFiles);
             for (ProductImage img : uploadedImages) {
                 img.setProduct(entity);
+            }
+
+            if (mainFileCount == 1 || mainImageUrl != null) {
+                entity.getProductImages().stream().filter(ProductImage::getIsMain).forEach(pi -> pi.setIsMain(false));
             }
 
             entity.getProductImages().addAll(uploadedImages);
         }
 
-        if (productDTO.getRemovedImagesUrls() != null) {
-            for (String url : productDTO.getRemovedImagesUrls()) {
+        if (removedImagesUrls != null) {
+            for (String url : removedImagesUrls) {
                 productImageRepository.deleteByProductAndUrl(entity, url);
                 entity.getProductImages().removeIf(img -> Objects.equals(img.getUrl(), url));
             }
         }
 
-        if (!entity.getProductImages().isEmpty() && entity.getProductImages().stream().noneMatch(ProductImage::getIsMain))
-            entity.getProductImages().get(0).setIsMain(true);
+        if (!entity.getProductImages().isEmpty()) {
+            if (mainImageUrl != null) {
+                entity.getProductImages().stream()
+                        .filter(pi -> pi.getUrl().equals(mainImageUrl))
+                        .forEach(pi -> pi.setIsMain(true));
+            }
+
+            if (entity.getProductImages().stream().noneMatch(ProductImage::getIsMain)) {
+                entity.getProductImages().get(0).setIsMain(true);
+            }
+        }
     }
 }

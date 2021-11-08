@@ -21,6 +21,16 @@ public class ProductDtoMapper {
         Optional<ProductImage> mainImg = productEntity.getProductImages().stream().filter(ProductImage::getIsMain).findFirst();
         String mainImgUrl = mainImg.map(ProductImage::getUrl).orElse(null);
 
+        List<String> imagesUrls = new ArrayList<>();
+        if (mainImgUrl != null) {
+            imagesUrls.add(mainImgUrl);
+        }
+        imagesUrls.addAll(productEntity.getProductImages().stream()
+                .filter(p -> p.getId() != null && !p.getId().equals(mainImg.map(ProductImage::getId).orElse(0L)))
+                .map(ProductImage::getUrl)
+                .collect(Collectors.toList())
+        );
+
         return ProductDTO.builder()
                 .id(productEntity.getId())
                 .name(productEntity.getName())
@@ -31,7 +41,7 @@ public class ProductDtoMapper {
                 .createdAt(productEntity.getCreateDate())
                 .deleted(productEntity.getDeleted())
                 .imageUrl(mainImgUrl)
-                .imagesUrls(productEntity.getProductImages().stream().map(ProductImage::getUrl).collect(Collectors.toList()))
+                .imagesUrls(imagesUrls)
                 .partner(fromUserEntity(productEntity.getUser()))
                 .quantity(productEntity.getQuantity()).build();
     }

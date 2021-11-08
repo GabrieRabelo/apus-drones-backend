@@ -1,8 +1,10 @@
 package com.apus.drones.apusdronesbackend.api;
 
+import com.amazonaws.services.securityhub.model.Product;
 import com.apus.drones.apusdronesbackend.service.ProductService;
 import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
+import com.apus.drones.apusdronesbackend.service.dto.UpdateProductDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -41,10 +43,10 @@ public class ProductAPI {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody @Validated ProductDTO productDTO) {
+    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody @Validated UpdateProductDTO updateProductDTO) {
         log.info("Received a new update product productDTO for product id [{}]", id);
 
-        return productService.update(id, productDTO);
+        return ResponseEntity.ok(productService.update(id, updateProductDTO));
     }
 
     @DeleteMapping("/{id}")

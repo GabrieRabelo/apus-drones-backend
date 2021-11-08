@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
+import com.amazonaws.services.securityhub.model.Product;
 import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
@@ -11,6 +12,7 @@ import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
 import com.apus.drones.apusdronesbackend.service.dto.FileDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
+import com.apus.drones.apusdronesbackend.service.dto.UpdateProductDTO;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,19 +20,27 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.web.server.ResponseStatusException;
 
 import static com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper.fromUserEntity;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
@@ -87,7 +97,7 @@ public class ProductServiceTest {
     public void testFindProductById() {
         var date = LocalDateTime.now();
         UserEntity user = UserEntity.builder().id(1L).name("asdkfask").avatarUrl("www.www.www").build();
-        ProductImage productImage = ProductImage.builder().isMain(true).url("www.www.www").build();
+        ProductImage productImage = ProductImage.builder().id(1L).isMain(true).url("www.www.www").build();
         ProductEntity entity = ProductEntity.builder()
                 .user(user)
                 .name("Produto test")
@@ -124,9 +134,10 @@ public class ProductServiceTest {
     }
 
     @Test
-//    @WithMockUser(roles = "PARTNER")
     public void testUpdateProduct() {
-        Long id = 12345l;
+        Long id = 12345L;
+        UserEntity user = UserEntity.builder().id(1L).name("asdkfask").avatarUrl("www.www.www").build();
+
         ProductEntity entity = ProductEntity.builder()
                 .name("Produto test")
                 .price(new BigDecimal(1))
@@ -134,8 +145,10 @@ public class ProductServiceTest {
                 .status(ProductStatus.ACTIVE)
                 .quantity(1)
                 .productImages(Collections.emptyList())
+                .user(user)
                 .build();
-        ProductDTO productDTO = ProductDTO.builder()
+
+        UpdateProductDTO updateProductDTO = UpdateProductDTO.builder()
                 .name("Produto test")
                 .price(new BigDecimal(1))
                 .status(ProductStatus.ACTIVE)
@@ -145,9 +158,203 @@ public class ProductServiceTest {
 
         when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
 
-        var result = productService.update(id, productDTO);
+        var result = productService.update(id, updateProductDTO);
 
         assertThat(result).isNotNull();
+    }
+
+    @Test
+    public void testUpdateProductMainImage() {
+        Long id = 12345L;
+        String newMainImageUrl = "url2";
+        UserEntity user = UserEntity.builder().id(1L).name("asdkfask").avatarUrl("www.www.www").build();
+
+        ProductEntity entity = ProductEntity.builder()
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .weight(5.0)
+                .status(ProductStatus.ACTIVE)
+                .quantity(1)
+                .productImages(
+                        List.of(
+                                ProductImage.builder().id(1L).isMain(true).url("url").build(),
+                                ProductImage.builder().id(2L).isMain(false).url("url2").build()
+                        )
+                )
+                .user(user)
+                .build();
+
+        UpdateProductDTO updateProductDTO = UpdateProductDTO.builder()
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .status(ProductStatus.ACTIVE)
+                .weight(1.0)
+                .quantity(1)
+                .mainImageUrl(newMainImageUrl)
+                .build();
+
+        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+
+        var result = productService.update(id, updateProductDTO);
+
+        assertThat(result.getImageUrl().equals(newMainImageUrl));
+    }
+
+    @Test
+    public void testUpdateProductMainImageWithLocalImage() throws SizeLimitExceededException {
+        Long id = 12345L;
+        UserEntity user = UserEntity.builder().id(1L).name("asdkfask").avatarUrl("www.www.www").build();
+
+        List<FileDTO> newFiles = List.of(
+                FileDTO.builder().fileName("f1.img").base64("base64").mainFile(true).build(),
+                FileDTO.builder().fileName("f2.img").base64("base64").mainFile(false).build()
+        );
+
+        ProductEntity entity = ProductEntity.builder()
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .weight(5.0)
+                .status(ProductStatus.ACTIVE)
+                .quantity(1)
+                .productImages(
+                        Stream.of(
+                                ProductImage.builder().id(1L).isMain(true).url("url").build()
+                        ).collect(Collectors.toList())
+                )
+                .user(user)
+                .build();
+
+        UpdateProductDTO updateProductDTO = UpdateProductDTO.builder()
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .status(ProductStatus.ACTIVE)
+                .weight(1.0)
+                .quantity(1)
+                .files(newFiles)
+                .build();
+
+        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+        when(imageUploadService.upload(newFiles.get(0))).thenReturn("url3");
+        when(imageUploadService.upload(newFiles.get(1))).thenReturn("url4");
+
+        var result = productService.update(id, updateProductDTO);
+
+        assertThat(result.getImageUrl().equals("url3"));
+    }
+
+    @Test
+    public void testDeleteProductMainImage() {
+        Long id = 12345L;
+        UserEntity user = UserEntity.builder().id(1L).name("asdkfask").avatarUrl("www.www.www").build();
+
+        ProductEntity entity = ProductEntity.builder()
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .weight(5.0)
+                .status(ProductStatus.ACTIVE)
+                .quantity(1)
+                .productImages(
+                        Stream.of(
+                                ProductImage.builder().id(1L).isMain(true).url("url").build(),
+                                ProductImage.builder().id(2L).isMain(false).url("url2").build()
+                        ).collect(Collectors.toList())
+                )
+                .user(user)
+                .build();
+
+        UpdateProductDTO updateProductDTO = UpdateProductDTO.builder()
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .status(ProductStatus.ACTIVE)
+                .weight(1.0)
+                .quantity(1)
+                .removedImagesUrls(List.of("url"))
+                .build();
+
+        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+
+        var result = productService.update(id, updateProductDTO);
+
+        assertThat(result.getImageUrl().equals("url2"));
+    }
+
+    @Test
+    public void testUpdateProductWithTwoMainImages() {
+        Long id = 12345L;
+        UserEntity user = UserEntity.builder().id(1L).name("asdkfask").avatarUrl("www.www.www").build();
+
+        ProductEntity entity = ProductEntity.builder()
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .weight(5.0)
+                .status(ProductStatus.ACTIVE)
+                .quantity(1)
+                .productImages(
+                        Stream.of(
+                                ProductImage.builder().id(1L).isMain(true).url("url").build(),
+                                ProductImage.builder().id(2L).isMain(false).url("url2").build()
+                        ).collect(Collectors.toList())
+                )
+                .user(user)
+                .build();
+
+        UpdateProductDTO updateProductDTO = UpdateProductDTO.builder()
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .status(ProductStatus.ACTIVE)
+                .weight(1.0)
+                .quantity(1)
+                .files(List.of(
+                        FileDTO.builder().fileName("f1.img").base64("base64").mainFile(true).build(),
+                        FileDTO.builder().fileName("f2.img").base64("base64").mainFile(true).build()
+                ))
+                .build();
+
+        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+
+        assertThatThrownBy(() -> productService.update(id, updateProductDTO))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void testUpdateProductWithMainImageLocalAndMainImageUrl() {
+        Long id = 12345L;
+        UserEntity user = UserEntity.builder().id(1L).name("asdkfask").avatarUrl("www.www.www").build();
+
+        ProductEntity entity = ProductEntity.builder()
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .weight(5.0)
+                .status(ProductStatus.ACTIVE)
+                .quantity(1)
+                .productImages(
+                        Stream.of(
+                                ProductImage.builder().id(1L).isMain(true).url("url").build(),
+                                ProductImage.builder().id(2L).isMain(false).url("url2").build()
+                        ).collect(Collectors.toList())
+                )
+                .user(user)
+                .build();
+
+        UpdateProductDTO updateProductDTO = UpdateProductDTO.builder()
+                .name("Produto test")
+                .price(new BigDecimal(1))
+                .status(ProductStatus.ACTIVE)
+                .weight(1.0)
+                .quantity(1)
+                .files(List.of(
+                        FileDTO.builder().fileName("f1.img").base64("base64").mainFile(true).build(),
+                        FileDTO.builder().fileName("f2.img").base64("base64").mainFile(false).build()
+                ))
+                .mainImageUrl("url")
+                .build();
+
+        when(productRepository.findById(Mockito.any())).thenReturn(Optional.of(entity));
+
+        assertThatThrownBy(() -> productService.update(id, updateProductDTO))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
     }
 
     @Test

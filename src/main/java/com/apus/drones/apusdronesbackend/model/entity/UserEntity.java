@@ -54,6 +54,6 @@ public class UserEntity {
     @JsonIgnore
     @ToString.Exclude
     @Builder.Default
-    private List<ProductEntity> productEntity= new ArrayList<>();
+    private List<ProductEntity> productEntity = new ArrayList<>();
 
 }
