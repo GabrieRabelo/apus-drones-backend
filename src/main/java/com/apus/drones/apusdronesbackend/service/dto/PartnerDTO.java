@@ -2,9 +2,11 @@ package com.apus.drones.apusdronesbackend.service.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Builder
 @Getter
+@ToString
 public class PartnerDTO {
     private Long id;
     private String name;
