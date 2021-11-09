@@ -20,10 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -112,19 +109,31 @@ public class OrderServiceImpl implements OrderService {
         return OrderDTOMapper.fromOrderEntity(order);
     }
 
+
+
     @Override
     public OrderDTO update(OrderDTO orderDto) {
         double totalWeight = this.calcTotalWeight(orderDto.getItems());
 
         if (totalWeight > WEIGHT_LIMIT_GRAMS) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falha ao adicionar item. O carrinho passou do limite de peso de " + WEIGHT_LIMIT_GRAMS + "g.");
-        } else {
-            OrderEntity savedEntity = this.updateOrder(orderDto);
-            List<OrderItemEntity> savedItems = this.updateItems(orderDto.getItems(), savedEntity.getId());
-            savedEntity.setOrderItems(savedItems);
-
-            return OrderDTOMapper.fromOrderEntity(savedEntity);
         }
+
+        OrderEntity savedEntity = this.updateOrder(orderDto);
+
+        List<OrderItemEntity> updatedItems = this.updateItems(orderDto.getItems(), savedEntity.getId());
+        List<OrderItemEntity> savedItems = this.saveUpdatedItems(updatedItems);
+
+        savedEntity.getOrderItems().clear();
+        savedEntity.getOrderItems().addAll(savedItems);
+
+        if (savedEntity.getStatus().equals(OrderStatus.IN_CART) && savedEntity.getOrderItems().isEmpty()) {
+            orderRepository.delete(savedEntity);
+            return null;
+        }
+
+        return OrderDTOMapper.fromOrderEntity(savedEntity);
+
     }
 
     private double calcTotalWeight(List<OrderItemDto> items) {
@@ -143,6 +152,8 @@ public class OrderServiceImpl implements OrderService {
                 .orElseGet(() -> userRepository.findAllByRole(Role.CUSTOMER).get(0));
 
         UserEntity partner = userRepository.getById(orderDto.getPartner().getId());
+
+        OrderEntity order = orderDto.getId() != null ? orderRepository.getById(orderDto.getId()) : null;
 
         OrderEntity entity = OrderEntity.builder()
                 .id(orderDto.getId())
@@ -190,7 +201,11 @@ public class OrderServiceImpl implements OrderService {
                 })
                 .collect(Collectors.toList());
 
-        return orderItemRepository.saveAllAndFlush(itemsEntities).stream()
+        return itemsEntities;
+    }
+
+    private List<OrderItemEntity> saveUpdatedItems(List<OrderItemEntity> items) {
+        return orderItemRepository.saveAllAndFlush(items).stream()
                 .peek(item -> item.setProduct(productRepository.getById(item.getProduct().getId())))
                 .collect(Collectors.toList());
     }
@@ -209,7 +224,7 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDTO> findAllByPartnerIdAndFilterByStatus(OrderStatus status) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if(auth.isAuthenticated()) {
+        if (auth.isAuthenticated()) {
             CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
             List<OrderEntity> orders;
             if (status == null) { //sem filtro
