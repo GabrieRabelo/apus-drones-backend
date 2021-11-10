@@ -2,6 +2,7 @@ package com.apus.drones.apusdronesbackend.api;
 
 import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.service.OrderService;
+import com.apus.drones.apusdronesbackend.service.dto.UpdateCartDTO;
 import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -45,8 +46,8 @@ public class OrderAPI {
     }
 
     @PostMapping("/cart")
-    public ResponseEntity<Void> addToCart(@RequestBody OrderDTO orderDto) {
-        orderService.addToCart(orderDto);
+    public ResponseEntity<Void> addToCart(@RequestBody UpdateCartDTO updateCartDTO) {
+        orderService.addToCart(updateCartDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
