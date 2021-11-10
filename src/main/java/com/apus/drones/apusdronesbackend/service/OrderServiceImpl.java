@@ -52,8 +52,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO getCart() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
 
         if (auth.isAuthenticated()) {
+            if (details.getRole() != Role.CUSTOMER) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para visualizar os itens de um carrinho.");
+            }
             return this.getByCustomerId(OrderStatus.IN_CART).stream().findFirst()
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Carrinho não encontrado"));
         } else {
@@ -64,8 +68,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void addToCart(OrderDTO orderDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
 
         if (auth.isAuthenticated()) {
+            if (details.getRole() != Role.CUSTOMER) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para adicionar itens ao carrinho.");
+            }
             OrderDTO cart = this.getByCustomerId(OrderStatus.IN_CART).stream().findFirst().orElse(null);
             if (!Objects.isNull(cart)) {
                 cart.getItems().addAll(orderDTO.getItems());

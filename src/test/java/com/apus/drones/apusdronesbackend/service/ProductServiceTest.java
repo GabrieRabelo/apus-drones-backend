@@ -50,7 +50,7 @@ public class ProductServiceTest {
     public void testCreateProduct() throws SizeLimitExceededException {
         Authentication authentication = Mockito.mock(Authentication.class);
         when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getPrincipal()).thenReturn(new CustomUserDetails("user", "pass", Collections.emptyList(), 1L));
+        when(authentication.getPrincipal()).thenReturn(new CustomUserDetails("user", "pass", Collections.emptyList(), 1L, any()));
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
