@@ -130,9 +130,7 @@ public class PartnerServiceImpl implements PartnerService {
         if (auth.isAuthenticated()) {
             CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
 
-            boolean isAdmin = userRepository.findById(details.getUserID())
-                    .orElseThrow()
-                    .getRole() == Role.ADMIN;
+            boolean isAdmin = details.getRole() == Role.ADMIN;
 
             if (isAdmin) {
                 UserEntity entity =
