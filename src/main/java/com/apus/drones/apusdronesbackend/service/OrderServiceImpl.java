@@ -128,7 +128,6 @@ public class OrderServiceImpl implements OrderService {
         OrderEntity savedEntity = this.updateOrder(orderDto);
         List<OrderItemEntity> updatedItems = this.updateItems(orderDto.getItems(), savedEntity.getId());
         List<OrderItemEntity> savedItems = this.saveUpdatedItems(updatedItems);
-        savedEntity.setOrderItems(savedItems);
 
         savedEntity.getOrderItems().clear();
         savedEntity.getOrderItems().addAll(savedItems);
@@ -147,8 +146,11 @@ public class OrderServiceImpl implements OrderService {
         checkTotalWeight(totalWeight);
 
         OrderEntity savedEntity = this.createCartOrder(updateCartDTO, customerId);
-        List<OrderItemEntity> savedItems = this.updateItems(updateCartDTO.getItems(), savedEntity.getId());
-        savedEntity.setOrderItems(savedItems);
+        List<OrderItemEntity> updatedItems = this.updateItems(updateCartDTO.getItems(), savedEntity.getId());
+        List<OrderItemEntity> savedItems = this.saveUpdatedItems(updatedItems);
+
+        savedEntity.getOrderItems().clear();
+        savedEntity.getOrderItems().addAll(savedItems);
 
         return OrderDTOMapper.fromOrderEntity(savedEntity);
     }
