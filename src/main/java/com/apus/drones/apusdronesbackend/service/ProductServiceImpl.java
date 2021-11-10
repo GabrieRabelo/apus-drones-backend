@@ -142,7 +142,7 @@ public class ProductServiceImpl implements ProductService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
         if (!auth.isAuthenticated()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não habilitado para fazer a operação.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
         }
         if (details.getRole() == Role.PILOT || details.getRole() == Role.CUSTOMER) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para atualizar um produto.");
@@ -164,7 +164,7 @@ public class ProductServiceImpl implements ProductService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
         if (!auth.isAuthenticated()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não habilitado para fazer a operação.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
         }
         if (details.getRole() == Role.PILOT || details.getRole() == Role.CUSTOMER) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para deletar um produto.");
