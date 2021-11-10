@@ -109,7 +109,7 @@ public class PartnerServiceImpl implements PartnerService {
     public void delete() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if(auth.isAuthenticated()) {
+        if (auth.isAuthenticated()) {
             CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
             UserEntity entity = userRepository.findByIdAndRoleAndDeletedFalse(details.getUserID(), Role.PARTNER)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -121,5 +121,36 @@ public class PartnerServiceImpl implements PartnerService {
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
         }
+    }
+
+    @Override
+    public void changeApprovalStatus(Long partnerId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth.isAuthenticated()) {
+            CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+
+            boolean isAdmin = details.getRole() == Role.ADMIN;
+
+            if (isAdmin) {
+                UserEntity entity =
+                        userRepository.findById(partnerId)
+                                .orElseThrow();
+
+                if (entity.getRole() == Role.PARTNER) {
+                    entity.setApproved(!entity.isApproved());
+
+                    userRepository.save(entity);
+                    return;
+                }
+
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "O usuário encontrado não é um parceiro");
+
+            }
+
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para aprovar/desaprovar parceiros");
+        }
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
     }
 }

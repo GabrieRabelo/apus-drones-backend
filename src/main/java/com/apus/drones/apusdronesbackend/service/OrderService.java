@@ -1,6 +1,7 @@
 package com.apus.drones.apusdronesbackend.service;
 
 import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
+import com.apus.drones.apusdronesbackend.service.dto.UpdateCartDTO;
 import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 
 import java.util.List;
@@ -13,7 +14,10 @@ public interface OrderService {
 
     OrderDTO getById(Long orderId);
 
-    void addToCart(OrderDTO orderDTO);
+    void addToCart(UpdateCartDTO updateCartDTO);
 
     OrderDTO getCart();
+
+    OrderDTO createCart(UpdateCartDTO updateCartDTO, Long customerId);
+
 }

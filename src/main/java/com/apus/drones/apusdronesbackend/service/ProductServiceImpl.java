@@ -1,6 +1,5 @@
 package com.apus.drones.apusdronesbackend.service;
 
-import com.amazonaws.services.securityhub.model.Product;
 import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper;
 import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
@@ -29,7 +28,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static com.apus.drones.apusdronesbackend.mapper.ProductDtoMapper.fromProductEntityList;
 
@@ -40,25 +38,26 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final UserRepository userRepository;
-    private final PartnerService partnerService;
     private final ImageUploadService imageUploadService;
 
-    public ProductServiceImpl(ProductRepository productRepository, UserRepository userRepository, ProductImageRepository productImageRepository, PartnerService partnerService, ImageUploadService imageUploadService) {
+    public ProductServiceImpl(ProductRepository productRepository, UserRepository userRepository, ProductImageRepository productImageRepository, ImageUploadService imageUploadService) {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
         this.userRepository = userRepository;
-        this.partnerService = partnerService;
         this.imageUploadService = imageUploadService;
     }
 
     @Override
     public ResponseEntity<Void> create(CreateProductDTO productDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
         if (!auth.isAuthenticated()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
         }
+        if (details.getRole() == Role.PILOT || details.getRole() == Role.CUSTOMER) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para criar um produto.");
+        }
 
-        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
         UserEntity partner = userRepository.findAllByIdAndRole(details.getUserID(), Role.PARTNER)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                         "Não foi possível encontrar o Parceiro com ID " + details.getUserID()));
@@ -132,6 +131,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO update(Long id, UpdateProductDTO updateProductDTO) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+        if (!auth.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
+        }
+        if (details.getRole() == Role.PILOT || details.getRole() == Role.CUSTOMER) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para atualizar um produto.");
+        }
+
         ProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o produto com ID " + id));
@@ -145,6 +153,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<Void> delete(Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+        if (!auth.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
+        }
+        if (details.getRole() == Role.PILOT || details.getRole() == Role.CUSTOMER) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para deletar um produto.");
+        }
+
         ProductEntity entity = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o produto com ID " + id));

@@ -2,6 +2,7 @@ package com.apus.drones.apusdronesbackend.api;
 
 import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.service.OrderService;
+import com.apus.drones.apusdronesbackend.service.dto.UpdateCartDTO;
 import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,12 +38,16 @@ public class OrderAPI {
     @PutMapping()
     public ResponseEntity<OrderDTO> update(@RequestBody OrderDTO orderDto) {
         log.info(Objects.nonNull(orderDto.getId()) ? "Updating an order." : "Creating an order.");
-        return ResponseEntity.ok(orderService.update(orderDto));
+        OrderDTO updatedOrder = orderService.update(orderDto);
+        if (updatedOrder == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(updatedOrder);
     }
 
     @PostMapping("/cart")
-    public ResponseEntity<Void> addToCart(@RequestBody OrderDTO orderDto) {
-        orderService.addToCart(orderDto);
+    public ResponseEntity<Void> addToCart(@RequestBody UpdateCartDTO updateCartDTO) {
+        orderService.addToCart(updateCartDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

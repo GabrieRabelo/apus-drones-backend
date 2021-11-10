@@ -6,6 +6,7 @@ import com.apus.drones.apusdronesbackend.model.entity.ProductEntity;
 import com.apus.drones.apusdronesbackend.model.entity.ProductImage;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
+import com.apus.drones.apusdronesbackend.model.enums.Role;
 import com.apus.drones.apusdronesbackend.repository.ProductImageRepository;
 import com.apus.drones.apusdronesbackend.repository.ProductRepository;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
@@ -60,7 +61,7 @@ public class ProductServiceTest {
     public void testCreateProduct() throws SizeLimitExceededException {
         Authentication authentication = Mockito.mock(Authentication.class);
         when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getPrincipal()).thenReturn(new CustomUserDetails("user", "pass", Collections.emptyList(), 1L));
+        when(authentication.getPrincipal()).thenReturn(new CustomUserDetails("user", "pass", Collections.emptyList(), 1L, Role.PARTNER));
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -202,6 +203,13 @@ public class ProductServiceTest {
 
     @Test
     public void testUpdateProductMainImageWithLocalImage() throws SizeLimitExceededException {
+        Authentication authentication = Mockito.mock(Authentication.class);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getPrincipal()).thenReturn(new CustomUserDetails("user", "pass", Collections.emptyList(), 1L, Role.PARTNER));
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
         Long id = 12345L;
         UserEntity user = UserEntity.builder().id(1L).name("asdkfask").avatarUrl("www.www.www").build();
 
@@ -244,6 +252,13 @@ public class ProductServiceTest {
 
     @Test
     public void testDeleteProductMainImage() {
+        Authentication authentication = Mockito.mock(Authentication.class);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getPrincipal()).thenReturn(new CustomUserDetails("user", "pass", Collections.emptyList(), 1L, Role.PARTNER));
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
         Long id = 12345L;
         UserEntity user = UserEntity.builder().id(1L).name("asdkfask").avatarUrl("www.www.www").build();
 
@@ -280,6 +295,13 @@ public class ProductServiceTest {
 
     @Test
     public void testUpdateProductWithTwoMainImages() {
+        Authentication authentication = Mockito.mock(Authentication.class);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getPrincipal()).thenReturn(new CustomUserDetails("user", "pass", Collections.emptyList(), 1L, Role.PARTNER));
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
         Long id = 12345L;
         UserEntity user = UserEntity.builder().id(1L).name("asdkfask").avatarUrl("www.www.www").build();
 
