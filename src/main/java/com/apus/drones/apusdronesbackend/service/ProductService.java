@@ -2,6 +2,7 @@ package com.apus.drones.apusdronesbackend.service;
 
 import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
+import com.apus.drones.apusdronesbackend.service.dto.UpdateProductDTO;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface ProductService {
 
     ProductDTO get(Long id);
 
-    ResponseEntity<Void> update(Long id, ProductDTO productDTO);
+    ProductDTO update(Long id, UpdateProductDTO updateProductDTO);
 
     ResponseEntity<Void> delete(Long id);
 
