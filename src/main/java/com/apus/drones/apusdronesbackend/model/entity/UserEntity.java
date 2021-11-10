@@ -50,10 +50,13 @@ public class UserEntity {
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
 
+    @Column
+    private boolean approved;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
     @ToString.Exclude
     @Builder.Default
-    private List<ProductEntity> productEntity= new ArrayList<>();
+    private List<ProductEntity> productEntity = new ArrayList<>();
 
 }

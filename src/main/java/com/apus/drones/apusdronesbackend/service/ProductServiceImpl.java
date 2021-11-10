@@ -51,11 +51,14 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseEntity<Void> create(CreateProductDTO productDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
         if (!auth.isAuthenticated()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
         }
+        if (details.getRole() == Role.PILOT || details.getRole() == Role.CUSTOMER) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para criar um produto.");
+        }
 
-        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
         UserEntity partner = userRepository.findAllByIdAndRole(details.getUserID(), Role.PARTNER)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                         "Não foi possível encontrar o Parceiro com ID " + details.getUserID()));
@@ -136,6 +139,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<Void> update(Long id, ProductDTO productDTO) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+        if (!auth.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
+        }
+        if (details.getRole() == Role.PILOT || details.getRole() == Role.CUSTOMER) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para atualizar um produto.");
+        }
+
         ProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o produto com ID " + id));
@@ -149,6 +161,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<Void> delete(Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+        if (!auth.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
+        }
+        if (details.getRole() == Role.PILOT || details.getRole() == Role.CUSTOMER) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para deletar um produto.");
+        }
+
         ProductEntity entity = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Não foi possível encontrar o produto com ID " + id));

@@ -47,11 +47,11 @@ class PartnerServiceTest {
 
         var result = partnerService.findAllPartners();
 
-        var partner1 = PartnerDTO.builder().id(1L).avatarUrl("www.static-img.com/dummy.jpg").name("Mister X").build();
-        var partner2 = PartnerDTO.builder().id(2L).avatarUrl("www.static-img.com/dummy.jpg").name("Cachorro do Bigode").build();
+        var partner1 = PartnerDTO.builder().id(1L).avatarUrl("www.static-img.com/dummy.jpg").deleted(false).name("Mister X").build();
+        var partner2 = PartnerDTO.builder().id(2L).avatarUrl("www.static-img.com/dummy.jpg").deleted(false).name("Cachorro do Bigode").build();
         var expectedResult = List.of(partner1, partner2);
 
-        assertThat(result).isEqualToComparingFieldByFieldRecursively(expectedResult);
+        assertThat(result).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expectedResult);
     }
 
     @DisplayName("When repository returns no results " +
@@ -65,7 +65,7 @@ class PartnerServiceTest {
 
         var expectedResult = List.of();
 
-        assertThat(result).isEqualToComparingFieldByFieldRecursively(expectedResult);
+        assertThat(result).usingRecursiveComparison().isEqualTo(expectedResult);
     }
 
     private List<PartnerDTO> toDTOList(List<UserEntity> resultFromDB) {

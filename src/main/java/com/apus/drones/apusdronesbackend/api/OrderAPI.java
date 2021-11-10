@@ -38,7 +38,11 @@ public class OrderAPI {
     @PutMapping()
     public ResponseEntity<OrderDTO> update(@RequestBody OrderDTO orderDto) {
         log.info(Objects.nonNull(orderDto.getId()) ? "Updating an order." : "Creating an order.");
-        return ResponseEntity.ok(orderService.update(orderDto));
+        OrderDTO updatedOrder = orderService.update(orderDto);
+        if (updatedOrder == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(updatedOrder);
     }
 
     @PostMapping("/cart")

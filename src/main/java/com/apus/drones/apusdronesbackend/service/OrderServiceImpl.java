@@ -21,10 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,8 +53,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO getCart() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
 
         if (auth.isAuthenticated()) {
+            if (details.getRole() != Role.CUSTOMER) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para visualizar os itens de um carrinho.");
+            }
             return this.getByCustomerId(OrderStatus.IN_CART).stream().findFirst()
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Carrinho não encontrado"));
         } else {
@@ -68,14 +69,17 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void addToCart(UpdateCartDTO updateCartDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
 
         if (auth.isAuthenticated()) {
+            if (details.getRole() != Role.CUSTOMER) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "O usuário não possui privilégios para adicionar itens ao carrinho.");
+            }
             OrderDTO cart = this.getByCustomerId(OrderStatus.IN_CART).stream().findFirst().orElse(null);
             if (!Objects.isNull(cart)) {
                 cart.getItems().addAll(updateCartDTO.getItems());
                 this.update(cart);
             } else {
-                CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
                 this.createCart(updateCartDTO, details.getUserID());
             }
         } else {
@@ -114,14 +118,25 @@ public class OrderServiceImpl implements OrderService {
         return OrderDTOMapper.fromOrderEntity(order);
     }
 
+
+
     @Override
     public OrderDTO update(OrderDTO orderDto) {
         double totalWeight = this.calcTotalWeight(orderDto.getItems());
         checkTotalWeight(totalWeight);
 
         OrderEntity savedEntity = this.updateOrder(orderDto);
-        List<OrderItemEntity> savedItems = this.updateItems(orderDto.getItems(), savedEntity.getId());
+        List<OrderItemEntity> updatedItems = this.updateItems(orderDto.getItems(), savedEntity.getId());
+        List<OrderItemEntity> savedItems = this.saveUpdatedItems(updatedItems);
         savedEntity.setOrderItems(savedItems);
+
+        savedEntity.getOrderItems().clear();
+        savedEntity.getOrderItems().addAll(savedItems);
+
+        if (savedEntity.getStatus().equals(OrderStatus.IN_CART) && savedEntity.getOrderItems().isEmpty()) {
+            orderRepository.delete(savedEntity);
+            return null;
+        }
 
         return OrderDTOMapper.fromOrderEntity(savedEntity);
     }
@@ -182,6 +197,8 @@ public class OrderServiceImpl implements OrderService {
 
         UserEntity partner = userRepository.getById(orderDto.getPartner().getId());
 
+        OrderEntity order = orderDto.getId() != null ? orderRepository.getById(orderDto.getId()) : null;
+
         OrderEntity entity = OrderEntity.builder()
                 .id(orderDto.getId())
                 .deliveryPrice(DEFAULT_DELIVERY_PRICE)
@@ -228,7 +245,11 @@ public class OrderServiceImpl implements OrderService {
                 })
                 .collect(Collectors.toList());
 
-        return orderItemRepository.saveAllAndFlush(itemsEntities).stream()
+        return itemsEntities;
+    }
+
+    private List<OrderItemEntity> saveUpdatedItems(List<OrderItemEntity> items) {
+        return orderItemRepository.saveAllAndFlush(items).stream()
                 .peek(item -> item.setProduct(productRepository.getById(item.getProduct().getId())))
                 .collect(Collectors.toList());
     }
