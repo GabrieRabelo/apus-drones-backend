@@ -3,11 +3,7 @@ package com.apus.drones.apusdronesbackend.api;
 import com.apus.drones.apusdronesbackend.service.OrderService;
 import com.apus.drones.apusdronesbackend.service.PartnerService;
 import com.apus.drones.apusdronesbackend.service.ProductService;
-import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerDTO;
-import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerResponseDTO;
-import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
-import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
-import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
+import com.apus.drones.apusdronesbackend.service.dto.*;
 import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -94,9 +90,9 @@ public class PartnerAPI {
     }
 
     @PatchMapping("/{partnerId}/approve")
-    public ResponseEntity<Void> changeApprovalStatus(@PathVariable Long partnerId) {
-        partnerService.changeApprovalStatus(partnerId);
+    public ResponseEntity<Object> changeStatus(@PathVariable Long partnerId, @RequestBody @Validated PartnerApprovedDTO partnerApprovedDTO) {
+        var response = partnerService.changeApprovalStatus(partnerId, partnerApprovedDTO);
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(response);
     }
 }

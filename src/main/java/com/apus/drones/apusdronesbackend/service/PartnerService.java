@@ -1,8 +1,6 @@
 package com.apus.drones.apusdronesbackend.service;
 
-import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerDTO;
-import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerResponseDTO;
-import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
+import com.apus.drones.apusdronesbackend.service.dto.*;
 
 import java.util.List;
 
@@ -13,5 +11,5 @@ public interface PartnerService {
     CreatePartnerResponseDTO create(CreatePartnerDTO createPartnerDTO);
     PartnerDTO update(CreatePartnerDTO updatePartnerDTO);
     void delete();
-    void changeApprovalStatus(Long partnerId);
+    PartnerStatusDTO changeApprovalStatus(Long partnerId, PartnerApprovedDTO partnerApprovedDTO);
 }

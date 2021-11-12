@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.service.dto;
 
+import com.apus.drones.apusdronesbackend.model.enums.PartnerStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -15,5 +16,5 @@ public class PartnerDTO {
     private String avatarUrl;
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
-    private boolean approved;
+    private PartnerStatus status;
 }

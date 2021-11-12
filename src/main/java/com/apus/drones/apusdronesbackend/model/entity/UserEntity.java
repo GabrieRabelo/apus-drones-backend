@@ -1,5 +1,6 @@
 package com.apus.drones.apusdronesbackend.model.entity;
 
+import com.apus.drones.apusdronesbackend.model.enums.PartnerStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -51,7 +52,8 @@ public class UserEntity {
     private Boolean deleted = Boolean.FALSE;
 
     @Column
-    private boolean approved;
+    @Builder.Default
+    private PartnerStatus status = PartnerStatus.PENDING;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
