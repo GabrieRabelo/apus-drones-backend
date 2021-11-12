@@ -8,7 +8,10 @@ import java.util.List;
 
 public interface OrderService {
     List<OrderDTO> getByCustomerId(OrderStatus status);
+
     List<OrderDTO> findAllByPartnerIdAndFilterByStatus(OrderStatus status);
+
+    List<OrderDTO> findAllWaitingForPilot();
 
     OrderDTO update(OrderDTO orderDto);
 

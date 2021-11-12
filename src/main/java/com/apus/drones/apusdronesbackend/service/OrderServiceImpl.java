@@ -118,7 +118,11 @@ public class OrderServiceImpl implements OrderService {
         return OrderDTOMapper.fromOrderEntity(order);
     }
 
-
+    @Override
+    public List<OrderDTO> findAllWaitingForPilot() {
+        List<OrderEntity> orders = orderRepository.findAllByStatus(OrderStatus.WAITING_FOR_PILOT);
+        return orders.stream().map(OrderDTOMapper::fromOrderEntity).collect(Collectors.toList());
+    }
 
     @Override
     public OrderDTO update(OrderDTO orderDto) {

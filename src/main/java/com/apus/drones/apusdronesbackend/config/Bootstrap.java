@@ -6,6 +6,7 @@ import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
 import com.apus.drones.apusdronesbackend.repository.*;
 import com.apus.drones.apusdronesbackend.service.PointCreatorService;
+import org.joda.time.DateTime;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -22,6 +23,7 @@ public class Bootstrap {
 
     private static int entityCount;
     private static final Integer NUMBER_OF_PARTNERS = 10;
+    private static final Integer NUMBER_OF_PILOTS = 2;
     private static final Integer TIME_TO_REJECT_ORDER_MINUTES = 5;
 
     public final UserRepository userRepository;
@@ -30,16 +32,19 @@ public class Bootstrap {
     public final OrderRepository orderRepository;
     public final OrderItemRepository orderItemRepository;
     public final AddressRepository addressRepository;
+    public final TripRepository tripRepository;
 
     public Bootstrap(UserRepository userRepository, ProductRepository productRepository,
                      ProductImageRepository productImageRepository, OrderRepository orderRepository,
-                     AddressRepository addressRepository, OrderItemRepository orderItemRepository) {
+                     AddressRepository addressRepository, OrderItemRepository orderItemRepository,
+                     TripRepository tripRepository) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
+        this.tripRepository = tripRepository;
     }
 
     @Bean
@@ -47,6 +52,8 @@ public class Bootstrap {
         initUsers();
         populatePartners();
         initOrders();
+        populatePilots();
+        populateTrips();
     }
 
     private void initUsers() {
@@ -58,6 +65,7 @@ public class Bootstrap {
                 .role(Role.ADMIN)
                 .password("APU2DR0N3")
                 .email("apus.admin@example.com")
+                .avatarUrl("")
                 .build();
         usersToCreate.add(admin);
 
@@ -151,7 +159,7 @@ public class Bootstrap {
         var customer = userRepository.findAllByRole(Role.CUSTOMER).get(0);
         ordersToCreate.add(OrderEntity.builder().customer(customer)
                 .partner(partner)
-                .status(OrderStatus.IN_FLIGHT)
+                .status(OrderStatus.WAITING_FOR_PILOT)
                 .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("100"))
@@ -263,5 +271,50 @@ public class Bootstrap {
             entityCount++;
             populateProducts(user.getId());
         }
+    }
+
+    private void populatePilots() {
+        for (int i = 0; i < NUMBER_OF_PILOTS; i++) {
+            var user = UserEntity.builder().name("Piloto " + entityCount).role(Role.PILOT).avatarUrl(
+                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
+                            + entityCount + ".png"
+                    )
+                    .cpfCnpj(String.format("%011d", new Random().nextInt(Integer.MAX_VALUE)))
+                    .email(String.format("piloto%s@example.com", i))
+                    .password("blublu")
+                    .deleted(Boolean.FALSE)
+                    .build();
+
+            userRepository.save(user);
+            initAddress(user);
+            entityCount++;
+        }
+    }
+
+    private void populateTrips() {
+        var partner = userRepository.findAllByRole(Role.PARTNER).get(0);
+        var customer = userRepository.findAllByRole(Role.CUSTOMER).get(0);
+        var pilot = userRepository.findAllByRole(Role.PILOT).get(0);
+        var order = OrderEntity.builder().customer(customer)
+                .partner(partner)
+                .status(OrderStatus.IN_FLIGHT)
+                .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
+                .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
+                .orderPrice(new BigDecimal("100"))
+                .deliveryAddress(addressRepository.findAllByUser_Id(partner.getId()).get(0))
+                .shopAddress(addressRepository.findAllByUser_Id(customer.getId()).get(0))
+                .build();
+
+        orderRepository.saveAndFlush(order);
+
+        var trip = TripEntity.builder()
+                .pilot(pilot)
+                .order(order)
+                .collectedAt(LocalDateTime.now())
+                .build();
+        tripRepository.save(trip);
+
+        initAddress(pilot);
+        entityCount++;
     }
 }
