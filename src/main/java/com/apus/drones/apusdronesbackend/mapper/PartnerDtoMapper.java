@@ -17,7 +17,7 @@ public class PartnerDtoMapper {
                 .cpfCnpj(partner.getCpfCnpj())
                 .avatarUrl(partner.getAvatarUrl())
                 .deleted(partner.getDeleted())
-                .approved(partner.isApproved())
+                .status(partner.getStatus())
                 .build();
     }
 

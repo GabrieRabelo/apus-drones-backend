@@ -3,11 +3,10 @@ package com.apus.drones.apusdronesbackend.service;
 import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
+import com.apus.drones.apusdronesbackend.model.enums.PartnerStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
-import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerDTO;
-import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerResponseDTO;
-import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
+import com.apus.drones.apusdronesbackend.service.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -124,7 +123,7 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
-    public void changeApprovalStatus(Long partnerId) {
+    public PartnerStatusDTO changeApprovalStatus(Long partnerId, PartnerApprovedDTO partnerApprovedDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth.isAuthenticated()) {
@@ -138,10 +137,10 @@ public class PartnerServiceImpl implements PartnerService {
                                 .orElseThrow();
 
                 if (entity.getRole() == Role.PARTNER) {
-                    entity.setApproved(!entity.isApproved());
+                    entity.setStatus(partnerApprovedDTO.isApproved() ? PartnerStatus.APPROVED : PartnerStatus.REJECTED);
 
                     userRepository.save(entity);
-                    return;
+                    return PartnerStatusDTO.builder().status(entity.getStatus()).build();
                 }
 
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "O usuário encontrado não é um parceiro");
