@@ -29,6 +29,12 @@ public class OrderAPI {
         return ResponseEntity.ok(orderService.getByCustomerId(status));
     }
 
+    @GetMapping("/to-collect")
+    public ResponseEntity<List<OrderDTO>> getOrdersWaitingForPilot() {
+        log.info("Getting a list of orders waiting for collect");
+        return ResponseEntity.ok(orderService.findAllWaitingForPilot());
+    }
+
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long orderId) {
         log.info("Getting an order.");

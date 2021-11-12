@@ -22,6 +22,7 @@ public class Bootstrap {
 
     private static int entityCount;
     private static final Integer NUMBER_OF_PARTNERS = 10;
+    private static final Integer NUMBER_OF_PILOTS = 2;
     private static final Integer TIME_TO_REJECT_ORDER_MINUTES = 5;
 
     public final UserRepository userRepository;
@@ -47,6 +48,7 @@ public class Bootstrap {
         initUsers();
         populatePartners();
         initOrders();
+        populatePilots();
     }
 
     private void initUsers() {
@@ -58,6 +60,7 @@ public class Bootstrap {
                 .role(Role.ADMIN)
                 .password("APU2DR0N3")
                 .email("apus.admin@example.com")
+                .avatarUrl("")
                 .build();
         usersToCreate.add(admin);
 
@@ -151,7 +154,7 @@ public class Bootstrap {
         var customer = userRepository.findAllByRole(Role.CUSTOMER).get(0);
         ordersToCreate.add(OrderEntity.builder().customer(customer)
                 .partner(partner)
-                .status(OrderStatus.IN_FLIGHT)
+                .status(OrderStatus.WAITING_FOR_PILOT)
                 .expiresAt(LocalDateTime.now().plusMinutes(TIME_TO_REJECT_ORDER_MINUTES))
                 .createdAt(LocalDateTime.now()).deliveryPrice(new BigDecimal("50"))
                 .orderPrice(new BigDecimal("100"))
@@ -262,6 +265,24 @@ public class Bootstrap {
             initAddress(user);
             entityCount++;
             populateProducts(user.getId());
+        }
+    }
+
+    private void populatePilots() {
+        for (int i = 0; i < NUMBER_OF_PILOTS; i++) {
+            var user = UserEntity.builder().name("Piloto " + entityCount).role(Role.PILOT).avatarUrl(
+                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
+                            + entityCount + ".png"
+                    )
+                    .cpfCnpj(String.format("%011d", new Random().nextInt(Integer.MAX_VALUE)))
+                    .email(String.format("piloto%s@example.com", i))
+                    .password("blublu")
+                    .deleted(Boolean.FALSE)
+                    .build();
+
+            userRepository.save(user);
+            initAddress(user);
+            entityCount++;
         }
     }
 }
