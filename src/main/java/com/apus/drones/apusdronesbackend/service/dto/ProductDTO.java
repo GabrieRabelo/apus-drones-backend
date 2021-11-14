@@ -1,12 +1,7 @@
 package com.apus.drones.apusdronesbackend.service.dto;
 
 import com.apus.drones.apusdronesbackend.model.enums.ProductStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,7 +23,11 @@ public class ProductDTO {
     private LocalDateTime createdAt;
     private String imageUrl;
     private List<String> imagesUrls;
+    private List<String> removedImagesUrls;
     private PartnerDTO partner;
     private Integer quantity;
-    private Boolean deleted;
+    //files to upload
+    private List<FileDTO> files;
+    private boolean deleted;
 }
+

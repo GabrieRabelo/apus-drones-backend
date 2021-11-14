@@ -7,12 +7,12 @@ public class CustomerDtoMapper {
 
     public static CustomerDTO fromUserEntity(UserEntity customer) {
         return CustomerDTO
-                .builder()
-                .id(customer.getId())
-                .name(customer.getName())
-                .avatarUrl(customer.getAvatarUrl())
-                .cpfCnpj(customer.getCpfCnpj())
-                .email(customer.getEmail())
-                .build();
+            .builder()
+            .id(customer.getId())
+            .name(customer.getName())
+            .avatarUrl(customer.getAvatarUrl())
+            .cpfCnpj(customer.getCpfCnpj())
+            .email(customer.getEmail())
+            .build();
     }
 }

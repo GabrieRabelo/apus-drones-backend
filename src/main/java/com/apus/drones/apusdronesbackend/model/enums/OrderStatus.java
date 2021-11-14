@@ -6,6 +6,7 @@ public enum OrderStatus {
     ACCEPTED,
     REFUSED,
     PREPARING,
+    WAITING_FOR_PILOT,
     PICKING_UP,
     IN_FLIGHT,
     DELIVERED

@@ -13,29 +13,6 @@ import static com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper.fromUser
 
 public class ProductDtoMapper {
 
-    public static ProductDTO fromProductEntity(ProductEntity productEntity) {
-        Optional<ProductImage> mainImg = productEntity.getProductImages().stream()
-                .filter(ProductImage::getIsMain)
-                .findFirst();
-        String mainImgUrl = mainImg.map(ProductImage::getUrl).orElse(null);
-
-        return ProductDTO.builder()
-                .id(productEntity.getId())
-                .name(productEntity.getName())
-                .description(productEntity.getDescription())
-                .price(productEntity.getPrice())
-                .status(productEntity.getStatus())
-                .weight(productEntity.getWeight())
-                .createdAt(productEntity.getCreateDate())
-                .deleted(productEntity.getDeleted())
-                .imageUrl(mainImgUrl)
-                .imagesUrls(productEntity.getProductImages().stream()
-                        .map(ProductImage::getUrl)
-                        .collect(Collectors.toList()))
-                .partner(fromUserEntity(productEntity.getUser()))
-                .quantity(productEntity.getQuantity()).build();
-    }
-
     public static List<ProductDTO> fromProductEntityList(List<ProductEntity> entity) {
         var response = new ArrayList<ProductDTO>();
 
@@ -46,5 +23,36 @@ public class ProductDtoMapper {
             response.add(dto);
         }
         return response;
+    }
+
+    public static ProductDTO fromProductEntity(ProductEntity productEntity) {
+        Optional<ProductImage> mainImg =
+            productEntity.getProductImages().stream().filter(ProductImage::getIsMain).findFirst();
+        String mainImgUrl = mainImg.map(ProductImage::getUrl).orElse(null);
+
+        List<String> imagesUrls = new ArrayList<>();
+        if (mainImgUrl != null) {
+            imagesUrls.add(mainImgUrl);
+        }
+        imagesUrls.addAll(productEntity.getProductImages().stream()
+            .filter(p -> p.getId() != null && !p.getId().equals(
+                mainImg.map(ProductImage::getId).orElse(0L)))
+            .map(ProductImage::getUrl)
+            .collect(Collectors.toList())
+        );
+
+        return ProductDTO.builder()
+            .id(productEntity.getId())
+            .name(productEntity.getName())
+            .description(productEntity.getDescription())
+            .price(productEntity.getPrice())
+            .status(productEntity.getStatus())
+            .weight(productEntity.getWeight())
+            .createdAt(productEntity.getCreateDate())
+            .deleted(productEntity.getDeleted())
+            .imageUrl(mainImgUrl)
+            .imagesUrls(imagesUrls)
+            .partner(fromUserEntity(productEntity.getUser()))
+            .quantity(productEntity.getQuantity()).build();
     }
 }

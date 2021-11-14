@@ -39,6 +39,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 	implementation 'javax.xml.bind:jaxb-api'
+	testImplementation 'org.springframework.security:spring-security-test:5.5.1'
 
 	//json parsing
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
@@ -51,6 +52,8 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-validation:2.5.4'
 	testImplementation('org.assertj:assertj-core:3.20.2')
+
+	implementation 'com.amazonaws:aws-java-sdk:1.12.77'
 
 	if (activeProfile == 'prd') {
 		//mysql db (production)

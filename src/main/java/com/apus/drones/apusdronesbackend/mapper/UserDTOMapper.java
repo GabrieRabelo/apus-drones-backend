@@ -11,12 +11,12 @@ public class UserDTOMapper {
     public static UserDTO fromUserEntity(UserEntity userEntity, List<AddressDTO> addresses) {
 
         return UserDTO.builder()
-                .avatarUrl(userEntity.getAvatarUrl())
-                .cpfCnpj(userEntity.getCpfCnpj())
-                .email(userEntity.getEmail())
-                .name(userEntity.getName())
-                .addresses(addresses)
-                .id(userEntity.getId())
-                .build();
+            .avatarUrl(userEntity.getAvatarUrl())
+            .cpfCnpj(userEntity.getCpfCnpj())
+            .email(userEntity.getEmail())
+            .name(userEntity.getName())
+            .addresses(addresses)
+            .id(userEntity.getId())
+            .build();
     }
 }

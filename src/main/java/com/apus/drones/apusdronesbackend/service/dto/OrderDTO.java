@@ -1,6 +1,5 @@
 package com.apus.drones.apusdronesbackend.service.dto;
 
-import com.apus.drones.apusdronesbackend.model.entity.AddressEntity;
 import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,9 +27,9 @@ public class OrderDTO {
 
     private BigDecimal orderPrice;
 
-    private AddressEntity deliveryAddress;
+    private AddressDTO deliveryAddress;
 
-    private AddressEntity shopAddress;
+    private AddressDTO shopAddress;
 
     private List<OrderItemDto> items;
 }

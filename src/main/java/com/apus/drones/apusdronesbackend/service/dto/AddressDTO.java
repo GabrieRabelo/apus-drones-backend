@@ -16,4 +16,9 @@ public class AddressDTO {
 
     private Integer number;
 
+    private Double lat;
+
+    private Double lng;
+
+    private String zipCode;
 }

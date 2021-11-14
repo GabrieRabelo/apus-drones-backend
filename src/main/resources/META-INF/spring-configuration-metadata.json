@@ -1,0 +1,44 @@
+{
+  "properties": [
+    {
+      "name": "aws.keys.accessKey",
+      "type": "java.lang.String",
+      "description": "AWS access key ID (aws_access_key_id from .aws/credentials)."
+    },
+    {
+      "name": "aws.keys.secretKey",
+      "type": "java.lang.String",
+      "description": "AWS secret access key (aws_secret_access_key from .aws/credentials)."
+    },
+    {
+      "name": "aws.s3.bucketName",
+      "type": "java.lang.String",
+      "description": "AWS S3 bucket name."
+    },
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret for encoding/decoding JWTs."
+    },
+    {
+      "name": "jwt.token-validity",
+      "type": "java.lang.String",
+      "description": "JWT Token expiration time in seconds."
+    },
+    {
+      "name": "application.vars.default-delivery-price",
+      "type": "java.lang.String",
+      "description": "Default delivery price for all orders."
+    },
+    {
+      "name": "application.vars.grams-weight-limit",
+      "type": "java.lang.String",
+      "description": "Weight limit for all orders."
+    },
+    {
+      "name": "application.base.url",
+      "type": "java.lang.String",
+      "description": "¯\\_(ツ)_/¯"
+    }
+  ]
+}

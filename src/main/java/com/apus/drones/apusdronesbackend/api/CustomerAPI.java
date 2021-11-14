@@ -22,7 +22,7 @@ public class CustomerAPI {
 
     @PostMapping
     public ResponseEntity<CreateCustomerResponseDTO> create(
-            @RequestBody @Validated CreateCustomerDTO createCustomerDTO
+        @RequestBody @Validated CreateCustomerDTO createCustomerDTO
     ) {
         return ResponseEntity.ok(customerService.create(createCustomerDTO));
     }

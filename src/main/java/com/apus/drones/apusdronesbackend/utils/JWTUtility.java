@@ -65,8 +65,8 @@ public class JWTUtility implements Serializable {
     //2. Sign the JWT using the HS512 algorithm and secret key.
     private String doGenerateToken(Map<String, Object> claims, String subject) {
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtTokenValidity * 1000L))
-                .signWith(SignatureAlgorithm.HS512, secretKey).compact();
+            .setExpiration(new Date(System.currentTimeMillis() + jwtTokenValidity * 1000L))
+            .signWith(SignatureAlgorithm.HS512, secretKey).compact();
     }
 
     //validate token

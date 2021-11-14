@@ -25,44 +25,37 @@ class PartnerServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @DisplayName("When repository returns multiple results "
-            + "should convert into response and return it")
+    @DisplayName("When repository returns multiple results should convert into response and return it")
     @Test
     void testFindPartners() {
 
         var user1 = UserEntity.builder()
-                .id(1L)
-                .avatarUrl("www.static-img.com/dummy.jpg")
-                .name("Mister X")
-                .build();
+            .id(1L)
+            .avatarUrl("www.static-img.com/dummy.jpg")
+            .name("Mister X")
+            .build();
         var user2 = UserEntity.builder()
-                .id(2L)
-                .avatarUrl("www.static-img.com/dummy.jpg")
-                .name("Cachorro do Bigode")
-                .build();
+            .id(2L)
+            .avatarUrl("www.static-img.com/dummy.jpg")
+            .name("Cachorro do Bigode")
+            .build();
         var userList = List.of(user1, user2);
 
         when(userRepository.findAllByRole(any())).thenReturn(userList);
 
         var result = partnerService.findAllPartners();
 
-        var partner1 = PartnerDTO.builder().id(1L)
-                .avatarUrl("www.static-img.com/dummy.jpg")
-                .name("Mister X")
+        var partner1 =
+            PartnerDTO.builder().id(1L).avatarUrl("www.static-img.com/dummy.jpg").deleted(false).name("Mister X")
                 .build();
-
-        var partner2 = PartnerDTO.builder().id(2L)
-                .avatarUrl("www.static-img.com/dummy.jpg")
-                .name("Cachorro do Bigode")
-                .build();
-
+        var partner2 = PartnerDTO.builder().id(2L).avatarUrl("www.static-img.com/dummy.jpg").deleted(false)
+            .name("Cachorro do Bigode").build();
         var expectedResult = List.of(partner1, partner2);
 
-        assertThat(result).isEqualToComparingFieldByFieldRecursively(expectedResult);
+        assertThat(result).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expectedResult);
     }
 
-    @DisplayName("When repository returns no results "
-            + "should return an empty list")
+    @DisplayName("When repository returns no results should return an empty list")
     @Test
     void testFindPartners_emptyResult() {
 
@@ -72,7 +65,7 @@ class PartnerServiceTest {
 
         var expectedResult = List.of();
 
-        assertThat(result).isEqualToComparingFieldByFieldRecursively(expectedResult);
+        assertThat(result).usingRecursiveComparison().isEqualTo(expectedResult);
     }
 
     private List<PartnerDTO> toDTOList(List<UserEntity> resultFromDB) {

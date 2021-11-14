@@ -1,28 +1,15 @@
 package com.apus.drones.apusdronesbackend.api;
 
+import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.service.OrderService;
 import com.apus.drones.apusdronesbackend.service.PartnerService;
 import com.apus.drones.apusdronesbackend.service.ProductService;
-import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerDTO;
-import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerResponseDTO;
-import com.apus.drones.apusdronesbackend.service.dto.OrderDTO;
-import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
-import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
-import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
+import com.apus.drones.apusdronesbackend.service.dto.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
@@ -52,12 +39,9 @@ public class PartnerAPI {
         return ResponseEntity.ok(partnerService.get(id));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<PartnerDTO> update(
-            @PathVariable Long id,
-            @RequestBody @Validated CreatePartnerDTO updatePartnerDTO
-    ) {
-        return ResponseEntity.ok(partnerService.update(id, updatePartnerDTO));
+    @PatchMapping
+    public ResponseEntity<PartnerDTO> update(@RequestBody @Validated CreatePartnerDTO updatePartnerDTO) {
+        return ResponseEntity.ok(partnerService.update(updatePartnerDTO));
     }
 
     @GetMapping
@@ -66,25 +50,23 @@ public class PartnerAPI {
         return ResponseEntity.ok(partnerService.findAllPartners());
     }
 
-    @GetMapping("/{partnerId}/products")
-    public ResponseEntity<List<ProductDTO>> findAllProductsByPartnerId(@PathVariable Long partnerId) {
-        var response = productService.findAllActiveProductsByUserId(partnerId);
+    @GetMapping("/products")
+    public ResponseEntity<List<ProductDTO>> findAllProductsByPartnerId() {
+        var response = productService.findAllActiveProductsByUser();
 
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{partnerId}/orders")
+    @GetMapping("/orders")
     public ResponseEntity<List<OrderDTO>> findAllOrdersByPartnerIdFilterStatus(
-            @PathVariable Long partnerId,
-            @RequestParam(required = false) OrderStatus status
-    ) {
-        var response = orderService.findAllByPartnerIdAndFilterByStatus(partnerId, status);
+        @RequestParam(required = false) OrderStatus status) {
+        var response = orderService.findAllByPartnerIdAndFilterByStatus(status);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        partnerService.delete(id);
+    @DeleteMapping
+    public ResponseEntity<Void> delete() {
+        partnerService.delete();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -97,5 +79,13 @@ public class PartnerAPI {
 
         System.out.println(message);
         return ResponseEntity.unprocessableEntity().body(null);
+    }
+
+    @PatchMapping("/{partnerId}/approve")
+    public ResponseEntity<Object> changeStatus(@PathVariable Long partnerId,
+                                               @RequestBody @Validated PartnerApprovedDTO partnerApprovedDTO) {
+        var response = partnerService.changeApprovalStatus(partnerId, partnerApprovedDTO);
+
+        return ResponseEntity.ok(response);
     }
 }

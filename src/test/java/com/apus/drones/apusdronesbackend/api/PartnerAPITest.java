@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -30,6 +31,7 @@ class PartnerAPITest {
     private ObjectMapper objectMapper;
 
     @Test
+    @WithMockUser
     void testGetPartners() throws Exception {
 
         var partner = PartnerDTO.builder().id(1L).build();
@@ -37,10 +39,10 @@ class PartnerAPITest {
         when(partnerService.findAllPartners()).thenReturn(List.of(partner));
 
         var resultString = client.perform(get("/api/v1/partners"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
 
         var resultPartner = objectMapper.readValue(resultString, PartnerDTO[].class)[0];
 

@@ -3,6 +3,7 @@ package com.apus.drones.apusdronesbackend.config;
 import com.apus.drones.apusdronesbackend.service.UserService;
 import com.apus.drones.apusdronesbackend.utils.JWTUtility;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,7 +29,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String authorization = httpServletRequest.getHeader("Authorization");
+        String authorization = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
         String token = null;
         String userName = null;
 
@@ -39,15 +40,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (null != userName && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails
-                    = userService.loadUserByUsername(userName);
+                = userService.loadUserByUsername(userName);
 
             if (jwtUtility.validateToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
-                        = new UsernamePasswordAuthenticationToken(userDetails,
-                        null, userDetails.getAuthorities());
+                    = new UsernamePasswordAuthenticationToken(userDetails,
+                    null, userDetails.getAuthorities());
 
                 usernamePasswordAuthenticationToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(httpServletRequest)
+                    new WebAuthenticationDetailsSource().buildDetails(httpServletRequest)
                 );
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);

@@ -1,17 +1,19 @@
 package com.apus.drones.apusdronesbackend.service;
 
+import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
+import com.apus.drones.apusdronesbackend.model.enums.PartnerStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
-import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerDTO;
-import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerResponseDTO;
-import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
+import com.apus.drones.apusdronesbackend.service.dto.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -35,21 +37,24 @@ public class PartnerServiceImpl implements PartnerService {
     @Override
     public PartnerDTO get(Long id) {
         return userRepository.findByIdAndRoleAndDeletedFalse(id, Role.PARTNER).map(PartnerDtoMapper::fromUserEntity)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Não foi possível encontrar o Parceiro com ID " + id));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Não foi possível encontrar o Parceiro com"
+                    + " ID "
+                    + id));
+
     }
 
     @Override
     public CreatePartnerResponseDTO create(CreatePartnerDTO createPartnerDTO) {
         UserEntity userEntityToSave = UserEntity.builder()
-                .name(createPartnerDTO.getName())
-                .email(createPartnerDTO.getEmail())
-                .avatarUrl(createPartnerDTO.getAvatarUrl())
-                .cpfCnpj(createPartnerDTO.getCpfCnpj())
-                .password(createPartnerDTO.getPassword())
-                .deleted(Boolean.FALSE)
-                .role(Role.PARTNER)
-                .build();
+            .name(createPartnerDTO.getName())
+            .email(createPartnerDTO.getEmail())
+            .avatarUrl(createPartnerDTO.getAvatarUrl())
+            .cpfCnpj(createPartnerDTO.getCpfCnpj())
+            .password(createPartnerDTO.getPassword())
+            .deleted(Boolean.FALSE)
+            .role(Role.PARTNER)
+            .build();
 
         UserEntity savedUserEntity = userRepository.save(userEntityToSave);
 
@@ -62,16 +67,80 @@ public class PartnerServiceImpl implements PartnerService {
     }
 
     @Override
-    public PartnerDTO update(Long id, CreatePartnerDTO updatePartnerDTO) {
-        UserEntity entity = userRepository.findAllByIdAndRole(id, Role.PARTNER)
+    public PartnerDTO update(CreatePartnerDTO updatePartnerDTO) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth.isAuthenticated()) {
+            CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+            UserEntity entity = userRepository.findAllByIdAndRole(details.getUserID(), Role.PARTNER)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Não foi possível encontrar o Parceiro com ID " + id));
+                    "Não foi possível "
+                        + "encontrar o Parceiro "
+                        + "com ID "
+                        + details.getUserID()));
 
-        updatePartner(updatePartnerDTO, entity);
+            updatePartner(updatePartnerDTO, entity);
 
-        UserEntity savedUserEntity = userRepository.save(entity);
+            UserEntity savedUserEntity = userRepository.save(entity);
 
-        return PartnerDtoMapper.fromUserEntity(savedUserEntity);
+            return PartnerDtoMapper.fromUserEntity(savedUserEntity);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
+        }
+    }
+
+    @Override
+    public void delete() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth.isAuthenticated()) {
+            CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+            UserEntity entity = userRepository.findByIdAndRoleAndDeletedFalse(details.getUserID(), Role.PARTNER)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Não foi possível "
+                        + "encontrar o Parceiro "
+                        + "com ID "
+                        + details.getUserID()));
+
+            entity.setDeleted(Boolean.TRUE);
+
+            userRepository.save(entity);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
+        }
+    }
+
+    @Override
+    public PartnerStatusDTO changeApprovalStatus(Long partnerId, PartnerApprovedDTO partnerApprovedDTO) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth.isAuthenticated()) {
+            CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+
+            boolean isAdmin = details.getRole() == Role.ADMIN;
+
+            if (isAdmin) {
+                UserEntity entity =
+                    userRepository.findById(partnerId)
+                        .orElseThrow();
+
+                if (entity.getRole() == Role.PARTNER) {
+                    entity.setStatus(partnerApprovedDTO.isApproved() ? PartnerStatus.APPROVED : PartnerStatus.REJECTED);
+
+                    userRepository.save(entity);
+                    return PartnerStatusDTO.builder().status(entity.getStatus()).build();
+                }
+
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O usuário encontrado não é um parceiro");
+
+            }
+
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "O usuário não possui privilégios para aprovar/desaprovar parceiros");
+        }
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
     }
 
     private void updatePartner(CreatePartnerDTO partnerDTO, UserEntity entity) {
@@ -95,16 +164,5 @@ public class PartnerServiceImpl implements PartnerService {
         if (partnerDTO.getPassword() != null) {
             entity.setPassword(partnerDTO.getPassword());
         }
-    }
-
-    @Override
-    public void delete(Long id) {
-        UserEntity entity = userRepository.findByIdAndRoleAndDeletedFalse(id, Role.PARTNER)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Não foi possível encontrar o Parceiro com ID " + id));
-
-        entity.setDeleted(Boolean.TRUE);
-
-        userRepository.save(entity);
     }
 }

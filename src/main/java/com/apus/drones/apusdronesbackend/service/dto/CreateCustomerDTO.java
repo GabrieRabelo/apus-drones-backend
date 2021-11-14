@@ -17,5 +17,5 @@ public class CreateCustomerDTO {
     private String email;
     private String password;
     private String avatarUrl;
-    private String address;
+    private AddressDTO address;
 }
