@@ -1,6 +1,7 @@
 package com.apus.drones.apusdronesbackend.service;
 
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
+import com.apus.drones.apusdronesbackend.model.enums.PartnerStatus;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
 import org.junit.jupiter.api.DisplayName;
@@ -45,17 +46,26 @@ class PartnerServiceTest {
 
         var result = partnerService.findAllPartners();
 
-        var partner1 =
-            PartnerDTO.builder().id(1L).avatarUrl("www.static-img.com/dummy.jpg").deleted(false).name("Mister X")
-                .build();
-        var partner2 = PartnerDTO.builder().id(2L).avatarUrl("www.static-img.com/dummy.jpg").deleted(false)
-            .name("Cachorro do Bigode").build();
+        var partner1 = PartnerDTO.builder()
+            .id(1L)
+            .avatarUrl("www.static-img.com/dummy.jpg")
+            .deleted(false)
+            .name("Mister X")
+            .status(PartnerStatus.PENDING)
+            .build();
+        var partner2 = PartnerDTO.builder()
+            .id(2L)
+            .avatarUrl("www.static-img.com/dummy.jpg")
+            .deleted(false)
+            .name("Cachorro do Bigode")
+            .status(PartnerStatus.PENDING)
+            .build();
         var expectedResult = List.of(partner1, partner2);
 
         assertThat(result).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expectedResult);
     }
 
-    @DisplayName("When repository returns no results should return an empty list")
+    @DisplayName("When repository returns no results  should return an empty list")
     @Test
     void testFindPartners_emptyResult() {
 
