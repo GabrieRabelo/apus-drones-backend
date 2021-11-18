@@ -9,4 +9,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CreateCustomerResponseDTO {
     private Long id;
+    private String jwtToken;
 }
