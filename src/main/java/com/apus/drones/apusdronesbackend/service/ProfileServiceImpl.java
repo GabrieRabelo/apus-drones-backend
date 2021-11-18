@@ -93,7 +93,9 @@ public class ProfileServiceImpl implements ProfileService {
 
         var foundAddressList = addressRepository.findAllByUser_Id(userDTO.getId());
         if (!foundAddressList.isEmpty()) {
-            addressRepository.delete(foundAddressList.get(0));
+            var addr = foundAddressList.get(0);
+            addr.setUser(null);
+            addressRepository.save(addr);
         }
 
         final var userAddress = userDTO.getAddresses().get(0);
