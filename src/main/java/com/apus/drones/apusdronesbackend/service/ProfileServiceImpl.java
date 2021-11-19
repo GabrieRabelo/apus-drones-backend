@@ -39,11 +39,11 @@ public class ProfileServiceImpl implements ProfileService {
         if(auth.isAuthenticated()){
             CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
             UserEntity entity = userRepository.getById(details.getUserID());
-            List<AddressEntity> addresses = addressRepository.findAllByUser_Id(details.getUserID());
+            AddressEntity address = addressRepository.findByUser_Id(details.getUserID());
 
-            List<AddressDTO> addressesDto = addresses.stream().map(AddressDTOMapper::fromAddressEntity).collect(Collectors.toList());
+            AddressDTO addressDTO = AddressDTOMapper.fromAddressEntity(address);
 
-            return UserDTOMapper.fromUserEntity(entity, addressesDto);
+            return UserDTOMapper.fromUserEntity(entity, addressDTO);
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Falha ao carregar dados do perfil. Usuário não autenticado.");
         }
@@ -58,16 +58,16 @@ public class ProfileServiceImpl implements ProfileService {
 
             UserEntity entity = userRepository.findById(details.getUserID()).orElse(null);
 
-            List<AddressDTO> addressDTOList = new ArrayList<>();
-            updateUser(userDTO, entity, addressDTOList);
+            updateUser(userDTO, entity);
             UserEntity savedUserEntity = userRepository.save(entity);
-            return UserDTOMapper.fromUserEntity(savedUserEntity, addressDTOList);
+
+            return UserDTOMapper.fromUserEntity(savedUserEntity, userDTO.getAddress());
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
         }
     }
 
-    private void updateUser(UserDTO userDTO, UserEntity entity, List<AddressDTO> addressDTOList) {
+    private void updateUser(UserDTO userDTO, UserEntity entity) {
         if (userDTO.getName() != null) {
             entity.setName(userDTO.getName());
         }
@@ -84,33 +84,28 @@ public class ProfileServiceImpl implements ProfileService {
             entity.setAvatarUrl(userDTO.getAvatarUrl());
         }
 
-        if (userDTO.getAddresses() != null) {
-            updateAddress(userDTO, addressDTOList);
+        if (userDTO.getAddress() != null) {
+            updateAddress(userDTO.getAddress(), userDTO.getId());
         }
     }
 
-    private void updateAddress (UserDTO userDTO, List<AddressDTO> addressDTOList) {
-        userDTO.getAddresses().forEach(address -> {
-            if(address.getId() == null){
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Para atualizar um endereço, é necessário inserir o ID do endereço.");
+    private void updateAddress (AddressDTO addressDTO, Long userId) {
+
+        try {
+            AddressEntity finalAddress = addressRepository.getById(userId);
+            if(addressDTO.getDescription() != null){
+                finalAddress.setDescription(addressDTO.getDescription());
             }
-            try {
-                AddressEntity finalAddress = addressRepository.getById(address.getId());
-                if(address.getDescription() != null){
-                    finalAddress.setDescription(address.getDescription());
-                }
-                if(address.getLat() != null || address.getLng() != null){
-                    finalAddress.setCoordinates(pointCreatorService.createPoint(address.getLat() != null ? address.getLat() : finalAddress.getCoordinates().getX(),
-                            address.getLng() != null ? address.getLng() : finalAddress.getCoordinates().getY()));
-                }
-                if(address.getNumber() != null){
-                    finalAddress.setNumber(address.getNumber());
-                }
-                addressRepository.save(finalAddress);
-                addressDTOList.add(AddressDTOMapper.fromAddressEntity(finalAddress));
-            } catch (EntityNotFoundException e){
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Para atualizar um endereço, é necessário inserir um ID de endereço válido.");
+            if(addressDTO.getLat() != null || addressDTO.getLng() != null){
+                finalAddress.setCoordinates(pointCreatorService.createPoint(addressDTO.getLat() != null ? addressDTO.getLat() : finalAddress.getCoordinates().getX(),
+                        addressDTO.getLng() != null ? addressDTO.getLng() : finalAddress.getCoordinates().getY()));
             }
-        });
+            if(addressDTO.getNumber() != null){
+                finalAddress.setNumber(addressDTO.getNumber());
+            }
+            addressRepository.save(finalAddress);
+        } catch (EntityNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Para atualizar um endereço, é necessário inserir um ID de endereço válido.");
+        }
     }
 }

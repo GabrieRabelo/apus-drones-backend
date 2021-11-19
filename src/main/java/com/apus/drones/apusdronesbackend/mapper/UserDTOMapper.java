@@ -9,14 +9,14 @@ import java.util.List;
 
 public class UserDTOMapper {
 
-    public static UserDTO fromUserEntity(UserEntity userEntity, List<AddressDTO> addresses){
+    public static UserDTO fromUserEntity(UserEntity userEntity, AddressDTO address){
 
         return UserDTO.builder()
                 .avatarUrl(userEntity.getAvatarUrl())
                 .cpfCnpj(userEntity.getCpfCnpj())
                 .email(userEntity.getEmail())
                 .name(userEntity.getName())
-                .addresses(addresses)
+                .address(address)
                 .id(userEntity.getId())
                 .build();
     }
