@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,11 +31,12 @@ public class ProfileServiceImpl implements ProfileService {
         this.addressRepository = addressRepository;
         this.pointCreatorService = pointCreatorService;
     }
+
     @Override
     public UserDTO getById() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if(auth.isAuthenticated()){
+        if (auth.isAuthenticated()) {
             CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
             UserEntity entity = userRepository.getById(details.getUserID());
             List<AddressEntity> addresses = addressRepository.findAllByUser_Id(details.getUserID());
@@ -50,17 +50,17 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public UserDTO update (UserDTO userDTO){
+    public UserDTO update(UserDTO userDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if(auth.isAuthenticated()) {
+        if (auth.isAuthenticated()) {
             CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
 
             UserEntity entity = userRepository.findById(details.getUserID()).orElse(null);
 
             List<AddressDTO> addressDTOList = new ArrayList<>();
             updateUser(userDTO, entity, addressDTOList);
-            UserEntity savedUserEntity = userRepository.save(entity);
+            var savedUserEntity = userRepository.save(entity);
             return UserDTOMapper.fromUserEntity(savedUserEntity, addressDTOList);
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado.");
@@ -85,32 +85,32 @@ public class ProfileServiceImpl implements ProfileService {
         }
 
         if (userDTO.getAddresses() != null) {
-            updateAddress(userDTO, addressDTOList);
+            updateAddress(userDTO, entity, addressDTOList);
         }
     }
 
-    private void updateAddress (UserDTO userDTO, List<AddressDTO> addressDTOList) {
-        userDTO.getAddresses().forEach(address -> {
-            if(address.getId() == null){
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Para atualizar um endereço, é necessário inserir o ID do endereço.");
-            }
-            try {
-                AddressEntity finalAddress = addressRepository.getById(address.getId());
-                if(address.getDescription() != null){
-                    finalAddress.setDescription(address.getDescription());
-                }
-                if(address.getLat() != null || address.getLng() != null){
-                    finalAddress.setCoordinates(pointCreatorService.createPoint(address.getLat() != null ? address.getLat() : finalAddress.getCoordinates().getX(),
-                            address.getLng() != null ? address.getLng() : finalAddress.getCoordinates().getY()));
-                }
-                if(address.getNumber() != null){
-                    finalAddress.setNumber(address.getNumber());
-                }
-                addressRepository.save(finalAddress);
-                addressDTOList.add(AddressDTOMapper.fromAddressEntity(finalAddress));
-            } catch (EntityNotFoundException e){
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Para atualizar um endereço, é necessário inserir um ID de endereço válido.");
-            }
-        });
+    private void updateAddress(UserDTO userDTO, UserEntity userEntity, List<AddressDTO> addressDTOList) {
+
+        var foundAddressList = addressRepository.findAllByUser_Id(userDTO.getId());
+        if (!foundAddressList.isEmpty()) {
+            var addr = foundAddressList.get(0);
+            addr.setUser(null);
+            addressRepository.save(addr);
+        }
+
+        final var userAddress = userDTO.getAddresses().get(0);
+
+        final var coords = pointCreatorService.createPoint(userAddress.getLng(), userAddress.getLat());
+
+        final var addressEntity = AddressEntity.builder()
+                .description(userAddress.getDescription())
+                .number(userAddress.getNumber())
+                .coordinates(coords)
+                .user(userEntity)
+                .zipCode(userAddress.getZipCode())
+                .build();
+
+        var savedAddress = addressRepository.save(addressEntity);
+        addressDTOList.add(AddressDTOMapper.fromAddressEntity(savedAddress));
     }
 }
