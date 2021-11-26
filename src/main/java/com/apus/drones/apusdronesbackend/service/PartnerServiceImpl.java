@@ -2,9 +2,11 @@ package com.apus.drones.apusdronesbackend.service;
 
 import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper;
+import com.apus.drones.apusdronesbackend.model.entity.AddressEntity;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.PartnerStatus;
 import com.apus.drones.apusdronesbackend.model.enums.Role;
+import com.apus.drones.apusdronesbackend.repository.AddressRepository;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.*;
 import org.springframework.http.HttpStatus;
@@ -24,9 +26,13 @@ import java.util.List;
 public class PartnerServiceImpl implements PartnerService {
 
     private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
+    private final PointCreatorService pointCreatorService;
 
-    public PartnerServiceImpl(UserRepository userRepository) {
+    public PartnerServiceImpl(UserRepository userRepository, AddressRepository addressRepository, PointCreatorService pointCreatorService) {
         this.userRepository = userRepository;
+        this.addressRepository = addressRepository;
+        this.pointCreatorService = pointCreatorService;
     }
 
     public List<PartnerDTO> findAllPartners() {
@@ -45,7 +51,7 @@ public class PartnerServiceImpl implements PartnerService {
 
     @Override
     public CreatePartnerResponseDTO create(CreatePartnerDTO createPartnerDTO) {
-        UserEntity userEntityToSave = UserEntity.builder()
+        final var userEntityToSave = UserEntity.builder()
                 .name(createPartnerDTO.getName())
                 .email(createPartnerDTO.getEmail())
                 .avatarUrl(createPartnerDTO.getAvatarUrl())
@@ -55,9 +61,24 @@ public class PartnerServiceImpl implements PartnerService {
                 .role(Role.PARTNER)
                 .build();
 
-        UserEntity savedUserEntity = userRepository.save(userEntityToSave);
+        final var savedUserEntity = userRepository.save(userEntityToSave);
 
-        log.info("Saved new user entity with id [{}]", savedUserEntity.getId());
+        final var userAddress = createPartnerDTO.getAddressDTO();
+
+        final var coords = pointCreatorService.createPoint(userAddress.getLng(), userAddress.getLat());
+
+        final var address = AddressEntity.builder()
+                .description(userAddress.getDescription())
+                .number(userAddress.getNumber())
+                .coordinates(coords)
+                .user(savedUserEntity)
+                .zipCode(userAddress.getZipCode())
+                .build();
+
+        final var savedAddress = addressRepository.save(address);
+
+        log.info("Saved new user entity: {}", savedUserEntity);
+        log.info("Saved new user address: {}", savedAddress);
 
         CreatePartnerResponseDTO response = new CreatePartnerResponseDTO();
         response.setId(savedUserEntity.getId());

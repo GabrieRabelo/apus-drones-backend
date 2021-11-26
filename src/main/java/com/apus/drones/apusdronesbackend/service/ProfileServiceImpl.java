@@ -16,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 public class ProfileServiceImpl implements ProfileService {
@@ -32,11 +30,12 @@ public class ProfileServiceImpl implements ProfileService {
         this.addressRepository = addressRepository;
         this.pointCreatorService = pointCreatorService;
     }
+
     @Override
     public UserDTO getById() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if(auth.isAuthenticated()){
+        if (auth.isAuthenticated()) {
             CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
             UserEntity entity = userRepository.getById(details.getUserID());
             AddressEntity address = addressRepository.findByUser_Id(details.getUserID());
@@ -50,10 +49,10 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public UserDTO update (UserDTO userDTO){
+    public UserDTO update(UserDTO userDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if(auth.isAuthenticated()) {
+        if (auth.isAuthenticated()) {
             CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
 
             UserEntity entity = userRepository.findById(details.getUserID()).orElse(null);
