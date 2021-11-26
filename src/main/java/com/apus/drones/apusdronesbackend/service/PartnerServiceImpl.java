@@ -63,7 +63,7 @@ public class PartnerServiceImpl implements PartnerService {
 
         final var savedUserEntity = userRepository.save(userEntityToSave);
 
-        final var userAddress = createPartnerDTO.getAddressDTO();
+        final var userAddress = createPartnerDTO.getAddress();
 
         final var coords = pointCreatorService.createPoint(userAddress.getLng(), userAddress.getLat());
 

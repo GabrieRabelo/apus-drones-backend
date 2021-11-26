@@ -84,27 +84,26 @@ public class ProfileServiceImpl implements ProfileService {
         }
 
         if (userDTO.getAddress() != null) {
-            updateAddress(userDTO.getAddress(), userDTO.getId());
+            updateAddress(userDTO.getAddress(), entity.getId());
         }
     }
 
     private void updateAddress (AddressDTO addressDTO, Long userId) {
-
-        try {
-            AddressEntity finalAddress = addressRepository.getById(userId);
-            if(addressDTO.getDescription() != null){
-                finalAddress.setDescription(addressDTO.getDescription());
-            }
-            if(addressDTO.getLat() != null || addressDTO.getLng() != null){
-                finalAddress.setCoordinates(pointCreatorService.createPoint(addressDTO.getLat() != null ? addressDTO.getLat() : finalAddress.getCoordinates().getX(),
-                        addressDTO.getLng() != null ? addressDTO.getLng() : finalAddress.getCoordinates().getY()));
-            }
-            if(addressDTO.getNumber() != null){
-                finalAddress.setNumber(addressDTO.getNumber());
-            }
-            addressRepository.save(finalAddress);
-        } catch (EntityNotFoundException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Para atualizar um endereço, é necessário inserir um ID de endereço válido.");
+        AddressEntity finalAddress = addressRepository.findByUser_Id(userId);
+        if (finalAddress == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Endereço não encontrado");
         }
+
+        if(addressDTO.getDescription() != null){
+            finalAddress.setDescription(addressDTO.getDescription());
+        }
+        if(addressDTO.getLat() != null || addressDTO.getLng() != null){
+            finalAddress.setCoordinates(pointCreatorService.createPoint(addressDTO.getLat() != null ? addressDTO.getLat() : finalAddress.getCoordinates().getX(),
+                    addressDTO.getLng() != null ? addressDTO.getLng() : finalAddress.getCoordinates().getY()));
+        }
+        if(addressDTO.getNumber() != null){
+            finalAddress.setNumber(addressDTO.getNumber());
+        }
+        addressRepository.save(finalAddress);
     }
 }
