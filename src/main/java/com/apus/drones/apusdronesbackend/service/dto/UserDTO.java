@@ -23,5 +23,5 @@ public class UserDTO {
 
     private String avatarUrl;
 
-    private List<AddressDTO> addresses;
+    private AddressDTO address;
 }
