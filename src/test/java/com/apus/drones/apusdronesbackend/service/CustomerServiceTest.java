@@ -6,6 +6,7 @@ import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.AddressDTO;
 import com.apus.drones.apusdronesbackend.service.dto.CreateCustomerDTO;
 import com.apus.drones.apusdronesbackend.service.dto.CreateCustomerResponseDTO;
+import com.apus.drones.apusdronesbackend.service.dto.JwtResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +29,8 @@ class CustomerServiceTest {
     private AddressRepository addressRepository;
     @Mock
     private PointCreatorService pointCreatorService;
+    @Mock
+    private AuthenticationService authenticationService;
 
     @Test
     void create() {
@@ -49,11 +53,16 @@ class CustomerServiceTest {
         //When
         when(userRepository.save(any())).thenReturn(response);
         when(addressRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+        try {
+            when(authenticationService.authenticate(any())).thenReturn(new JwtResponse("token"));
+        } catch (Exception e) {
+            fail("Falha ao gerar token");
+        }
 
         var result = customerService.create(request);
 
         //Then
-        var expectedResult = new CreateCustomerResponseDTO(1L);
+        var expectedResult = new CreateCustomerResponseDTO(1L, "token");
 
         assertThat(result).usingRecursiveComparison().isEqualTo(expectedResult);
     }
