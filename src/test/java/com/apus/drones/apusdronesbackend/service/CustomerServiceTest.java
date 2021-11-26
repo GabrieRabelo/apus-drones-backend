@@ -35,13 +35,14 @@ class CustomerServiceTest {
     @Test
     void create() {
         //Given
-        var address = AddressDTO.builder()
+        final var address = AddressDTO.builder()
             .description("Av Ipiranga")
             .number(6681)
             .lat(-30.0611631)
             .lng(-51.1761906)
             .build();
-        var request = CreateCustomerDTO.builder()
+
+        final var request = CreateCustomerDTO.builder()
             .name("Gabriel Rabelo")
             .address(address)
             .cpfCnpj("12312312312")
