@@ -223,7 +223,7 @@ public class OrderServiceImpl implements OrderService {
 
         OrderEntity entity = OrderEntity.builder()
             .deliveryPrice(defaultDeliveryPrice)
-            .orderPrice(this.calcOrderPrice(updateCartDTO.getItems()))
+            .orderPrice(this.calcOrderPrice(updateCartDTO.getItems(), defaultDeliveryPrice))
             .status(OrderStatus.IN_CART)
             .customer(customer)
             .partner(partner)
@@ -247,7 +247,7 @@ public class OrderServiceImpl implements OrderService {
         OrderEntity entity = OrderEntity.builder()
             .id(orderDto.getId())
             .deliveryPrice(defaultDeliveryPrice)
-            .orderPrice(this.calcOrderPrice(orderDto.getItems()))
+            .orderPrice(this.calcOrderPrice(orderDto.getItems(), defaultDeliveryPrice))
             .status(
                 orderDto.getStatus() == null ? OrderStatus.IN_CART : orderDto.getStatus())
             .customer(customer)
@@ -311,13 +311,15 @@ public class OrderServiceImpl implements OrderService {
             .collect(Collectors.toList());
     }
 
-    private BigDecimal calcOrderPrice(List<OrderItemDto> items) {
+    private BigDecimal calcOrderPrice(List<OrderItemDto> items, BigDecimal deliveryPrice) {
         BigDecimal sum = BigDecimal.ZERO;
 
         for (OrderItemDto item : items) {
             sum = sum.add(item.getProduct().getPrice()
                 .multiply(BigDecimal.valueOf(item.getQuantity())));
         }
+
+        sum = sum.add(deliveryPrice);
 
         return sum;
     }
