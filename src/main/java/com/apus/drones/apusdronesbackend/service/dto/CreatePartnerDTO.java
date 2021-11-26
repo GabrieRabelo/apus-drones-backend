@@ -16,4 +16,5 @@ public class CreatePartnerDTO {
     private String cpfCnpj;
     private String password;
     private String avatarUrl;
+    private AddressDTO address;
 }

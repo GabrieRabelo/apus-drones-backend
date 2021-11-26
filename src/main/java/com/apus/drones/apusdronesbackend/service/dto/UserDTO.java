@@ -2,8 +2,6 @@ package com.apus.drones.apusdronesbackend.service.dto;
 
 import lombok.*;
 
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
@@ -22,5 +20,5 @@ public class UserDTO {
 
     private String avatarUrl;
 
-    private List<AddressDTO> addresses;
+    private AddressDTO address;
 }

@@ -7,6 +7,7 @@ import com.apus.drones.apusdronesbackend.repository.AddressRepository;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import com.apus.drones.apusdronesbackend.service.dto.CreateCustomerDTO;
 import com.apus.drones.apusdronesbackend.service.dto.CreateCustomerResponseDTO;
+import com.apus.drones.apusdronesbackend.service.dto.JwtRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +18,14 @@ public class CustomerService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final PointCreatorService pointCreatorService;
+    private final AuthenticationService authenticationService;
 
     public CustomerService(UserRepository userRepository, AddressRepository addressRepository,
-                           PointCreatorService pointCreatorService) {
+                           PointCreatorService pointCreatorService, AuthenticationService authenticationService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.pointCreatorService = pointCreatorService;
+        this.authenticationService = authenticationService;
     }
 
     public CreateCustomerResponseDTO create(CreateCustomerDTO createCustomerDTO) {
@@ -53,10 +56,19 @@ public class CustomerService {
 
         final var savedAddress = addressRepository.save(address);
 
+        var token = "";
+        try {
+            final var jwtResponse = this.authenticationService.authenticate(
+                new JwtRequest(createCustomerDTO.getEmail(), createCustomerDTO.getPassword()));
+            token = jwtResponse.getJwtToken();
+        } catch (Exception e) {
+            System.out.println("It was not possible to generate a JWT Token");
+        }
+
         log.info("Saved new user entity: {}", savedUserEntity);
         log.info("Saved new user address: {}", savedAddress);
 
-        return new CreateCustomerResponseDTO(savedUserEntity.getId());
+        return new CreateCustomerResponseDTO(savedUserEntity.getId(), token);
     }
 
 
