@@ -30,7 +30,7 @@ public class CustomerService {
         this.authenticationService = authenticationService;
     }
 
-    public CreateCustomerResponseDTO create(CreateCustomerDTO createCustomerDTO) throws Exception {
+    public CreateCustomerResponseDTO create(CreateCustomerDTO createCustomerDTO) {
 
         final var userEntityToSave = UserEntity.builder()
                 .name(createCustomerDTO.getName())
