@@ -8,19 +8,6 @@ import java.util.List;
 
 public class PartnerDtoMapper {
 
-    public static PartnerDTO fromUserEntity(UserEntity partner) {
-        return PartnerDTO
-                .builder()
-                .id(partner.getId())
-                .email(partner.getEmail())
-                .name(partner.getName())
-                .cpfCnpj(partner.getCpfCnpj())
-                .avatarUrl(partner.getAvatarUrl())
-                .deleted(partner.getDeleted())
-                .status(partner.getStatus())
-                .build();
-    }
-
     public static List<PartnerDTO> fromUserEntityList(List<UserEntity> resultFromDB) {
         var responseList = new ArrayList<PartnerDTO>();
 
@@ -31,5 +18,18 @@ public class PartnerDtoMapper {
         }
 
         return responseList;
+    }
+
+    public static PartnerDTO fromUserEntity(UserEntity partner) {
+        return PartnerDTO
+            .builder()
+            .id(partner.getId())
+            .email(partner.getEmail())
+            .name(partner.getName())
+            .cpfCnpj(partner.getCpfCnpj())
+            .avatarUrl(partner.getAvatarUrl())
+            .deleted(partner.getDeleted())
+            .status(partner.getStatus())
+            .build();
     }
 }

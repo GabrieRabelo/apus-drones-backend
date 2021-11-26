@@ -1,6 +1,5 @@
 package com.apus.drones.apusdronesbackend.api;
 
-import com.amazonaws.services.securityhub.model.Product;
 import com.apus.drones.apusdronesbackend.service.ProductService;
 import com.apus.drones.apusdronesbackend.service.dto.CreateProductDTO;
 import com.apus.drones.apusdronesbackend.service.dto.ProductDTO;
@@ -43,7 +42,8 @@ public class ProductAPI {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody @Validated UpdateProductDTO updateProductDTO) {
+    public ResponseEntity<ProductDTO> update(@PathVariable Long id,
+                                             @RequestBody @Validated UpdateProductDTO updateProductDTO) {
         log.info("Received a new update product productDTO for product id [{}]", id);
 
         return ResponseEntity.ok(productService.update(id, updateProductDTO));

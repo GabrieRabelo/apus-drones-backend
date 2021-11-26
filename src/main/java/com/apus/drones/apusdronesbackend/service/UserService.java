@@ -4,7 +4,6 @@ import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +21,8 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
         UserEntity userEntity = userRepository.findByEmail(userName);
 
-        return new CustomUserDetails(userEntity.getEmail(), userEntity.getPassword(), new ArrayList<>(), userEntity.getId(), userEntity.getRole());
+        return new CustomUserDetails(userEntity.getEmail(), userEntity.getPassword(), new ArrayList<>(),
+            userEntity.getId(), userEntity.getRole());
     }
 
 }

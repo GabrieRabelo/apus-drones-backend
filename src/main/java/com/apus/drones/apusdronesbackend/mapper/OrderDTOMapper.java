@@ -21,27 +21,39 @@ public class OrderDTOMapper {
         }
 
         List<OrderItemDto> orderItemDtoList = Optional.ofNullable(orderEntity.getOrderItems())
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(OrderItemDtoMapper::fromOrderItemEntity)
-                .collect(Collectors.toList());
+            .orElse(Collections.emptyList())
+            .stream()
+            .map(OrderItemDtoMapper::fromOrderItemEntity)
+            .collect(Collectors.toList());
 
-        PartnerDTO partner = Optional.ofNullable(orderEntity.getPartner()).map(PartnerDtoMapper::fromUserEntity).orElse(null);
-        CustomerDTO customer = Optional.ofNullable(orderEntity.getCustomer()).map(CustomerDtoMapper::fromUserEntity).orElse(null);
+        PartnerDTO partner = Optional.ofNullable(orderEntity.getPartner())
+            .map(PartnerDtoMapper::fromUserEntity)
+            .orElse(null);
+        CustomerDTO customer = Optional.ofNullable(orderEntity.getCustomer())
+            .map(CustomerDtoMapper::fromUserEntity)
+            .orElse(null);
+
+        BigDecimal deliverPrice = orderEntity.getDeliveryPrice() == null
+            ? BigDecimal.valueOf(0)
+            : orderEntity.getDeliveryPrice();
+
+        BigDecimal orderPrice = orderEntity.getOrderPrice() == null
+            ? BigDecimal.valueOf(0)
+            : orderEntity.getOrderPrice();
 
         return OrderDTO.builder()
-                .id(orderEntity.getId())
-                .createdAt(orderEntity.getCreatedAt())
-                .deliveryPrice(orderEntity.getDeliveryPrice() == null ? BigDecimal.valueOf(0) : orderEntity.getDeliveryPrice())
-                .items(orderItemDtoList)
-                .orderPrice(orderEntity.getOrderPrice() == null ? BigDecimal.valueOf(0) : orderEntity.getOrderPrice())
-                .partner(partner)
-                .customer(customer)
-                .expiresAt(orderEntity.getExpiresAt())
-                .status(orderEntity.getStatus())
-                .deliveryAddress(AddressDTOMapper.fromAddressEntity(orderEntity.getDeliveryAddress()))
-                .shopAddress(AddressDTOMapper.fromAddressEntity(orderEntity.getShopAddress()))
-                .build();
+            .id(orderEntity.getId())
+            .createdAt(orderEntity.getCreatedAt())
+            .deliveryPrice(deliverPrice)
+            .items(orderItemDtoList)
+            .orderPrice(orderPrice)
+            .partner(partner)
+            .customer(customer)
+            .expiresAt(orderEntity.getExpiresAt())
+            .status(orderEntity.getStatus())
+            .deliveryAddress(AddressDTOMapper.fromAddressEntity(orderEntity.getDeliveryAddress()))
+            .shopAddress(AddressDTOMapper.fromAddressEntity(orderEntity.getShopAddress()))
+            .build();
 
     }
 }

@@ -14,14 +14,15 @@ import org.springframework.context.annotation.Configuration;
 public class AmazonS3Config {
 
     @Bean
-    public AmazonS3 amazonS3(@Value("${aws.keys.accessKey}") String accessKey, @Value("${aws.keys.secretKey}") String secretKey) {
+    public AmazonS3 amazonS3(@Value("${aws.keys.accessKey}") String accessKey,
+                             @Value("${aws.keys.secretKey}") String secretKey) {
 
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
         return AmazonS3ClientBuilder
-                .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(Regions.US_EAST_2)
-                .build();
+            .standard()
+            .withCredentials(new AWSStaticCredentialsProvider(credentials))
+            .withRegion(Regions.US_EAST_2)
+            .build();
     }
 }

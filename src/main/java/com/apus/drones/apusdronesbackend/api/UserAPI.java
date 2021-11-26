@@ -1,15 +1,9 @@
 package com.apus.drones.apusdronesbackend.api;
 
-import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.service.ProfileService;
-import com.apus.drones.apusdronesbackend.service.UserService;
-import com.apus.drones.apusdronesbackend.service.dto.CreatePartnerDTO;
-import com.apus.drones.apusdronesbackend.service.dto.PartnerDTO;
 import com.apus.drones.apusdronesbackend.service.dto.UserDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

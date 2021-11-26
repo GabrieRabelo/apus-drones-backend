@@ -28,7 +28,7 @@ public class ImageUploadService {
 
         String[] nameSplit = request.getFileName().split("\\.");
         String extension = "png";
-        String filename = nameSplit.length > 1 ? request.getFileName() : nameSplit[0] + "." + extension;
+        final String filename = nameSplit.length > 1 ? request.getFileName() : nameSplit[0] + "." + extension;
 
         if (nameSplit.length > 1) {
             extension = nameSplit[nameSplit.length - 1];

@@ -7,11 +7,11 @@ public class OrderItemDtoMapper {
 
     public static OrderItemDto fromOrderItemEntity(OrderItemEntity orderItemEntity) {
         return OrderItemDto.builder()
-                .id(orderItemEntity.getId())
-                .price(orderItemEntity.getPrice())
-                .product(ProductDtoMapper.fromProductEntity(orderItemEntity.getProduct()))
-                .quantity(orderItemEntity.getQuantity())
-                .weight(orderItemEntity.getWeight())
-                .build();
+            .id(orderItemEntity.getId())
+            .price(orderItemEntity.getPrice())
+            .product(ProductDtoMapper.fromProductEntity(orderItemEntity.getProduct()))
+            .quantity(orderItemEntity.getQuantity())
+            .weight(orderItemEntity.getWeight())
+            .build();
     }
 }

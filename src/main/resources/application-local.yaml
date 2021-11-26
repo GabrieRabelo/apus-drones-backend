@@ -7,7 +7,7 @@ application:
 server:
   error:
     include-message: always
-    
+
 spring:
   h2:
     console:

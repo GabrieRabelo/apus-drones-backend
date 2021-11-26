@@ -8,7 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
@@ -18,13 +21,11 @@ import javax.annotation.Resource;
 public class AuthenticationAPI {
 
     @Resource
-    private AuthenticationService authenticationService;
-
-    @Resource
     private final CustomerService customerService;
-
     @Resource
     private final PartnerService partnerService;
+    @Resource
+    private AuthenticationService authenticationService;
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> authenticate(@RequestBody JwtRequest jwtRequest) throws Exception {
@@ -32,7 +33,8 @@ public class AuthenticationAPI {
     }
 
     @PostMapping("/signup/customer")
-    public ResponseEntity<CreateCustomerResponseDTO> create(@RequestBody @Validated CreateCustomerDTO createCustomerDTO) {
+    public ResponseEntity<CreateCustomerResponseDTO> create(
+        @RequestBody @Validated CreateCustomerDTO createCustomerDTO) {
         return ResponseEntity.ok(customerService.create(createCustomerDTO));
     }
 

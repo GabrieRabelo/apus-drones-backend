@@ -7,8 +7,12 @@ import java.util.List;
 
 public interface TripService {
     List<TripDTO> getByPilot();
+
     TripDTO get(Long tripId);
+
     TripDTO create(CreateTripDTO createTripDTO);
+
     TripDTO setCollected(Long tripId);
+
     TripDTO setDelivered(Long tripId);
 }

@@ -23,14 +23,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private JwtFilter jwtFilter;
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userService);
-    }
-
-    @Override
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userService);
     }
 
     @Override
@@ -38,11 +38,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         //Para desabilitar a autenticação, comentar até o código até o ...
         http.cors().and().csrf().disable().authorizeRequests()
-                .antMatchers("/api/v1/authenticate/**", "/h2/**", "/csrf", "/v2/api-docs", "/v3/api-docs",
-                        "/configuration/ui", "/configuration/security", "/swagger-resources", "/swagger-resources/configuration/**",
-                        "/swagger-ui.html", "/swagger-ui/*", "/webjars/springfox-swagger-ui/**")
-                .permitAll().anyRequest().authenticated().and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+            .antMatchers("/api/v1/authenticate/**", "/h2/**", "/csrf", "/v2/api-docs", "/v3/api-docs",
+                "/configuration/ui", "/configuration/security", "/swagger-resources",
+                "/swagger-resources/configuration/**",
+                "/swagger-ui.html", "/swagger-ui/*", "/webjars/springfox-swagger-ui/**")
+            .permitAll().anyRequest().authenticated().and().sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

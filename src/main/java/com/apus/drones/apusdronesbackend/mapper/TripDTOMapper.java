@@ -19,12 +19,12 @@ public class TripDTOMapper {
         PilotDTO pilot = Optional.ofNullable(tripEntity.getPilot()).map(PilotDTOMapper::fromPilotEntity).orElse(null);
 
         return TripDTO.builder()
-                .id(tripEntity.getId())
-                .pilot(pilot)
-                .order(order)
-                .createdAt(tripEntity.getCreatedAt())
-                .collectedAt(tripEntity.getCollectedAt())
-                .deliveredAt(tripEntity.getDeliveredAt())
-                .build();
+            .id(tripEntity.getId())
+            .pilot(pilot)
+            .order(order)
+            .createdAt(tripEntity.getCreatedAt())
+            .collectedAt(tripEntity.getCollectedAt())
+            .deliveredAt(tripEntity.getDeliveredAt())
+            .build();
     }
 }

@@ -10,14 +10,14 @@ public class AddressDTOMapper {
             return null;
         }
         var addressBuilder = AddressDTO.builder()
-                .id(addressEntity.getId())
-                .description(addressEntity.getDescription())
-                .number(addressEntity.getNumber());
+            .id(addressEntity.getId())
+            .description(addressEntity.getDescription())
+            .number(addressEntity.getNumber());
 
         if (addressEntity.getCoordinates() != null) {
             addressBuilder
-                    .lat(addressEntity.getCoordinates().getX())
-                    .lng(addressEntity.getCoordinates().getY());
+                .lat(addressEntity.getCoordinates().getX())
+                .lng(addressEntity.getCoordinates().getY());
         }
 
         return addressBuilder.build();

@@ -1,6 +1,5 @@
 package com.apus.drones.apusdronesbackend.service;
 
-import com.apus.drones.apusdronesbackend.mapper.PartnerDtoMapper;
 import com.apus.drones.apusdronesbackend.model.entity.UserEntity;
 import com.apus.drones.apusdronesbackend.model.enums.PartnerStatus;
 import com.apus.drones.apusdronesbackend.repository.UserRepository;
@@ -27,21 +26,20 @@ class PartnerServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @DisplayName("When repository returns multiple results " +
-            "should convert into response and return it")
+    @DisplayName("When repository returns multiple results should convert into response and return it")
     @Test
     void testFindPartners() {
 
         var user1 = UserEntity.builder()
-                .id(1L)
-                .avatarUrl("www.static-img.com/dummy.jpg")
-                .name("Mister X")
-                .build();
+            .id(1L)
+            .avatarUrl("www.static-img.com/dummy.jpg")
+            .name("Mister X")
+            .build();
         var user2 = UserEntity.builder()
-                .id(2L)
-                .avatarUrl("www.static-img.com/dummy.jpg")
-                .name("Cachorro do Bigode")
-                .build();
+            .id(2L)
+            .avatarUrl("www.static-img.com/dummy.jpg")
+            .name("Cachorro do Bigode")
+            .build();
         var userList = List.of(user1, user2);
 
         when(userRepository.findAllByRole(any())).thenReturn(userList);
@@ -49,26 +47,25 @@ class PartnerServiceTest {
         var result = partnerService.findAllPartners();
 
         var partner1 = PartnerDTO.builder()
-                                 .id(1L)
-                                 .avatarUrl("www.static-img.com/dummy.jpg")
-                                 .deleted(false)
-                                 .name("Mister X")
-                                 .status(PartnerStatus.PENDING)
-                                 .build();
+            .id(1L)
+            .avatarUrl("www.static-img.com/dummy.jpg")
+            .deleted(false)
+            .name("Mister X")
+            .status(PartnerStatus.PENDING)
+            .build();
         var partner2 = PartnerDTO.builder()
-                                 .id(2L)
-                                 .avatarUrl("www.static-img.com/dummy.jpg")
-                                 .deleted(false)
-                                 .name("Cachorro do Bigode")
-                                 .status(PartnerStatus.PENDING)
-                                 .build();
+            .id(2L)
+            .avatarUrl("www.static-img.com/dummy.jpg")
+            .deleted(false)
+            .name("Cachorro do Bigode")
+            .status(PartnerStatus.PENDING)
+            .build();
         var expectedResult = List.of(partner1, partner2);
 
         assertThat(result).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expectedResult);
     }
 
-    @DisplayName("When repository returns no results " +
-            "should return an empty list")
+    @DisplayName("When repository returns no results  should return an empty list")
     @Test
     void testFindPartners_emptyResult() {
 
@@ -84,7 +81,7 @@ class PartnerServiceTest {
     private List<PartnerDTO> toDTOList(List<UserEntity> resultFromDB) {
         var responseList = new ArrayList<PartnerDTO>();
 
-        for (UserEntity user: resultFromDB) {
+        for (UserEntity user : resultFromDB) {
             var partner = PartnerDTO
                 .builder()
                 .id(user.getId())

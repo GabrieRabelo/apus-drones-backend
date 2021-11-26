@@ -1,6 +1,5 @@
 package com.apus.drones.apusdronesbackend.service;
 
-import com.apus.drones.apusdronesbackend.config.CustomUserDetails;
 import com.apus.drones.apusdronesbackend.mapper.TripDTOMapper;
 import com.apus.drones.apusdronesbackend.model.entity.OrderEntity;
 import com.apus.drones.apusdronesbackend.model.entity.TripEntity;
@@ -14,8 +13,6 @@ import com.apus.drones.apusdronesbackend.service.dto.CreateTripDTO;
 import com.apus.drones.apusdronesbackend.service.dto.TripDTO;
 import com.apus.drones.apusdronesbackend.utils.PermissionsChecker;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -30,7 +27,8 @@ public class TripServiceImpl implements TripService {
     OrderRepository orderRepository;
     UserRepository userRepository;
 
-    public TripServiceImpl(TripRepository tripRepository, OrderRepository orderRepository, UserRepository userRepository) {
+    public TripServiceImpl(TripRepository tripRepository, OrderRepository orderRepository,
+                           UserRepository userRepository) {
         this.tripRepository = tripRepository;
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
@@ -54,20 +52,20 @@ public class TripServiceImpl implements TripService {
         var userDetails = PermissionsChecker.checkPermissions(List.of(Role.PILOT));
 
         OrderEntity order = Optional.of(this.orderRepository.findById(createTripDTO.getOrderId())).get().orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pedido não encontrado")
+            () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pedido não encontrado")
         );
         UserEntity pilot = Optional.of(this.userRepository.findById(userDetails.getUserID())).get().orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Piloto não encontrado")
+            () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Piloto não encontrado")
         );
         if (pilot.getRole() != Role.PILOT) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Piloto não encontrado");
         }
 
         TripEntity tripEntity = TripEntity.builder()
-                .pilot(pilot)
-                .order(order)
-                .collectedAt(createTripDTO.getCollectedAt())
-                .build();
+            .pilot(pilot)
+            .order(order)
+            .collectedAt(createTripDTO.getCollectedAt())
+            .build();
 
         order.setStatus(OrderStatus.PICKING_UP);
 
@@ -96,11 +94,10 @@ public class TripServiceImpl implements TripService {
     public TripEntity getTrip(Long tripId) {
         PermissionsChecker.checkPermissions(List.of(Role.PILOT));
 
-        Optional<TripEntity> oTrip = tripRepository.findById(tripId);
-        if (oTrip.isEmpty()) {
+        Optional<TripEntity> optionalTrip = tripRepository.findById(tripId);
+        if (optionalTrip.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Corrida não encontrada");
         }
-        return oTrip.get();
+        return optionalTrip.get();
     }
 }
-;

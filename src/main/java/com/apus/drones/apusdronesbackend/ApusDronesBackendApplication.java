@@ -9,14 +9,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @SpringBootApplication
 public class ApusDronesBackendApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ApusDronesBackendApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ApusDronesBackendApplication.class, args);
+    }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return NoOpPasswordEncoder.getInstance();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
+    }
 
 
 }

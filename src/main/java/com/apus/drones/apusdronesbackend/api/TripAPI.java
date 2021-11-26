@@ -1,15 +1,13 @@
 package com.apus.drones.apusdronesbackend.api;
 
-import com.amazonaws.Response;
 import com.apus.drones.apusdronesbackend.service.TripService;
 import com.apus.drones.apusdronesbackend.service.dto.CreateTripDTO;
 import com.apus.drones.apusdronesbackend.service.dto.TripDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import lombok.extern.slf4j.Slf4j;
 
-import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController

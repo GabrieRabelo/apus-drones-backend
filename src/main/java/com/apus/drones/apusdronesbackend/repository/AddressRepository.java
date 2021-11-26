@@ -1,7 +1,6 @@
 package com.apus.drones.apusdronesbackend.repository;
 
 import com.apus.drones.apusdronesbackend.model.entity.AddressEntity;
-import com.apus.drones.apusdronesbackend.model.entity.OrderItemEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

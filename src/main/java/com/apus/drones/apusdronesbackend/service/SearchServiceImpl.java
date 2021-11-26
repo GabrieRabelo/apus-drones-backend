@@ -31,21 +31,21 @@ public class SearchServiceImpl implements SearchService {
         var products = findAllActiveProductsByName(name);
         var partners = findAllPartnersByName(name);
         return SearchResultDTO.builder()
-                .partners(partners)
-                .products(products)
-                .build();
-    }
-
-    private List<PartnerDTO> findAllPartnersByName(String name) {
-
-        var resultFromDB = userRepository.findAllByRoleAndNameContainingIgnoreCase(Role.PARTNER, name);
-        return fromUserEntityList(resultFromDB);
+            .partners(partners)
+            .products(products)
+            .build();
     }
 
     private List<ProductDTO> findAllActiveProductsByName(String name) {
 
         var resultFromDB = productRepository.findAllByNameContainingIgnoreCaseAndStatus(name, ProductStatus.ACTIVE);
         return fromProductEntityList(resultFromDB);
+    }
+
+    private List<PartnerDTO> findAllPartnersByName(String name) {
+
+        var resultFromDB = userRepository.findAllByRoleAndNameContainingIgnoreCase(Role.PARTNER, name);
+        return fromUserEntityList(resultFromDB);
     }
 
 

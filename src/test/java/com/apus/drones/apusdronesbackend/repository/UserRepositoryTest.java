@@ -29,12 +29,16 @@ class UserRepositoryTest {
     @Test
     void testFindAllPartnerUsers() {
         var partner = UserEntity.builder().name("Mister X").avatarUrl(
-                "https://static-images.ifood.com.br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f/201807231152_mrxma.png")
-                .role(Role.PARTNER).productEntity(List.of()).build();
+                "https://static-images.ifood.com"
+                    + ".br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f"
+                    + "/201807231152_mrxma.png")
+            .role(Role.PARTNER).productEntity(List.of()).build();
 
         var customer = UserEntity.builder().name("Bigodao").avatarUrl(
-                "https://static-images.ifood.com.br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f/201807231152_mrxma.png")
-                .role(Role.CUSTOMER).productEntity(List.of()).build();
+                "https://static-images.ifood.com"
+                    + ".br/image/upload/t_high/logosgde/5ff52da2-464b-4934-af16-9dadec52201f"
+                    + "/201807231152_mrxma.png")
+            .role(Role.CUSTOMER).productEntity(List.of()).build();
 
         var savedUser = userRepository.save(partner);
         userRepository.save(customer);

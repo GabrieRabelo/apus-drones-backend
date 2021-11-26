@@ -1,9 +1,6 @@
 package com.apus.drones.apusdronesbackend.service.dto;
 
-import com.apus.drones.apusdronesbackend.model.entity.AddressEntity;
 import lombok.*;
-
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor

@@ -15,8 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityNotFoundException;
-
 
 @Service
 public class ProfileServiceImpl implements ProfileService {
@@ -25,7 +23,8 @@ public class ProfileServiceImpl implements ProfileService {
     private final AddressRepository addressRepository;
     private final PointCreatorService pointCreatorService;
 
-    public ProfileServiceImpl(UserRepository userRepository, AddressRepository addressRepository, PointCreatorService pointCreatorService) {
+    public ProfileServiceImpl(UserRepository userRepository, AddressRepository addressRepository,
+                              PointCreatorService pointCreatorService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.pointCreatorService = pointCreatorService;
@@ -44,7 +43,8 @@ public class ProfileServiceImpl implements ProfileService {
 
             return UserDTOMapper.fromUserEntity(entity, addressDTO);
         } else {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Falha ao carregar dados do perfil. Usuário não autenticado.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Falha ao carregar dados do perfil. Usuário não autenticado.");
         }
     }
 
@@ -88,20 +88,21 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
-    private void updateAddress (AddressDTO addressDTO, Long userId) {
+    private void updateAddress(AddressDTO addressDTO, Long userId) {
         AddressEntity finalAddress = addressRepository.findByUser_Id(userId);
         if (finalAddress == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Endereço não encontrado");
         }
 
-        if(addressDTO.getDescription() != null){
+        if (addressDTO.getDescription() != null) {
             finalAddress.setDescription(addressDTO.getDescription());
         }
-        if(addressDTO.getLat() != null || addressDTO.getLng() != null){
-            finalAddress.setCoordinates(pointCreatorService.createPoint(addressDTO.getLat() != null ? addressDTO.getLat() : finalAddress.getCoordinates().getX(),
-                    addressDTO.getLng() != null ? addressDTO.getLng() : finalAddress.getCoordinates().getY()));
+        if (addressDTO.getLat() != null || addressDTO.getLng() != null) {
+            finalAddress.setCoordinates(pointCreatorService.createPoint(
+                addressDTO.getLat() != null ? addressDTO.getLat() : finalAddress.getCoordinates().getX(),
+                addressDTO.getLng() != null ? addressDTO.getLng() : finalAddress.getCoordinates().getY()));
         }
-        if(addressDTO.getNumber() != null){
+        if (addressDTO.getNumber() != null) {
             finalAddress.setNumber(addressDTO.getNumber());
         }
         addressRepository.save(finalAddress);

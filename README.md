@@ -41,3 +41,41 @@ These additional references should also help you:
 
 * [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
 
+
+### CHECKSTYLE
+This project's checkstyle use the pattern describe for Google application with minor adjustments
+the checkstyle description is localized in root folder named [checkstyle.xml](checkstyle.xml)
+for mor details view the documentation of the checkstyle plugin [here](https://checkstyle.sourceforge.io/config.html)
+
+# To run the checkstyle:
+the checkstyle task will be trigger every time the gradle build command is executed.
+or it can be trigger manually.
+to do so, run the command bellow
+```
+$ ./gradlew checkstyleMain
+```
+After running this command a report.html will be generated at `build/reports/checkstyle/main.html`
+containing all the "out-of-pattern" lines found in the project.
+
+### GIT PRE-PUSH HOOK
+To enable the pre-push hook on git is necessary to place an executable file named [pre-push](pre-push.sh) inside the
+`.git/hooks` folder
+
+There is, already, an executable file to create that link, so, to enable the pre-push hook
+just execute the command
+```
+$ ./link-to-hook.sh
+```
+After done that, every push made will trigger the build command, if fails will not allow to do the push.
+
+## for god’s sake, I really need to push this thing and the build is not passing
+First, shame on you
+<br>Secondly, you already check if the breaking testes / breaking build will not impact on the production environment?
+<br>if the answer to that question is yes, you can run the following command. 
+
+```
+$ git push <origin> <branch> --no-verify
+```
+The command will not trigger the pre-push hook
+<br>
+this can also be used when pairing with someone, and you just need to pass the code to your colleague

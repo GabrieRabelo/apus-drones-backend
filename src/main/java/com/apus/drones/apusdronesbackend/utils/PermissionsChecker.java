@@ -10,6 +10,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 public class PermissionsChecker {
+    public static CustomUserDetails checkPermissions(Role role) {
+        return checkPermissions(List.of(role));
+    }
+
     public static CustomUserDetails checkPermissions(List<Role> roles) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
@@ -22,9 +26,5 @@ public class PermissionsChecker {
         }
 
         return details;
-    }
-
-    public static CustomUserDetails checkPermissions(Role role) {
-        return checkPermissions(List.of(role));
     }
 }

@@ -1,24 +1,15 @@
 package com.apus.drones.apusdronesbackend.api;
 
+import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import com.apus.drones.apusdronesbackend.service.OrderService;
 import com.apus.drones.apusdronesbackend.service.PartnerService;
 import com.apus.drones.apusdronesbackend.service.ProductService;
 import com.apus.drones.apusdronesbackend.service.dto.*;
-import com.apus.drones.apusdronesbackend.model.enums.OrderStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
@@ -67,7 +58,8 @@ public class PartnerAPI {
     }
 
     @GetMapping("/orders")
-    public ResponseEntity<List<OrderDTO>> findAllOrdersByPartnerIdFilterStatus(@RequestParam(required = false) OrderStatus status) {
+    public ResponseEntity<List<OrderDTO>> findAllOrdersByPartnerIdFilterStatus(
+        @RequestParam(required = false) OrderStatus status) {
         var response = orderService.findAllByPartnerIdAndFilterByStatus(status);
         return ResponseEntity.ok(response);
     }
@@ -90,7 +82,8 @@ public class PartnerAPI {
     }
 
     @PatchMapping("/{partnerId}/approve")
-    public ResponseEntity<Object> changeStatus(@PathVariable Long partnerId, @RequestBody @Validated PartnerApprovedDTO partnerApprovedDTO) {
+    public ResponseEntity<Object> changeStatus(@PathVariable Long partnerId,
+                                               @RequestBody @Validated PartnerApprovedDTO partnerApprovedDTO) {
         var response = partnerService.changeApprovalStatus(partnerId, partnerApprovedDTO);
 
         return ResponseEntity.ok(response);

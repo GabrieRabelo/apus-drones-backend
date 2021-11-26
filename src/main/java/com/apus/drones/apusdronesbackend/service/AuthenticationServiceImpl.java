@@ -21,26 +21,23 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
+    private final UserRepository userRepository;
     @Autowired
     private JWTUtility jwtUtility;
-
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private UserService userService;
-
-    private final UserRepository userRepository;
 
     @Override
     public JwtResponse authenticate(JwtRequest jwtRequest) throws Exception {
         UserEntity userEntity = userRepository.findByEmail(jwtRequest.getEmail());
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            jwtRequest.getEmail(),
-                            jwtRequest.getPassword()
-                    )
+                new UsernamePasswordAuthenticationToken(
+                    jwtRequest.getEmail(),
+                    jwtRequest.getPassword()
+                )
             );
         } catch (BadCredentialsException e) {
             throw new Exception("INVALID_CREDENTIALS", e);
